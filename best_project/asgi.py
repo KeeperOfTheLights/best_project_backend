@@ -1,5 +1,5 @@
 """
-ASGI config for best_project project.
+ASGI config for best_project1 project.
 
 It exposes the ASGI callable as a module-level variable named ``application``.
 
