@@ -1,26 +1,26 @@
 from django.shortcuts import render, get_object_or_404
-from .models import Category, Product
+from rest_framework import status
 
-def product_list(request, category_slug=None):
-    categories = Category.objects.all()
-    products = Product.objects.filter(available=True)
+from .models import YoutubeVideo
+from rest_framework.views import APIView
+from .serializer import YoutubeVideoSerializer
+from rest_framework.response import Response
 
-    category = None
-    if category_slug:
-        category = get_object_or_404(Category, slug=category_slug)
-        products = products.filter(category=category)
+class YoutubeVideoAPIView(APIView):
+    def get(self, request):
+        output = [
+            {
+                "title": output.title,
+                "channel": output.channel
+            } for output in YoutubeVideo.objects.all()
+        ]
+        return Response(output)
 
-    return render(request, 'main/product/list.html', {
-        'categories': categories,
-        'category': category,
-        'products': products,
-    }
-    )
-# Create your views here.
-def product_detail(request, id, slug):
-    product = get_object_or_404(Product, id=id, slug=slug, available=True)
-    related_products = Product.objects.filter(category=product.category,
-                                              available=True).exclude(id=product.id)[:4]
+    def post(self, request):
+        serializer = YoutubeVideoSerializer(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
 
-    return render(request, 'main/product/detail.html', {'product': product,
-                                                        'related_products': related_products})
+
+

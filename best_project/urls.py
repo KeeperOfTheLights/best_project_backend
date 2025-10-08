@@ -16,8 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import path, include
+from django.urls import re_path as url
+from main.views import YoutubeVideoAPIView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', include('main.urls', namespace='main')),
+    path('', YoutubeVideoAPIView.as_view(), name='youtube_video'),
 ]
