@@ -63,7 +63,9 @@ REST_FRAMEWORK = {
     ],
 }
 
-CORS_ORIGIN_ALLOW_ALL = True
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
 
 ROOT_URLCONF = 'best_project.urls'
 
@@ -89,10 +91,21 @@ WSGI_APPLICATION = 'best_project.wsgi.application'
 # Database
 # https://docs.djangoproject.com/en/4.2/ref/settings/#databases
 
+#DATABASES = {
+#    'default': {
+#        'ENGINE': 'django.db.backends.sqlite3',
+#        'NAME': BASE_DIR / 'db.sqlite3',
+#    }
+#}
+
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql_psycopg2',
+        'NAME': 'django',
+        'USER': 'django_admin',
+        'PASSWORD': '123iki123',
+        'HOST': '127.0.0.1',
+        'PORT': '5432',
     }
 }
 

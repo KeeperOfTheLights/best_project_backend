@@ -21,6 +21,6 @@ from main.views import YoutubeVideoAPIView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('', include('main.urls', namespace='main')),
+    path('api', include('main.urls')),
     path('', YoutubeVideoAPIView.as_view(), name='youtube_video'),
 ]
