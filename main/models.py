@@ -5,3 +5,4 @@ from django.urls import reverse
 class YoutubeVideo(models.Model):
     title = models.CharField(max_length=100)
     channel = models.CharField(max_length=100)
+
