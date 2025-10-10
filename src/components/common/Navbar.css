@@ -1,0 +1,148 @@
+.navbar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background-color: #fbe5e5;
+  color: rgb(0, 0, 0);
+  padding: 0.75rem 1rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+  z-index: 1000;
+  box-sizing: border-box;
+}
+
+.navbar-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.navbar-logo {
+  width: 60px;
+  height: 60px;
+  border-radius: 8px;
+  object-fit: cover;
+}
+
+.navbar-title {
+  font-size: 1.4rem;
+  font-weight: 600;
+  color: rgb(0, 0, 0);
+  text-decoration: none;
+}
+
+.navbar-right {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.inter-btn {
+  background: none;
+  border: none;
+  color: rgb(0, 0, 0);
+  font-size: 1rem;
+  cursor: pointer;
+  padding: 0.5rem 0.5rem;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.inter-btn:hover,
+.inter-btn:focus {
+  color: rgb(154, 152, 152);
+}
+
+.nav-btn {
+  padding: 0.5rem 1.2rem;
+  border: none;
+  border-radius: 6px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.login-btn {
+  background-color: transparent;
+  color: rgb(0, 0, 0);
+  border: 1px solid rgb(0, 0, 0);
+}
+
+.login-btn:hover {
+  background-color: white;
+  color: #20232a;
+}
+
+.signup-btn {
+  background-color: #61dafb;
+  color: #20232a;
+}
+
+.signup-btn:hover {
+  background-color: #4fcbe4;
+}
+
+.search-input {
+  width: 200px;
+  max-width: 300px;
+  padding: 0.5rem 1rem;
+  border-radius: 8px;
+  border: 1px solid #555;
+  background-color: #b9b9b9;
+  color: rgb(0, 0, 0);
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s, background-color 0.2s;
+}
+
+.search-input:focus {
+  border-color: #61dafb;
+  background-color: #bfc0c0;
+}
+
+/* Dropdown */
+.dropdown {
+  position: relative;
+  display: inline-block;
+}
+
+.dropdown-toggle {
+  background: transparent;
+  color: rgb(0, 0, 0);
+  border: none;
+  font-weight: 500;
+  cursor: pointer;
+}
+
+.dropdown-menu {
+  display: none;
+  position: absolute;
+  background-color: #2c2f36;
+  min-width: 180px;
+  box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.2);
+  border-radius: 8px;
+  top: 2.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  flex-direction: column;
+}
+
+.dropdown-menu a {
+  color: white;
+  padding: 10px 15px;
+  text-decoration: none;
+  display: block;
+  transition: background-color 0.2s;
+}
+
+.dropdown-menu a:hover {
+  background-color: #3a3f48;
+}
+
+.dropdown:hover .dropdown-menu {
+  display: flex;
+}
