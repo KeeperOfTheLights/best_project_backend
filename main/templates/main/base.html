@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    {% load static %}
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <title>{% block title %}{% endblock title %}</title>
+</head>
+<body>
+    <a href="{% url 'main:product_list' %}">Логотип</a>
+    от бейс пошло
+    {% block content %}{% endblock content %}
+</body>
+</html>
