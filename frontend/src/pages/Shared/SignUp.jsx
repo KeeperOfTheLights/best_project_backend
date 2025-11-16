@@ -26,6 +26,7 @@ export default function SignUp() {
       email: email,
       password: password,
       role: role,
+      password2: repeatPassword
     };
 
     try {
@@ -44,7 +45,7 @@ export default function SignUp() {
         login({ role: data.role, token: data.token });
         navigate(role === "supplier" ? "/supplier" : "/consumer");
       } else {
-        alert(data.message || "Error during signup");
+        alert(JSON.stringify);
       }
     } catch (error) {
       console.error("Network error:", error);
