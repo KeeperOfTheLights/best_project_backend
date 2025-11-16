@@ -5,12 +5,12 @@ from django.contrib.auth.password_validation import validate_password
 User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = ('username', 'full_name', 'email', 'password', 'password2', 'role')
-
+        fields = ('full_name', 'username', 'email', 'role', 'password', 'password2')
 
     def validate(self, data):
         if data['password'] != data['password2']:
@@ -19,5 +19,8 @@ class RegisterSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         validated_data.pop('password2')
-        user = User.objects.create_user(**validated_data)
+        password = validated_data.pop('password')
+        user = User(**validated_data)
+        user.set_password(password)
+        user.save()
         return user
