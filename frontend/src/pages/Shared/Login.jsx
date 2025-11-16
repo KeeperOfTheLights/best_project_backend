@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 import "./AuthPossibilities.css";
@@ -20,19 +20,29 @@ export default function Login() {
       const response = await fetch("http://127.0.0.1:8000/api/accounts/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, password })
+        body: JSON.stringify({ email, password }),
       });
 
+      const data = await response.json();
+
       if (!response.ok) {
-        const errData = await response.json();
-        throw new Error(errData.detail || "Login failed");
+        throw new Error(data.detail  data.error  "Login failed");
       }
 
-      const data = await response.json();
-      // предполагаем, что сервер возвращает { role, token }
-      login({ role: data.role, token: data.token });
-      navigate(data.role === "supplier" ? "/supplier" : "/consumer");
+      // ---------------------------
+      // BACKEND RETURNS:
+      // { access, refresh, role, full_name, email, username }
+      // ---------------------------
+      login({
+        accessToken: data.access,
+        refreshToken: data.refresh,
+        role: data.role,
+        username: data.username,
+        fullName: data.full_name,
+        email: data.email,
+      });
 
+      navigate(data.role === "supplier" ? "/supplier" : "/consumer");
     } catch (err) {
       setError(err.message);
     } finally {
