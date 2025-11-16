@@ -13,6 +13,7 @@ import SupplierCatalog from "./pages/Supplier/SupplierCatalog";
 import ConsumerOrders from "./pages/Consumer/ConsumerOrders";
 import SupplierOrders from "./pages/Supplier/SupplierOrders";
 import SupplierProducts from "./pages/Supplier/SupplierProducts";
+import Chat from "./pages/Shared/Chat";
 
 function RoleRoute({ role, children }) {
   const { isLoggedIn, role: userRole } = useAuth();
@@ -32,6 +33,7 @@ export default function App() {
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/about" element={<About />} />
+          <Route path="/chat" element={<Chat />} />
           <Route path="/" element={<Navigate to="/about" />} />
 
           <Route
@@ -90,6 +92,7 @@ export default function App() {
               </RoleRoute>
             }
           />
+          
           
 
           <Route path="*" element={<Navigate to="/about" />} />
