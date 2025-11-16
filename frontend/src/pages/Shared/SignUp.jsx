@@ -41,7 +41,6 @@ export default function SignUp() {
       const data = await response.json();
 
       if (response.ok) {
-        // Предполагаем, что сервер возвращает токен и роль
         login({ role: data.role, token: data.token });
         navigate(role === "supplier" ? "/supplier" : "/consumer");
       } else {
