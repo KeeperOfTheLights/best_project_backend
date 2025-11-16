@@ -10,7 +10,7 @@ export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
-  const [passwordError, setPasswordError] = useState("");
+  const [errorMessage, setErrorMessage] = useState(""); // для ошибок формы
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -23,32 +23,35 @@ export default function SignUp() {
   };
 
   const handlePasswordChange = (e) => {
-    const value = e.target.value;
-    setPassword(value);
-    const error = checkPasswordStrength(value);
-    setPasswordError(error);
+    setPassword(e.target.value);
+  };
+
+  const handleRepeatPasswordChange = (e) => {
+    setRepeatPassword(e.target.value);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (password !== repeatPassword) {
-      alert("Passwords do not match!");
+      setErrorMessage("Passwords do not match!");
       return;
     }
 
-    const error = checkPasswordStrength(password);
-    if (error) {
-      alert(error);
+    const pwdError = checkPasswordStrength(password);
+    if (pwdError) {
+      setErrorMessage(pwdError);
       return;
     }
+
+    setErrorMessage(""); // очистка ошибки перед отправкой
 
     const formData = {
       full_name: fullName,
-      username: username,
-      email: email,
-      password: password,
-      role: role,
+      username,
+      email,
+      password,
+      role,
       password2: repeatPassword
     };
 
@@ -65,11 +68,11 @@ export default function SignUp() {
         login({ role: data.role, token: data.token });
         navigate(role === "supplier" ? "/supplier" : "/consumer");
       } else {
-        alert(JSON.stringify(data, null, 2));
+        setErrorMessage(data.detail || "Registration failed");
       }
     } catch (error) {
       console.error("Network error:", error);
-      alert("Could not connect to server");
+      setErrorMessage("Could not connect to server");
     }
   };
 
@@ -108,16 +111,11 @@ export default function SignUp() {
             onChange={handlePasswordChange}
             required
           />
-          {password && (
-            <p className={`password-error ${passwordError ? "weak" : "strong"}`}>
-              {passwordError || "Password is strong!"}
-            </p>
-          )}
           <input
             type="password"
             placeholder="Repeat Password"
             value={repeatPassword}
-            onChange={(e) => setRepeatPassword(e.target.value)}
+            onChange={handleRepeatPasswordChange}
             required
           />
 
@@ -137,6 +135,8 @@ export default function SignUp() {
               Supplier
             </button>
           </div>
+
+          {errorMessage && <p className="form-error">{errorMessage}</p>}
 
           <button type="submit">Sign Up</button>
           <p className="signup-subtext">
