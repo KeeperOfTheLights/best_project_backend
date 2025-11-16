@@ -6,40 +6,30 @@ class User(AbstractUser):
         ('supplier', 'Supplier'),
         ('consumer', 'Consumer'),
     ]
+
     role = models.CharField(max_length=10, choices=ROLE_CHOICES)
     full_name = models.CharField(max_length=120)
     email = models.EmailField(max_length=120, unique=True)
 
-    class Meta:
-        verbose_name = "User"
-        verbose_name_plural = "Users"
-
     def __str__(self):
-        return f"{self.username} ({self.role})"
+        return f"{self.username} - {self.role}"
 
 
-class Supplier(User):
+class SupplierProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="supplier_profile")
     company_name = models.CharField(max_length=120)
     address = models.CharField(max_length=120, blank=True)
     phone_number = models.CharField(max_length=20, blank=True)
 
-    class Meta:
-        verbose_name = "Supplier"
-        verbose_name_plural = "Suppliers"
+    def __str__(self):
+        return f"Supplier Profile: {self.user.username}"
 
-    def save(self, *args, **kwargs):
-        self.role = 'supplier'     # auto-assign
-        super().save(*args, **kwargs)
 
-class Consumer(User):
+class ConsumerProfile(models.Model):
+    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="consumer_profile")
     organization_name = models.CharField(max_length=120)
     address = models.CharField(max_length=120, blank=True)
     phone_number = models.CharField(max_length=20, blank=True)
 
-    class Meta:
-        verbose_name = "Consumer"
-        verbose_name_plural = "Consumers"
-
-    def save(self, *args, **kwargs):
-        self.role = 'consumer'     # auto-assign
-        super().save(*args, **kwargs)
+    def __str__(self):
+        return f"Consumer Profile: {self.user.username}"
