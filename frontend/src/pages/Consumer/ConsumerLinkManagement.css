@@ -113,61 +113,106 @@
 }
 
 /* Suppliers Grid */
-.link-management-container .suppliers-grid {
-  display: grid !important;
-  grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)) !important;
-  gap: 1.2rem !important;
+.suppliers-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 2rem;
 }
 
 .supplier-link-card {
   background: white;
-  border-radius: 10px;
+  border-radius: 12px;
   overflow: hidden;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
   transition: all 0.3s;
-  max-width: 100%;
+}
+
+.supplier-link-card:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
 .supplier-image-wrapper {
   position: relative;
   width: 100%;
-  height: 150px !important; /* ← Уменьшили высоту */
+  height: 200px;
   overflow: hidden;
 }
 
+.supplier-image {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transition: transform 0.3s;
+}
+
+.supplier-link-card:hover .supplier-image {
+  transform: scale(1.05);
+}
+
+.link-status-badge {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  padding: 0.4rem 0.8rem;
+  border-radius: 20px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.link-status-badge.approved {
+  background-color: #4caf50;
+  color: white;
+}
+
+.link-status-badge.pending {
+  background-color: #ff9800;
+  color: white;
+}
+
+.link-status-badge.not_linked {
+  background-color: #2196f3;
+  color: white;
+}
+
+.link-status-badge.rejected {
+  background-color: #f44336;
+  color: white;
+}
+
+.link-status-badge.blocked {
+  background-color: #9e9e9e;
+  color: white;
+}
+
 .supplier-content {
-  padding: 1rem !important; /* ← Меньше padding */
+  padding: 1.5rem;
 }
 
 .supplier-name {
-  margin: 0 0 0.4rem 0;
+  margin: 0 0 0.5rem 0;
   color: #20232a;
-  font-size: 1.1rem !important; /* ← Меньше шрифт */
+  font-size: 1.3rem;
 }
 
 .supplier-category {
-  margin: 0 0 0.3rem 0;
+  margin: 0 0 0.5rem 0;
   color: #61dafb;
   font-weight: 600;
-  font-size: 0.85rem !important;
+  font-size: 0.9rem;
 }
 
 .supplier-location {
-  margin: 0 0 0.3rem 0;
+  margin: 0 0 0.5rem 0;
   color: #666;
-  font-size: 0.85rem !important;
+  font-size: 0.9rem;
 }
 
 .supplier-description {
-  margin: 0 0 1rem 0;
+  margin: 0 0 1.5rem 0;
   color: #666;
-  font-size: 0.85rem !important;
-  line-height: 1.3;
-}
-
-.link-btn {
-  padding: 0.7rem !important;
-  font-size: 0.85rem !important;
+  font-size: 0.9rem;
+  line-height: 1.4;
 }
 
 /* Actions */

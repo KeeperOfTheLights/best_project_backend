@@ -41,6 +41,7 @@ export default function ConsumerDashboard() {
         <h3>Quick Actions</h3>
         <div className="actions-grid">
           <Link to="/ConsumerCatalog" className="action-btn browse-btn">Browse Catalog</Link>
+         
           <Link to="/Chat" className="action-btn support-btn">Open Chat</Link>
           <Link to="/ConsumerOrders" className="action-btn orders-btn">View All Orders</Link>
         </div>

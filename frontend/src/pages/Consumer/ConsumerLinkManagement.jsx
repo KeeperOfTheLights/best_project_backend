@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import "./ConsumerCatalog.css";
+import "./ConsumerLinkManagement.css";
 
 const dummySuppliers = [
   {
