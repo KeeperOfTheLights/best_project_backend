@@ -21,7 +21,5 @@ from main.views import YoutubeVideoAPIView
 
 urlpatterns = [
     path('admin/', admin.site.urls),
-    path('api', include('main.urls')),
-    path('', YoutubeVideoAPIView.as_view(), name='youtube_video'),
     path('api/accounts/', include('accounts.urls')),
 ]
