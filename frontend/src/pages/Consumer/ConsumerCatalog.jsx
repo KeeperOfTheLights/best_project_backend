@@ -236,7 +236,7 @@ export default function ConsumerLinkManagement() {
 
       {filteredSuppliers.length === 0 && (
         <div className="empty-state">
-          <p>No suppliers found with status: {filterStatus}</p>
+          <p>No suppliers found with the status: {filterStatus}</p>
         </div>
       )}
     </div>
