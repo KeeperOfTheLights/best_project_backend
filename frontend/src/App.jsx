@@ -14,6 +14,8 @@ import ConsumerOrders from "./pages/Consumer/ConsumerOrders";
 import SupplierOrders from "./pages/Supplier/SupplierOrders";
 import SupplierProducts from "./pages/Supplier/SupplierProducts";
 import Chat from "./pages/Shared/Chat";
+import ConsumerSupplierProducts from "./pages/Consumer/ConsumerSupplierProducts";
+
 
 function RoleRoute({ role, children }) {
   const { isLoggedIn, role: userRole } = useAuth();
@@ -89,6 +91,14 @@ export default function App() {
             element={
               <RoleRoute role="supplier">
                 <SupplierProducts />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/consumer/supplier/:supplierId/products"
+            element={
+              <RoleRoute role="consumer">
+                <ConsumerSupplierProducts />
               </RoleRoute>
             }
           />
