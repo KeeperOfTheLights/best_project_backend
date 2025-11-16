@@ -15,6 +15,8 @@ import SupplierOrders from "./pages/Supplier/SupplierOrders";
 import SupplierProducts from "./pages/Supplier/SupplierProducts";
 import Chat from "./pages/Shared/Chat";
 import ConsumerSupplierProducts from "./pages/Consumer/ConsumerSupplierProducts";
+import CComplaints from "./pages/Consumer/ConsumerComplaints";
+import SComplaints from "./pages/Supplier/SupplierComplaints";
 
 
 function RoleRoute({ role, children }) {
@@ -99,6 +101,22 @@ export default function App() {
             element={
               <RoleRoute role="consumer">
                 <ConsumerSupplierProducts />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/consumer/complaints"
+            element={
+              <RoleRoute role="consumer">
+                <CComplaints />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/supplier/complaints"
+            element={
+              <RoleRoute role="supplier">
+                <SComplaints />
               </RoleRoute>
             }
           />

@@ -1,4 +1,6 @@
 import React, { useState } from "react";
+import { useNavigate } from "react-router-dom";
+
 import "./ConsumerLinkManagement.css";
 
 const dummySuppliers = [
@@ -43,6 +45,7 @@ const dummySuppliers = [
 export default function ConsumerLinkManagement() {
   const [suppliers, setSuppliers] = useState(dummySuppliers);
   const [filterStatus, setFilterStatus] = useState("all");
+  const navigate = useNavigate();
 
   // Send link request
   const handleSendRequest = (supplierId) => {
@@ -196,11 +199,11 @@ export default function ConsumerLinkManagement() {
                   </button>
                 )}
 
-                {request.status === "approved" && (
+                {supplier.linkStatus === "approved" && (
                   <>
                     <button 
                       className="link-btn view-catalog-btn"
-                      onClick={() => navigate(`/consumer/supplier/${request.id}/products`)}
+                      onClick={() => navigate(`/consumer/supplier/${supplier.id}/products`)}
                     >
                       View Catalog
                     </button>

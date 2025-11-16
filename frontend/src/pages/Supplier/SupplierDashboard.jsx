@@ -1,45 +1,58 @@
 import React from "react";
+import { Link } from "react-router-dom";
 import "./SupplierDashboard.css";
 
-const SupplierDashboard = () => {
+export default function SupplierDashboard() {
+  const stats = {
+    activeOrders: 8,
+    completedOrders: 27,
+    pendingDeliveries: 4,
+    totalRevenue: 12540,
+  };
+
   return (
-    <div className="supplier-dashboard">
-      <h1 className="dashboard-title">Welcome Back!</h1>
-      <p className="dashboard-subtitle">
-        Here’s an overview of your performance and current activity.
-      </p>
+    <div className="supplier-dashboard-container">
+      <header className="dashboard-header">
+        <h2>Welcome Back!</h2>
+        <p>Here’s an overview of your performance and current activity.</p>
+      </header>
 
-      <div className="dashboard-stats">
-        <div className="stat-card">
-          <h2>Active Orders</h2>
-          <p>8</p>
+      <section className="dashboard-stats">
+        <div className="stat-card active">
+          <h3>{stats.activeOrders}</h3>
+          <p>Active Orders</p>
         </div>
-        <div className="stat-card">
-          <h2>Completed Orders</h2>
-          <p>27</p>
+        <div className="stat-card completed">
+          <h3>{stats.completedOrders}</h3>
+          <p>Completed Orders</p>
         </div>
-        <div className="stat-card">
-          <h2>Pending Deliveries</h2>
-          <p>4</p>
+        <div className="stat-card pending">
+          <h3>{stats.pendingDeliveries}</h3>
+          <p>Pending Deliveries</p>
         </div>
-        <div className="stat-card">
-          <h2>Total Revenue</h2>
-          <p>$12,540</p>
+        <div className="stat-card revenue">
+          <h3>${stats.totalRevenue.toLocaleString()}</h3>
+          <p>Total Revenue</p>
         </div>
-      </div>
+      </section>
 
-      
-
-      <div className="section">
-        <h2>Recent Feedback</h2>
-        <div className="feedback">
-          <p>⭐ "High quality and fast delivery!" — Green Café</p>
-          <p>⭐ "Excellent packaging, will reorder soon." — Hotel Luna</p>
-          <p>⭐ "A bit delayed this time, but products were fresh." — Ocean Restaurant</p>
+      <section className="quick-actions">
+        <h3>Quick Actions</h3>
+        <div className="actions-grid">
+          <Link to="/SupplierOrders" className="action-btn orders-btn">
+            View Orders
+          </Link>
+          <Link to="/supplier/complaints" className="action-btn complaints-btn">
+            Manage Complaints
+          </Link>
+          <Link to="/SupplierCatalog" className="action-btn catalog-btn">
+            Edit Catalog
+          </Link>
+          <Link to="/Chat" className="action-btn support-btn">
+            Open Chat
+          </Link>
         </div>
-      </div>
+      </section>
     </div>
   );
-};
-
-export default SupplierDashboard;
+}
