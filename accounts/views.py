@@ -24,18 +24,29 @@ class LoginView(APIView):
 
 class SupplierProductListCreateView(generics.ListCreateAPIView):
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticated, IsSupplier]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return Product.objects.filter(supplier=self.request.user)
 
-    def perform_create(self, serializer):
-        serializer.save(supplier=self.request.user)
 
-
-class SupplierProductUpdateDeleteView(generics.RetrieveUpdateDestroyAPIView):
+class SupplierProductDetailView(generics.RetrieveUpdateDestroyAPIView):
     serializer_class = ProductSerializer
-    permission_classes = [permissions.IsAuthenticated, IsSupplier]
+    permission_classes = [permissions.IsAuthenticated]
 
     def get_queryset(self):
         return Product.objects.filter(supplier=self.request.user)
+
+class ProductStatusToggleView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def patch(self, request, pk):
+        try:
+            product = Product.objects.get(id=pk, supplier=request.user)
+        except Product.DoesNotExist:
+            return Response({"error": "Not found or not your product"}, status=status.HTTP_404_NOT_FOUND)
+
+        product.status = "inactive" if product.status == "active" else "active"
+        product.save()
+
+        return Response({"message": f"Status changed to {product.status}"}, status=status.HTTP_200_OK)

@@ -25,7 +25,7 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        login({ token: data.token, role: data.role });
+        login({ token: data.access, role: data.role });
         navigate(data.role === "supplier" ? "/supplier" : "/consumer");
       } else {
         let message = data?.non_field_errors?.[0] || "Invalid email or password";

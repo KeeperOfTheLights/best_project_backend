@@ -4,6 +4,8 @@ import { useAuth } from "../../context/Auth-Context";
 
 export default function SupplierProducts() {
   const { token } = useAuth(); // получаем токен из контекста
+
+    console.log("Stored token:", token);
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -28,20 +30,21 @@ export default function SupplierProducts() {
   }, []);
 
   const fetchProducts = async () => {
-    try {
-      setLoading(true);
-      const response = await fetch("http://127.0.0.1:8000/api/accounts/products/", {
-        headers: { Authorization: `Token ${token}` },
-      });
-      if (!response.ok) throw new Error("Failed to fetch products");
-      const data = await response.json();
-      setProducts(data);
-    } catch (err) {
-      setError(err.message);
-    } finally {
-      setLoading(false);
-    }
-  };
+  try {
+    setLoading(true);
+    const response = await fetch("http://127.0.0.1:8000/api/accounts/products/", {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    if (!response.ok) throw new Error("Failed to fetch products");
+    const data = await response.json();
+    setProducts(data);
+  } catch (err) {
+    setError(err.message);
+  } finally {
+    setLoading(false);
+  }
+};
 
   const handleAddClick = () => {
     setModalMode("add");
