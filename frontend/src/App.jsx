@@ -1,64 +1,99 @@
-import { BrowserRouter as Router, Routes, Route, Link } from "react-router-dom";
-import { useState } from "react";
-import reactLogo from "./assets/chert.jpg";
-import About from "./pages/About";
-import "./App.css";
-import MainPage from "./pages/Daivinchik"
-import SignUp from "./pages/SignUp";
-import Login from "./pages/Login";
+import React from 'react';
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./context/Auth-Context";
 
-function App() {
-  const [count, setCount] = useState(0);
-  const [isLoggedIn, setIsLoggedIn] = useState(true);
+import Navbar from "./components/common/Navbar";
+import Login from "./pages/Shared/Login";
+import SignUp from "./pages/Shared/SignUp";
+import SupplierDashboard from "./pages/Supplier/SupplierDashboard";
+import ConsumerDashboard from "./pages/Consumer/ConsumerDashboard";
+import About from "./pages/Shared/About";
+import ConsumerCatalog from "./pages/Consumer/ConsumerCatalog";
+import SupplierCatalog from "./pages/Supplier/SupplierCatalog";
+import ConsumerOrders from "./pages/Consumer/ConsumerOrders";
+import SupplierOrders from "./pages/Supplier/SupplierOrders";
+import SupplierProducts from "./pages/Supplier/SupplierProducts";
 
-  return (
-    <Router>
-      <nav className="navbar">
-        <div className="navbar-left">
-          <img src={reactLogo} alt="Project logo" className="navbar-logo" />
-          <Link to="/" className="navbar-title">Daivinvhik</Link>
-        </div>
+function RoleRoute({ role, children }) {
+  const { isLoggedIn, role: userRole } = useAuth();
 
+  if (!isLoggedIn) return <Navigate to="/login" />;
+  if (role && userRole !== role) return <Navigate to="/about" />;
 
-        {!isLoggedIn ? ( 
-          <div className="navbar-right">
-          <Link to="/about" className="inter-btn">About</Link>
-          <Link to="/login" className="nav-btn login-btn">Login</Link>
-          <Link to="/signup" className="nav-btn signup-btn">Sign Up</Link>
-        </div> ) : (
-
-        <div className="navbar-right">
-          <button className="inter-btn">Categories</button>
-
-          <Link to="/about" className="inter-btn">About</Link>
-
-          <button className="inter-btn">Dashboard</button>
-
-          <div className="dropdown">
-          <button className="inter-btn dropdown-toggle">Communications ▾</button>
-            <div className="dropdown-menu">
-              <a href="/notifications">Notifications</a>
-              <a href="/chat">Chat</a>
-              <a href="/complaints">Complaints</a>
-            </div>
-          </div>
-
-          <input type="text" placeholder="Search..." className="search-input"/>
-          <button className="nav-btn login-btn" onClick={() => setIsLoggedIn(false)}>Sign Out</button>
-        </div>
-        )}
-      </nav>
-
-      <div className="main-content">
-        <Routes>
-          <Route path="/about" element={<About />} />
-          <Route path="/" element={<MainPage />} />
-          <Route path="/signup" element={<SignUp />}/>
-          <Route path="/login" element={<Login />}/>
-        </Routes>
-      </div>
-    </Router>
-  );
+  return children;
 }
 
-export default App;
+export default function App() {
+  return (
+    <AuthProvider>
+      <Router>
+        <Navbar />
+        <Routes>
+          <Route path="/login" element={<Login />} />
+          <Route path="/signup" element={<SignUp />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/" element={<Navigate to="/about" />} />
+
+          <Route
+            path="/SupplierDashboard"
+            element={
+              <RoleRoute role="supplier">
+                <SupplierDashboard />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/ConsumerDashboard"
+            element={
+              <RoleRoute role="consumer">
+                <ConsumerDashboard />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/ConsumerCatalog"
+            element={
+              <RoleRoute role="consumer">
+                <ConsumerCatalog />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/SupplierCatalog"
+            element={
+              <RoleRoute role="supplier">
+                <SupplierCatalog />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/ConsumerOrders"
+            element={
+              <RoleRoute role="consumer">
+                <ConsumerOrders />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/SupplierOrders"
+            element={
+              <RoleRoute role="supplier">
+                <SupplierOrders />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/supplier/products"
+            element={
+              <RoleRoute role="supplier">
+                <SupplierProducts />
+              </RoleRoute>
+            }
+          />
+
+          <Route path="*" element={<Navigate to="/about" />} />
+        </Routes>
+      </Router>
+    </AuthProvider>
+  );
+}
