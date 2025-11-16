@@ -196,11 +196,11 @@ export default function ConsumerLinkManagement() {
                   </button>
                 )}
 
-                {supplier.linkStatus === "approved" && (
+                {request.status === "approved" && (
                   <>
                     <button 
                       className="link-btn view-catalog-btn"
-                      onClick={() => alert(`View catalog for ${supplier.name}`)}
+                      onClick={() => navigate(`/consumer/supplier/${request.id}/products`)}
                     >
                       View Catalog
                     </button>
