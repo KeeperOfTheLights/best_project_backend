@@ -113,4 +113,26 @@
   border-radius: 6px;
 }
 
+.password-error {
+  font-size: 0.9rem;
+  margin-top: -0.5rem;
+  margin-bottom: 1rem;
+}
+
+.password-error.weak {
+  color: #ef4444; /* красный */
+}
+
+.password-error.strong {
+  color: #10b981; /* зеленый */
+}
+
+.form-error {
+  color: #ef4444; /* красный */
+  font-size: 0.9rem;
+  margin: 0.5rem 0 1rem 0;
+}
+
+
+
 
