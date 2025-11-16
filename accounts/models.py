@@ -1,3 +1,4 @@
+from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
@@ -34,14 +35,32 @@ class ConsumerProfile(models.Model):
     def __str__(self):
         return f"Consumer Profile: {self.user.username}"
 
+
 class Product(models.Model):
-    supplier = models.ForeignKey(User, on_delete=models.CASCADE, related_name="products")
+    UNIT_CHOICES = [
+        ('kg', 'Kilogram'),
+        ('pcs', 'Pieces'),
+        ('litre', 'Litre'),
+        ('pack', 'Pack'),
+    ]
+
+    STATUS_CHOICES = [
+        ('active', 'Active'),
+        ('inactive', 'Inactive'),
+    ]
+
+    supplier = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='products')
     name = models.CharField(max_length=120)
-    description = models.TextField(blank=True)
+    category = models.CharField(max_length=100, default='Uncategorized')
     price = models.DecimalField(max_digits=10, decimal_places=2)
-    quantity = models.PositiveIntegerField(default=0)
+    unit = models.CharField(max_length=10, choices=UNIT_CHOICES, default='kg')
+    stock = models.PositiveIntegerField(default=0)
+    minOrder = models.PositiveIntegerField(default=1)
+    image = models.URLField(blank=True, null=True)
+    description = models.TextField(blank=True)
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
+
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.name} ({self.supplier.username})"
-
+        return f"{self.name} - {self.supplier.username}"

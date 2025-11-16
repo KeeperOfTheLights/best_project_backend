@@ -55,8 +55,24 @@ class LoginSerializer(serializers.Serializer):
             'email': user.email,
         }
 
+
 class ProductSerializer(serializers.ModelSerializer):
     class Meta:
         model = Product
-        fields = ["id", "name", "description", "price", "quantity", "created_at"]
-        read_only_fields = ["id", "created_at"]
+        fields = [
+            'id', 'name', 'category', 'price', 'unit', 'stock', 'minOrder',
+            'image', 'description', 'status', 'created_at'
+        ]
+
+    def create(self, validated_data):
+        user = self.context['request'].user
+
+        if user.role != "supplier":
+            raise serializers.ValidationError("Only suppliers can create products")
+
+        validated_data['supplier'] = user
+        return super().create(validated_data)
+
+    def update(self, instance, validated_data):
+        validated_data.pop('supplier', None)
+        return super().update(instance, validated_data)
