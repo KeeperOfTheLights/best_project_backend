@@ -1,38 +1,39 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
-import './AuthPossibilities.css'
+import "./AuthPossibilities.css";
 
 export default function Login() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [errorMsg, setErrorMsg] = useState("");
+
   const navigate = useNavigate();
   const { login } = useAuth();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
-    const formData = { email, password };
+    setErrorMsg(""); // Clear previous error
 
     try {
       const response = await fetch("http://127.0.0.1:8000/api/accounts/login/", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({ email, password }),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // Предполагаем, что сервер возвращает токен и роль
         login({ token: data.token, role: data.role });
         navigate(data.role === "supplier" ? "/supplier" : "/consumer");
       } else {
-        alert(JSON.stringify(data, null, 2));
+        let message = data?.non_field_errors?.[0] || "Invalid email or password";
+        setErrorMsg(message);
       }
     } catch (error) {
       console.error("Network error:", error);
-      alert("Could not connect to server");
+      setErrorMsg("Could not connect to server");
     }
   };
 
@@ -41,6 +42,9 @@ export default function Login() {
       <div className="signup-card">
         <h2>Welcome Back</h2>
         <p className="signup-subtext">Log in to continue</p>
+
+        {errorMsg && <p className="error-message">{errorMsg}</p>}
+
         <form className="signup-form" onSubmit={handleSubmit}>
           <input
             type="email"
@@ -49,6 +53,7 @@ export default function Login() {
             onChange={(e) => setEmail(e.target.value)}
             required
           />
+
           <input
             type="password"
             placeholder="Password"
@@ -56,7 +61,9 @@ export default function Login() {
             onChange={(e) => setPassword(e.target.value)}
             required
           />
+
           <button type="submit">Log In</button>
+
           <p className="signup-subtext">
             Don't have an account yet? <Link to="/signup">Sign Up</Link>
           </p>
