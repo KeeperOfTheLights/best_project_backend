@@ -138,16 +138,12 @@ export default function ChatPage({ userRole }) {
 
   return (
     <div className="chat-page-container">
-      {/* Sidebar with chat list */}
       <div className="chat-sidebar">
         <div className="chat-sidebar-header">
           <h2>Messages</h2>
-          <button className="new-chat-btn" title="New Chat">
-            ✉️
-          </button>
         </div>
 
-        <div className="chat-search">
+        <div className="chat-sidebar-search">
           <input
             type="text"
             placeholder="Search conversations..."

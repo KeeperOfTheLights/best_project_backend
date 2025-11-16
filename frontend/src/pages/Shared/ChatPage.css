@@ -5,8 +5,12 @@
   background-color: #f5f5f5;
 }
 
+/* ---- SIDEBAR ---- */
+
 .chat-sidebar {
   width: 350px;
+  min-width: 350px;
+  max-width: 350px;
   background: white;
   border-right: 1px solid #e0e0e0;
   display: flex;
@@ -15,7 +19,7 @@
 
 .chat-sidebar-header {
   display: flex;
-  justify-content: space-between;
+  justify-content: center;
   align-items: center;
   padding: 1.5rem;
   border-bottom: 1px solid #e0e0e0;
@@ -27,25 +31,15 @@
   font-size: 1.5rem;
 }
 
-.new-chat-btn {
-  background-color: #61dafb;
-  border: none;
-  width: 40px;
-  height: 40px;
-  border-radius: 50%;
-  cursor: pointer;
-  font-size: 1.2rem;
-  transition: all 0.3s;
-}
-
-.new-chat-btn:hover {
-  background-color: #4fcbe4;
-  transform: scale(1.1);
-}
-
-.chat-search {
+/* Search bar */
+.chat-sidebar-search {
   padding: 1rem;
   border-bottom: 1px solid #e0e0e0;
+}
+
+.chat-sidebar-search input {
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .chat-search-input {
@@ -159,6 +153,8 @@
   text-align: center;
 }
 
+/* ---- CHAT WINDOW ---- */
+
 .chat-window {
   flex: 1;
   display: flex;
@@ -217,11 +213,16 @@
   background-color: #f0f0f0;
 }
 
+/* Messages area */
 .chat-messages {
   flex: 1;
   padding: 1.5rem;
-  overflow-y: auto;
+  overflow-y: scroll;
   background-color: #f8f9fa;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  box-sizing: border-box;
 }
 
 .message {
@@ -241,10 +242,12 @@
   flex-shrink: 0;
 }
 
+/* FIX: prevent text from stretching chat */
 .message-content {
   display: flex;
   flex-direction: column;
-  max-width: 60%;
+  max-width: calc(100% - 45px - 0.8rem); /* аватар + gap */
+  min-width: 0;
 }
 
 .message-own .message-content {
@@ -259,6 +262,7 @@
 
 .message-other .message-bubble {
   background-color: white;
+  color: #20232a;
   border: 1px solid #e0e0e0;
 }
 
@@ -279,6 +283,8 @@
   margin-top: 0.3rem;
   padding: 0 0.5rem;
 }
+
+/* ---- INPUT AREA ---- */
 
 .chat-input-container {
   display: flex;
@@ -343,6 +349,8 @@
   cursor: not-allowed;
 }
 
+/* ---- NO CHAT SELECTED ---- */
+
 .no-chat-selected {
   flex: 1;
   display: flex;
@@ -357,6 +365,8 @@
   color: #666;
 }
 
+/* ---- RESPONSIVE ---- */
+
 @media (max-width: 768px) {
   .chat-page-container {
     flex-direction: column;
@@ -365,6 +375,7 @@
   .chat-sidebar {
     width: 100%;
     max-height: 40vh;
+    min-width: 100%;
   }
 
   .message-content {
