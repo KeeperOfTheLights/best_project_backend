@@ -1,8 +1,10 @@
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
-from .serializers import RegisterSerializer, LoginSerializer
-from .models import Product
+from rest_framework.permissions import IsAuthenticated
+from .serializers import RegisterSerializer, LoginSerializer, LinkRequestSerializer
+from .models import Product, LinkRequest, User
 from .serializers import ProductSerializer
 from .permissions import IsSupplier
 
@@ -50,3 +52,79 @@ class ProductStatusToggleView(APIView):
         product.save()
 
         return Response({"message": f"Status changed to {product.status}"}, status=status.HTTP_200_OK)
+
+class SendLinkRequestView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        if request.user.role != 'consumer':
+            return Response({"detail": "Only consumers can send link requests"}, status=403)
+
+        supplier_id = request.data.get("supplier_id")
+        supplier = get_object_or_404(User, id=supplier_id, role='supplier')
+
+        existing = LinkRequest.objects.filter(consumer=request.user, supplier=supplier).first()
+        if existing:
+            return Response({"detail": f"Link already exists (status={existing.status})"}, status=400)
+
+        link = LinkRequest.objects.create(consumer=request.user, supplier=supplier, status="pending")
+        return Response({"message": "Request sent", "link_id": link.id}, status=201)
+
+
+class SupplierLinkListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LinkRequestSerializer
+
+    def get_queryset(self):
+        return LinkRequest.objects.filter(supplier=self.request.user)
+
+
+class UnlinkView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def delete(self, request, link_id):
+        link = get_object_or_404(LinkRequest, id=link_id, supplier=request.user)
+        link.delete()
+        return Response({"detail": "Unlinked successfully"}, status=200)
+
+
+class AcceptLinkView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, link_id):
+        link = get_object_or_404(LinkRequest, id=link_id, supplier=request.user)
+        if link.status == "blocked":
+            return Response({"detail": "User is blocked, cannot accept"}, status=400)
+        link.status = "linked"
+        link.save()
+        return Response({"detail": "Accepted"}, status=200)
+
+
+class RejectLinkView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, link_id):
+        link = get_object_or_404(LinkRequest, id=link_id, supplier=request.user)
+        link.status = "rejected"
+        link.save()
+        return Response({"detail": "Rejected"}, status=200)
+
+
+class BlockLinkView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, link_id):
+        link = get_object_or_404(LinkRequest, id=link_id, supplier=request.user)
+        link.status = "blocked"
+        link.save()
+        return Response({"detail": "Blocked"}, status=200)
+
+
+class UnblockLinkView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, link_id):
+        link = get_object_or_404(LinkRequest, id=link_id, supplier=request.user)
+        link.status = "pending"
+        link.save()
+        return Response({"detail": "Unblocked"}, status=200)

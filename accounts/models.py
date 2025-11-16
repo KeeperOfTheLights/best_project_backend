@@ -2,6 +2,7 @@ from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 
+
 class User(AbstractUser):
     ROLE_CHOICES = [
         ('supplier', 'Supplier'),
@@ -64,3 +65,19 @@ class Product(models.Model):
 
     def __str__(self):
         return f"{self.name} - {self.supplier.username}"
+
+class LinkRequest(models.Model):
+    STATUS_CHOICES = [
+        ('pending', 'Pending'),
+        ('linked', 'Linked'),
+        ('rejected', 'Rejected'),
+        ('blocked', 'Blocked'),
+    ]
+
+    supplier = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="supplier_links")
+    consumer = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="consumer_links")
+    status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.consumer.username} → {self.supplier.username} [{self.status}]"
