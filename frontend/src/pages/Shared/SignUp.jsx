@@ -10,14 +10,36 @@ export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
+  const [passwordError, setPasswordError] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
+
+  const checkPasswordStrength = (pwd) => {
+    if (pwd.length < 6) return "Password is too short";
+    if (!/[A-Z]/.test(pwd)) return "Add at least one uppercase letter";
+    if (!/[0-9]/.test(pwd)) return "Add at least one number";
+    if (!/[^A-Za-z0-9]/.test(pwd)) return "Add at least one special character";
+    return "";
+  };
+
+  const handlePasswordChange = (e) => {
+    const value = e.target.value;
+    setPassword(value);
+    const error = checkPasswordStrength(value);
+    setPasswordError(error);
+  };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
     if (password !== repeatPassword) {
       alert("Passwords do not match!");
+      return;
+    }
+
+    const error = checkPasswordStrength(password);
+    if (error) {
+      alert(error);
       return;
     }
 
@@ -33,16 +55,13 @@ export default function SignUp() {
     try {
       const response = await fetch("http://127.0.0.1:8000/api/accounts/register/", {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
       const data = await response.json();
 
       if (response.ok) {
-        // Предполагаем, что сервер возвращает токен и роль
         login({ role: data.role, token: data.token });
         navigate(role === "supplier" ? "/supplier" : "/consumer");
       } else {
@@ -86,9 +105,14 @@ export default function SignUp() {
             type="password"
             placeholder="Password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={handlePasswordChange}
             required
           />
+          {password && (
+            <p className={`password-error ${passwordError ? "weak" : "strong"}`}>
+              {passwordError || "Password is strong!"}
+            </p>
+          )}
           <input
             type="password"
             placeholder="Repeat Password"
