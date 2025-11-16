@@ -3,8 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-
-from accounts.models import Product
+from accounts.models import Product, LinkRequest
 
 User = get_user_model()
 
@@ -76,3 +75,12 @@ class ProductSerializer(serializers.ModelSerializer):
     def update(self, instance, validated_data):
         validated_data.pop('supplier', None)
         return super().update(instance, validated_data)
+
+class LinkRequestSerializer(serializers.ModelSerializer):
+    consumer_name = serializers.CharField(source='consumer.full_name', read_only=True)
+    supplier_name = serializers.CharField(source='supplier.full_name', read_only=True)
+
+    class Meta:
+        model = LinkRequest
+        fields = '__all__'
+        read_only_fields = ['status', 'created_at']
