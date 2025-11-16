@@ -1,7 +1,6 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
-import "./AuthPossibilities.css";
 
 export default function SignUp() {
   const [role, setRole] = useState("consumer");
@@ -42,10 +41,11 @@ export default function SignUp() {
       const data = await response.json();
 
       if (response.ok) {
+        // Предполагаем, что сервер возвращает токен и роль
         login({ role: data.role, token: data.token });
         navigate(role === "supplier" ? "/supplier" : "/consumer");
       } else {
-        alert(JSON.stringify);
+        alert(JSON.stringify(data, null, 2));
       }
     } catch (error) {
       console.error("Network error:", error);
