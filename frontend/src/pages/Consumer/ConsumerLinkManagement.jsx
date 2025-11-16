@@ -1,247 +1,167 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
-
+import { useAuth } from "../../context/Auth-Context";
 import "./ConsumerLinkManagement.css";
 
-const dummySuppliers = [
-  {
-    id: 1,
-    name: "Fresh Farm Products",
-    category: "Vegetables & Fruits",
-    location: "Almaty Region",
-    image: "https://images.unsplash.com/photo-1488459716781-31db52582fe9?w=400",
-    description: "Fresh local produce",
-    linkStatus: "not_linked" // not_linked, pending, approved, rejected, blocked
-  },
-  {
-    id: 2,
-    name: "Premium Meat Supply",
-    category: "Meat & Poultry",
-    location: "Astana",
-    image: "https://images.unsplash.com/photo-1607623814075-e51df1bdc82f?w=400",
-    description: "Premium quality meat",
-    linkStatus: "approved"
-  },
-  {
-    id: 3,
-    name: "Dairy Dreams Co.",
-    category: "Dairy Products",
-    location: "Shymkent",
-    image: "https://images.unsplash.com/photo-1628088062854-d1870b4553da?w=400",
-    description: "Fresh dairy products",
-    linkStatus: "pending"
-  },
-  {
-    id: 4,
-    name: "Bakery Masters",
-    category: "Bakery",
-    location: "Almaty",
-    image: "https://images.unsplash.com/photo-1509440159596-0249088772ff?w=400",
-    description: "Artisan bread and pastries",
-    linkStatus: "rejected"
-  }
-];
-
 export default function ConsumerLinkManagement() {
-  const [suppliers, setSuppliers] = useState(dummySuppliers);
+  const { token } = useAuth();
+  const [suppliers, setSuppliers] = useState([]);
   const [filterStatus, setFilterStatus] = useState("all");
   const navigate = useNavigate();
 
-  // Send link request
-  const handleSendRequest = (supplierId) => {
-    setSuppliers(suppliers.map(s => 
-      s.id === supplierId 
-        ? { ...s, linkStatus: "pending" }
-        : s
-    ));
-    alert(`Link request sent to supplier ID: ${supplierId}`);
-  };
+  // Загружаем список поставщиков
+  useEffect(() => {
+    fetchSuppliers();
+  }, []);
 
-  // Cancel pending request
-  const handleCancelRequest = (supplierId) => {
-    if (window.confirm("Cancel link request?")) {
-      setSuppliers(suppliers.map(s => 
-        s.id === supplierId 
-          ? { ...s, linkStatus: "not_linked" }
-          : s
-      ));
+  const fetchSuppliers = async () => {
+    try {
+      const response = await fetch("http://127.0.0.1:8000/api/accounts/links/", {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Failed to fetch suppliers");
+      const data = await response.json();
+      setSuppliers(data);
+    } catch (err) {
+      alert(err.message);
     }
   };
 
-  // Unlink from supplier
-  const handleUnlink = (supplierId) => {
-    if (window.confirm("Are you sure you want to unlink from this supplier?")) {
-      setSuppliers(suppliers.map(s => 
-        s.id === supplierId 
-          ? { ...s, linkStatus: "not_linked" }
-          : s
-      ));
+  // Accept link
+  const handleAccept = async (id) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/accounts/link/${id}/accept/`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Failed to accept link");
+      fetchSuppliers();
+    } catch (err) {
+      alert(err.message);
     }
   };
 
-  // Filter suppliers
-  const filteredSuppliers = filterStatus === "all" 
-    ? suppliers 
-    : suppliers.filter(s => s.linkStatus === filterStatus);
+  // Reject link
+  const handleReject = async (id) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/accounts/link/${id}/reject/`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Failed to reject link");
+      fetchSuppliers();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
 
-  // Get status counts
+  // Block link
+  const handleBlock = async (id) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/accounts/link/${id}/block/`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Failed to block link");
+      fetchSuppliers();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  // Unblock link
+  const handleUnblock = async (id) => {
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/accounts/link/${id}/unblock/`, {
+        method: "POST",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Failed to unblock link");
+      fetchSuppliers();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  // Unlink
+  const handleUnlink = async (id) => {
+    if (!window.confirm("Are you sure you want to unlink?")) return;
+    try {
+      const response = await fetch(`http://127.0.0.1:8000/api/accounts/link/${id}/`, {
+        method: "DELETE",
+        headers: { Authorization: `Bearer ${token}` },
+      });
+      if (!response.ok) throw new Error("Failed to unlink");
+      fetchSuppliers();
+    } catch (err) {
+      alert(err.message);
+    }
+  };
+
+  // Фильтруем поставщиков
+  const filteredSuppliers = filterStatus === "all"
+    ? suppliers
+    : suppliers.filter(s => s.link_status === filterStatus);
+
+  // Статистика
   const counts = {
     all: suppliers.length,
-    approved: suppliers.filter(s => s.linkStatus === "approved").length,
-    pending: suppliers.filter(s => s.linkStatus === "pending").length,
-    not_linked: suppliers.filter(s => s.linkStatus === "not_linked").length,
-    rejected: suppliers.filter(s => s.linkStatus === "rejected").length
+    approved: suppliers.filter(s => s.link_status === "approved").length,
+    pending: suppliers.filter(s => s.link_status === "pending").length,
+    not_linked: suppliers.filter(s => s.link_status === "not_linked").length,
+    rejected: suppliers.filter(s => s.link_status === "rejected").length,
   };
 
   return (
     <div className="link-management-container">
-      <div className="link-header">
-        <h2>Supplier Connections</h2>
-        <p className="link-subtitle">Manage your supplier relationships</p>
-      </div>
+      <h2>Supplier Connections</h2>
 
-      {/* Statistics */}
-      <div className="link-stats">
-        <div className="stat-card">
-          <div className="stat-icon approved-icon">✓</div>
-          <div className="stat-info">
-            <h3>{counts.approved}</h3>
-            <p>Linked Suppliers</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon pending-icon">⏳</div>
-          <div className="stat-info">
-            <h3>{counts.pending}</h3>
-            <p>Pending Requests</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon available-icon">🔍</div>
-          <div className="stat-info">
-            <h3>{counts.not_linked}</h3>
-            <p>Available Suppliers</p>
-          </div>
-        </div>
-      </div>
-
-      {/* Filter Tabs */}
+      {/* Filter buttons */}
       <div className="link-filters">
-        <button 
-          className={`filter-btn ${filterStatus === "all" ? "active" : ""}`}
-          onClick={() => setFilterStatus("all")}
-        >
-          All ({counts.all})
-        </button>
-        <button 
-          className={`filter-btn ${filterStatus === "approved" ? "active" : ""}`}
-          onClick={() => setFilterStatus("approved")}
-        >
-          Linked ({counts.approved})
-        </button>
-        <button 
-          className={`filter-btn ${filterStatus === "pending" ? "active" : ""}`}
-          onClick={() => setFilterStatus("pending")}
-        >
-          Pending ({counts.pending})
-        </button>
-        <button 
-          className={`filter-btn ${filterStatus === "not_linked" ? "active" : ""}`}
-          onClick={() => setFilterStatus("not_linked")}
-        >
-          Available ({counts.not_linked})
-        </button>
-        <button 
-          className={`filter-btn ${filterStatus === "rejected" ? "active" : ""}`}
-          onClick={() => setFilterStatus("rejected")}
-        >
-          Rejected ({counts.rejected})
-        </button>
+        {["all","approved","pending","not_linked","rejected"].map(status => (
+          <button
+            key={status}
+            className={filterStatus === status ? "active" : ""}
+            onClick={() => setFilterStatus(status)}
+          >
+            {status.charAt(0).toUpperCase() + status.slice(1)} ({counts[status]})
+          </button>
+        ))}
       </div>
 
-      {/* Suppliers Grid */}
+      {/* Supplier list */}
       <div className="suppliers-grid">
-        {filteredSuppliers.map((supplier) => (
-          <div key={supplier.id} className="supplier-link-card">
-            <div className="supplier-image-wrapper">
-              <img src={supplier.image} alt={supplier.name} className="supplier-image" />
-              <span className={`link-status-badge ${supplier.linkStatus}`}>
-                {supplier.linkStatus === "approved" && "✓ Linked"}
-                {supplier.linkStatus === "pending" && "⏳ Pending"}
-                {supplier.linkStatus === "not_linked" && "Available"}
-                {supplier.linkStatus === "rejected" && "✕ Rejected"}
-                {supplier.linkStatus === "blocked" && "🚫 Blocked"}
-              </span>
-            </div>
+        {filteredSuppliers.map(s => (
+          <div key={s.id} className="supplier-card">
+            <img src={s.image} alt={s.name} className="supplier-image"/>
+            <h3>{s.name}</h3>
+            <p>{s.category}</p>
+            <p>{s.location}</p>
+            <p>Status: {s.link_status}</p>
 
-            <div className="supplier-content">
-              <h3 className="supplier-name">{supplier.name}</h3>
-              <p className="supplier-category">{supplier.category}</p>
-              <p className="supplier-location">📍 {supplier.location}</p>
-              <p className="supplier-description">{supplier.description}</p>
-
-              <div className="link-actions">
-                {supplier.linkStatus === "not_linked" && (
-                  <button 
-                    className="link-btn send-request-btn"
-                    onClick={() => handleSendRequest(supplier.id)}
-                  >
-                    Send Link Request
-                  </button>
-                )}
-
-                {supplier.linkStatus === "pending" && (
-                  <button 
-                    className="link-btn cancel-btn"
-                    onClick={() => handleCancelRequest(supplier.id)}
-                  >
-                    Cancel Request
-                  </button>
-                )}
-
-                {supplier.linkStatus === "approved" && (
-                  <>
-                    <button 
-                      className="link-btn view-catalog-btn"
-                      onClick={() => navigate(`/consumer/supplier/${supplier.id}/products`)}
-                    >
-                      View Catalog
-                    </button>
-                    <button 
-                      className="link-btn unlink-btn"
-                      onClick={() => handleUnlink(supplier.id)}
-                    >
-                      Unlink
-                    </button>
-                  </>
-                )}
-
-                {supplier.linkStatus === "rejected" && (
-                  <>
-                    <span className="rejected-message">Request was rejected</span>
-                    <button 
-                      className="link-btn send-request-btn"
-                      onClick={() => handleSendRequest(supplier.id)}
-                    >
-                      Send Again
-                    </button>
-                  </>
-                )}
-
-                {supplier.linkStatus === "blocked" && (
-                  <span className="blocked-message">You are blocked by this supplier</span>
-                )}
-              </div>
+            <div className="actions">
+              {s.link_status === "pending" && (
+                <>
+                  <button onClick={() => handleAccept(s.id)}>Accept</button>
+                  <button onClick={() => handleReject(s.id)}>Reject</button>
+                </>
+              )}
+              {s.link_status === "approved" && (
+                <>
+                  <button onClick={() => navigate(`/consumer/supplier/${s.id}/products`)}>View Catalog</button>
+                  <button onClick={() => handleUnlink(s.id)}>Unlink</button>
+                </>
+              )}
+              {s.link_status === "not_linked" && (
+                <button onClick={() => handleSendRequest(s.id)}>Send Request</button>
+              )}
+              {s.link_status === "rejected" && (
+                <button onClick={() => handleSendRequest(s.id)}>Send Again</button>
+              )}
             </div>
           </div>
         ))}
       </div>
-
-      {filteredSuppliers.length === 0 && (
-        <div className="empty-state">
-          <p>No suppliers found with status: {filterStatus}</p>
-        </div>
-      )}
     </div>
   );
 }
