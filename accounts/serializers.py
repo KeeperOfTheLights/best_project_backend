@@ -4,6 +4,8 @@ from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 
+from accounts.models import Product
+
 User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
@@ -52,3 +54,9 @@ class LoginSerializer(serializers.Serializer):
             'role': user.role,
             'email': user.email,
         }
+
+class ProductSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Product
+        fields = ["id", "name", "description", "price", "quantity", "created_at"]
+        read_only_fields = ["id", "created_at"]
