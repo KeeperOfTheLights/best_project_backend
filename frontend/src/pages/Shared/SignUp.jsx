@@ -10,7 +10,7 @@ export default function SignUp() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [repeatPassword, setRepeatPassword] = useState("");
-  const [errorMessage, setErrorMessage] = useState(""); // для ошибок формы
+  const [errorMessage, setErrorMessage] = useState("");
   const { login } = useAuth();
   const navigate = useNavigate();
 
@@ -22,13 +22,8 @@ export default function SignUp() {
     return "";
   };
 
-  const handlePasswordChange = (e) => {
-    setPassword(e.target.value);
-  };
-
-  const handleRepeatPasswordChange = (e) => {
-    setRepeatPassword(e.target.value);
-  };
+  const handlePasswordChange = (e) => setPassword(e.target.value);
+  const handleRepeatPasswordChange = (e) => setRepeatPassword(e.target.value);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -44,16 +39,9 @@ export default function SignUp() {
       return;
     }
 
-    setErrorMessage(""); // очистка ошибки перед отправкой
+    setErrorMessage("");
 
-    const formData = {
-      full_name: fullName,
-      username,
-      email,
-      password,
-      role,
-      password2: repeatPassword
-    };
+    const formData = { full_name: fullName, username, email, password, role, password2: repeatPassword };
 
     try {
       const response = await fetch("http://127.0.0.1:8000/api/accounts/register/", {
@@ -66,12 +54,15 @@ export default function SignUp() {
 
       if (response.ok) {
         login({ role: data.role, token: data.token });
-        navigate(role === "supplier" ? "/supplier" : "/consumer");
+
+        // Делаем небольшой таймаут, чтобы контекст успел обновиться
+        setTimeout(() => {
+          navigate(data.role === "supplier" ? "/supplier" : "/consumer");
+        }, 50);
       } else {
         setErrorMessage(data.detail || "Registration failed");
       }
     } catch (error) {
-      console.error("Network error:", error);
       setErrorMessage("Could not connect to server");
     }
   };
@@ -83,55 +74,17 @@ export default function SignUp() {
         <p className="signup-subtext">Join Daivinvhik today 💏</p>
 
         <form className="signup-form" onSubmit={handleSubmit}>
-          <input
-            type="text"
-            placeholder="Full Name"
-            value={fullName}
-            onChange={(e) => setFullName(e.target.value)}
-            required
-          />
-          <input
-            type="text"
-            placeholder="Username"
-            value={username}
-            onChange={(e) => setUsername(e.target.value)}
-            required
-          />
-          <input
-            type="email"
-            placeholder="Email Address"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={handlePasswordChange}
-            required
-          />
-          <input
-            type="password"
-            placeholder="Repeat Password"
-            value={repeatPassword}
-            onChange={handleRepeatPasswordChange}
-            required
-          />
+          <input type="text" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+          <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
+          <input type="email" placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <input type="password" placeholder="Password" value={password} onChange={handlePasswordChange} required />
+          <input type="password" placeholder="Repeat Password" value={repeatPassword} onChange={handleRepeatPasswordChange} required />
 
           <div className="role-toggle">
-            <button
-              type="button"
-              className={`role-btn ${role === "consumer" ? "active" : ""}`}
-              onClick={() => setRole("consumer")}
-            >
+            <button type="button" className={`role-btn ${role === "consumer" ? "active" : ""}`} onClick={() => setRole("consumer")}>
               Consumer
             </button>
-            <button
-              type="button"
-              className={`role-btn ${role === "supplier" ? "active" : ""}`}
-              onClick={() => setRole("supplier")}
-            >
+            <button type="button" className={`role-btn ${role === "supplier" ? "active" : ""}`} onClick={() => setRole("supplier")}>
               Supplier
             </button>
           </div>
