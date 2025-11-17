@@ -18,9 +18,10 @@ import ConsumerSupplierProducts from "./pages/Consumer/ConsumerSupplierProducts"
 import CComplaints from "./pages/Consumer/ConsumerComplaints";
 import SComplaints from "./pages/Supplier/SupplierComplaints";
 
-
 function RoleRoute({ role, children }) {
-  const { isLoggedIn, role: userRole } = useAuth();
+  const { isLoggedIn, role: userRole, loading } = useAuth();
+
+  if (loading) return <p>Loading...</p>; // ждём загрузки токена
 
   if (!isLoggedIn) return <Navigate to="/login" />;
   if (role && userRole !== role) return <Navigate to="/about" />;
@@ -120,8 +121,6 @@ export default function App() {
               </RoleRoute>
             }
           />
-          
-          
 
           <Route path="*" element={<Navigate to="/about" />} />
         </Routes>
