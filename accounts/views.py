@@ -3,7 +3,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status, generics, permissions
 from rest_framework.permissions import IsAuthenticated
-from .serializers import RegisterSerializer, LoginSerializer, LinkRequestSerializer
+from .serializers import *
 from .models import Product, LinkRequest, User
 from .serializers import ProductSerializer
 from .permissions import IsSupplier
@@ -128,3 +128,23 @@ class UnblockLinkView(APIView):
         link.status = "pending"
         link.save()
         return Response({"detail": "Unblocked"}, status=200)
+
+class AllSuppliersView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != "consumer":
+            return Response({"detail": "Only consumers can view suppliers"}, status=403)
+
+        suppliers = User.objects.filter(role="supplier")
+
+        results = []
+        for supplier in suppliers:
+            results.append({
+                "id": supplier.id,
+                "full_name": supplier.full_name,
+                "email": supplier.email,
+                "username": supplier.username,
+            })
+
+        return Response(results, status=200)

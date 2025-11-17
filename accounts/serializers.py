@@ -84,3 +84,8 @@ class LinkRequestSerializer(serializers.ModelSerializer):
         model = LinkRequest
         fields = '__all__'
         read_only_fields = ['status', 'created_at']
+
+class SupplierSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "full_name", "email", "role"]
