@@ -6,41 +6,42 @@ export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState(null);
   const [token, setToken] = useState(null);
+  const [loading, setLoading] = useState(true); // новое состояние
 
+  // Проверка localStorage при монтировании
   useEffect(() => {
     const savedToken = localStorage.getItem("token");
     const savedRole = localStorage.getItem("role");
 
-    if (savedToken) {
+    if (savedToken && savedRole) {
       setToken(savedToken);
+      setRole(savedRole);
       setIsLoggedIn(true);
     }
 
-    if (savedRole) {
-      setRole(savedRole);
-    }
+    setLoading(false); // проверка завершена
   }, []);
 
-  const login = (userData) => {
+  const login = ({ token, role }) => {
+    setToken(token);
+    setRole(role);
     setIsLoggedIn(true);
-    setRole(userData.role);
-    setToken(userData.token);
 
-    localStorage.setItem("token", userData.token);
-    localStorage.setItem("role", userData.role);
+    localStorage.setItem("token", token);
+    localStorage.setItem("role", role);
   };
 
   const logout = () => {
-    setIsLoggedIn(false);
-    setRole(null);
     setToken(null);
+    setRole(null);
+    setIsLoggedIn(false);
 
     localStorage.removeItem("token");
     localStorage.removeItem("role");
   };
 
   return (
-    <AuthContext.Provider value={{ isLoggedIn, role, token, login, logout }}>
+    <AuthContext.Provider value={{ isLoggedIn, role, token, login, logout, loading }}>
       {children}
     </AuthContext.Provider>
   );
