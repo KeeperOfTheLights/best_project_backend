@@ -14,4 +14,6 @@ urlpatterns = [
     path("link/<int:link_id>/reject/", RejectLinkView.as_view()),
     path("link/<int:link_id>/block/", BlockLinkView.as_view()),
     path("link/<int:link_id>/unblock/", UnblockLinkView.as_view()),
+    path("suppliers/", AllSuppliersView.as_view(), name="all-suppliers"),
+
 ]
