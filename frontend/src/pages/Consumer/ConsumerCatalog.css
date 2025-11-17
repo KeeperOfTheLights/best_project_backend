@@ -158,6 +158,13 @@
   font-size: 0.85rem !important;
 }
 
+.supplier-email {
+  color: #20232a;
+  font-size: 0.85rem;
+  margin: 0.2rem 0 0 0;
+}
+
+
 .supplier-description {
   margin: 0 0 1rem 0;
   color: #666;
