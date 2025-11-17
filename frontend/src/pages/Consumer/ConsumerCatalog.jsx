@@ -5,19 +5,34 @@ export default function ConsumerLinkManagement() {
   const [suppliers, setSuppliers] = useState([]);
   const [filterStatus, setFilterStatus] = useState("all");
   const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
-  // Fetch suppliers (linked, pending, etc.)
+  // ----- FETCH SUPPLIERS -----
   const fetchSuppliers = async () => {
     setLoading(true);
+    setErrorMsg("");
+    const token = localStorage.getItem("token"); // JWT from login
+
     try {
       const res = await fetch(`${API_BASE}/links/`, {
-        headers: { "Content-Type": "application/json" },
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`, // send JWT
+        },
       });
-      if (!res.ok) throw new Error("Failed to fetch suppliers");
+
+      if (!res.ok) {
+        if (res.status === 401) setErrorMsg("Unauthorized. Please log in.");
+        else setErrorMsg(`Failed to fetch suppliers: ${res.status}`);
+        setSuppliers([]);
+        return;
+      }
+
       const data = await res.json();
-      // Map response to expected frontend fields
+
       const mapped = data.map((item) => ({
         id: item.id,
         name: item.consumer_name || `Consumer ${item.id}`,
@@ -27,10 +42,12 @@ export default function ConsumerLinkManagement() {
         description: item.description || "",
         linkStatus: item.status, // pending / approved / rejected / blocked / not_linked
       }));
+
       setSuppliers(mapped);
     } catch (err) {
-      console.error(err);
-      alert("Error fetching suppliers");
+      console.error("Full fetch error:", err);
+      setErrorMsg("Error fetching suppliers. Check server or network.");
+      setSuppliers([]);
     } finally {
       setLoading(false);
     }
@@ -40,45 +57,56 @@ export default function ConsumerLinkManagement() {
     fetchSuppliers();
   }, []);
 
-  // Send link request
+  // ----- SEND LINK REQUEST -----
   const handleSendRequest = async (supplierId) => {
+    const token = localStorage.getItem("token");
+
     try {
       const res = await fetch(`${API_BASE}/link/send/`, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
         body: JSON.stringify({ supplier_id: supplierId }),
       });
-      if (!res.ok) throw new Error("Failed to send request");
-      alert("Link request sent!");
+
+      if (!res.ok) throw new Error(`Failed: ${res.status}`);
       fetchSuppliers();
     } catch (err) {
       console.error(err);
-      alert("Error sending link request");
+      setErrorMsg("Error sending link request");
     }
   };
 
-  // Cancel pending request or unlink
+  // ----- CANCEL / UNLINK -----
   const handleDeleteLink = async (supplierId) => {
     if (!window.confirm("Are you sure?")) return;
+    const token = localStorage.getItem("token");
+
     try {
       const res = await fetch(`${API_BASE}/link/${supplierId}/`, {
         method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          "Authorization": `Bearer ${token}`,
+        },
       });
-      if (!res.ok) throw new Error("Failed to delete link");
+
+      if (!res.ok) throw new Error(`Failed: ${res.status}`);
       fetchSuppliers();
     } catch (err) {
       console.error(err);
-      alert("Error deleting link");
+      setErrorMsg("Error deleting link");
     }
   };
 
-  // Filter suppliers
+  // ----- FILTERING -----
   const filteredSuppliers =
     filterStatus === "all"
       ? suppliers
       : suppliers.filter((s) => s.linkStatus === filterStatus);
 
-  // Status counts
   const counts = {
     all: suppliers.length,
     approved: suppliers.filter((s) => s.linkStatus === "approved").length,
@@ -95,6 +123,8 @@ export default function ConsumerLinkManagement() {
         <h2>Supplier Connections</h2>
         <p className="link-subtitle">Manage your supplier relationships</p>
       </div>
+
+      {errorMsg && <p className="error-message">{errorMsg}</p>}
 
       {/* Stats */}
       <div className="link-stats">
@@ -121,15 +151,13 @@ export default function ConsumerLinkManagement() {
         </div>
       </div>
 
-      {/* Filter Tabs */}
+      {/* Filters */}
       <div className="link-filters">
         {["all", "approved", "pending", "not_linked", "rejected"].map(
           (status) => (
             <button
               key={status}
-              className={`filter-btn ${
-                filterStatus === status ? "active" : ""
-              }`}
+              className={`filter-btn ${filterStatus === status ? "active" : ""}`}
               onClick={() => setFilterStatus(status)}
             >
               {status} ({counts[status] || 0})
@@ -138,7 +166,7 @@ export default function ConsumerLinkManagement() {
         )}
       </div>
 
-      {/* Suppliers Grid */}
+      {/* Supplier Cards */}
       <div className="suppliers-grid">
         {filteredSuppliers.map((supplier) => (
           <div key={supplier.id} className="supplier-link-card">
