@@ -1,17 +1,11 @@
-# Dependencies
 node_modules/
-/.pnp
+.pnp/
 .pnp.js
+coverage/
+build/
+dist/
 
-# Testing
-/coverage
-
-# Production
-/build
-/dist
-
-# Misc
-.DS_Store
+# Env files
 .env
 .env.local
 .env.development.local
@@ -29,8 +23,40 @@ yarn-error.log*
 *.swp
 *.swo
 *~
+*.code-workspace
 
-# Database (если есть SQLite файлы)
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Virtual environment
+venv/
+env/
+.venv/
+
+# Distribution / Packaging
+*.egg-info/
+*.egg
+dist/
+build/
+develop-eggs/
+.eggs/
+pip-wheel-metadata/
+
+# Django stuff
+*.log
+staticfiles/
+media/
+local_settings.py
+
+# SQLite DB files
 *.sqlite
 *.sqlite3
 *.db
+
+# Cache
+.cache/
+.mypy_cache/
+.pytest_cache/
+django_cache/
