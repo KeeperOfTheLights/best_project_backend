@@ -6,9 +6,6 @@ export default function ConsumerLinkManagement() {
   const [filterStatus, setFilterStatus] = useState("all");
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
-  const [pendingRequests, setPendingRequests] = useState(
-    JSON.parse(localStorage.getItem("pendingRequests")) || []
-  );
 
   const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
@@ -37,8 +34,8 @@ export default function ConsumerLinkManagement() {
         );
 
         return {
-          id: sup.id,          // supplier id
-          linkId: link?.id,    // ссылка id
+          id: sup.id,
+          linkId: link?.id || null,
           name: sup.full_name,
           email: sup.email,
           username: sup.username,
@@ -73,24 +70,17 @@ export default function ConsumerLinkManagement() {
         body: JSON.stringify({ supplier_id: supplierId }),
       });
 
-      const responseText = await res.text();
+      const text = await res.text();
       let data;
       try {
-        data = JSON.parse(responseText);
+        data = JSON.parse(text);
       } catch {
-        data = { detail: responseText };
+        data = { detail: text };
       }
 
       if (!res.ok) {
-        throw new Error(data.detail || data.message || "Failed to send link request");
+        throw new Error(data.detail || "Failed to send link request");
       }
-
-      // Добавляем в pending-запросы для UI
-      setPendingRequests((prev) => {
-        const updated = [...prev, supplierId];
-        localStorage.setItem("pendingRequests", JSON.stringify(updated));
-        return updated;
-      });
 
       fetchSuppliers();
     } catch (err) {
@@ -99,7 +89,7 @@ export default function ConsumerLinkManagement() {
     }
   };
 
-  // ----- CANCEL / UNLINK -----
+  // ----- DELETE / UNLINK / CANCEL -----
   const handleDeleteLink = async (supplierId) => {
     const supplier = suppliers.find((s) => s.id === supplierId);
     if (!supplier || !supplier.linkId) {
@@ -119,14 +109,7 @@ export default function ConsumerLinkManagement() {
         },
       });
 
-      if (!res.ok) throw new Error(`Failed: ${res.status}`);
-
-      // Удаляем из pending-запросов
-      setPendingRequests((prev) => {
-        const updated = prev.filter((id) => id !== supplierId);
-        localStorage.setItem("pendingRequests", JSON.stringify(updated));
-        return updated;
-      });
+      if (!res.ok) throw new Error("Failed to delete link");
 
       fetchSuppliers();
     } catch (err) {
@@ -135,7 +118,7 @@ export default function ConsumerLinkManagement() {
     }
   };
 
-  // ----- FILTERING -----
+  // ----- FILTER -----
   const filteredSuppliers =
     filterStatus === "all"
       ? suppliers
@@ -160,7 +143,6 @@ export default function ConsumerLinkManagement() {
 
       {errorMsg && <p className="error-message">{errorMsg}</p>}
 
-      {/* Stats */}
       <div className="link-stats">
         <div className="stat-card">
           <div className="stat-icon approved-icon">✓</div>
@@ -185,7 +167,6 @@ export default function ConsumerLinkManagement() {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="link-filters">
         {["all", "approved", "pending", "not_linked", "rejected"].map(
           (status) => (
@@ -200,7 +181,6 @@ export default function ConsumerLinkManagement() {
         )}
       </div>
 
-      {/* Supplier Cards */}
       <div className="suppliers-grid">
         {filteredSuppliers.map((supplier) => (
           <div key={supplier.id} className="supplier-link-card">
@@ -209,16 +189,14 @@ export default function ConsumerLinkManagement() {
               <p className="supplier-email">📧 {supplier.email}</p>
 
               <div className="link-actions">
-                {supplier.linkStatus === "not_linked" &&
-                !pendingRequests.includes(supplier.id) ? (
+                {supplier.linkStatus === "not_linked" ? (
                   <button
                     className="link-btn send-request-btn"
                     onClick={() => handleSendRequest(supplier.id)}
                   >
                     Send Link Request
                   </button>
-                ) : supplier.linkStatus === "pending" ||
-                  pendingRequests.includes(supplier.id) ? (
+                ) : supplier.linkStatus === "pending" ? (
                   <button
                     className="link-btn cancel-btn"
                     onClick={() => handleDeleteLink(supplier.id)}
@@ -261,7 +239,7 @@ export default function ConsumerLinkManagement() {
 
       {filteredSuppliers.length === 0 && (
         <div className="empty-state">
-          <p>No suppliers found with the status: {filterStatus}</p>
+          <p>No suppliers found with this status: {filterStatus}</p>
         </div>
       )}
     </div>
