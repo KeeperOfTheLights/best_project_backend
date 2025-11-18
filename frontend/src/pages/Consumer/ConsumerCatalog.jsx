@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/Auth-Context";
 import { useNavigate } from "react-router-dom";
 import "./ConsumerCatalog.css";
+import Modal from "../../components/common/modal";
 
 export default function ConsumerLinkManagement() {
   const { token, logout } = useAuth();
@@ -13,9 +14,13 @@ export default function ConsumerLinkManagement() {
   const [errorMsg, setErrorMsg] = useState("");
   const [actionLoading, setActionLoading] = useState(null);
 
+  // modal
+  const [showModal, setShowModal] = useState(false);
+  const [modalSupplier, setModalSupplier] = useState(null);
+  const [modalType, setModalType] = useState("");
+
   const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
-  // ----- FETCH SUPPLIERS AND LINKS -----
   const fetchSuppliers = async () => {
     setLoading(true);
     setErrorMsg("");
@@ -32,7 +37,6 @@ export default function ConsumerLinkManagement() {
       });
 
       if (resSuppliers.status === 401) {
-        setErrorMsg("Authentication failed. Please login again.");
         logout();
         navigate("/login");
         return;
@@ -46,7 +50,6 @@ export default function ConsumerLinkManagement() {
       });
 
       if (resLinks.status === 401) {
-        setErrorMsg("Authentication failed. Please login again.");
         logout();
         navigate("/login");
         return;
@@ -71,7 +74,6 @@ export default function ConsumerLinkManagement() {
 
       setSuppliers(mapped);
     } catch (err) {
-      console.error(err);
       setErrorMsg(err.message);
       setSuppliers([]);
     } finally {
@@ -81,10 +83,8 @@ export default function ConsumerLinkManagement() {
 
   useEffect(() => {
     fetchSuppliers();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
-  // ----- SEND LINK REQUEST -----
   const handleSendRequest = async (supplierId) => {
     const supplier = suppliers.find((s) => s.id === supplierId);
     if (supplier && supplier.linkStatus !== "not_linked" && supplier.linkStatus !== "rejected") {
@@ -95,7 +95,6 @@ export default function ConsumerLinkManagement() {
     setActionLoading(supplierId);
     setErrorMsg("");
 
-    // Optimistic UI update
     setSuppliers((prev) =>
       prev.map((s) => (s.id === supplierId ? { ...s, linkStatus: "pending" } : s))
     );
@@ -111,7 +110,6 @@ export default function ConsumerLinkManagement() {
       });
 
       if (res.status === 401) {
-        setErrorMsg("Authentication failed. Please login again.");
         logout();
         navigate("/login");
         return;
@@ -132,30 +130,36 @@ export default function ConsumerLinkManagement() {
 
       await fetchSuppliers();
     } catch (err) {
-      console.error("Send request error:", err.message);
       setErrorMsg(err.message);
     } finally {
       setActionLoading(null);
     }
   };
 
-  // ----- CANCEL / UNLINK -----
-  const handleDeleteLink = async (supplierId) => {
+  // open modal instead of window.confirm
+  const handleDeleteLink = (supplierId) => {
     const supplier = suppliers.find((s) => s.id === supplierId);
+
     if (!supplier || !supplier.linkId) {
-      setErrorMsg("No link found. Please refresh the page and try again.");
-      await fetchSuppliers();
+      setErrorMsg("No link found. Please refresh and try again.");
       return;
     }
 
-    const confirmMessage =
-      supplier.linkStatus === "pending"
-        ? "Are you sure you want to cancel this request?"
-        : "Are you sure you want to unlink this supplier?";
+    const type = supplier.linkStatus === "pending" ? "cancel" : "unlink";
 
-    if (!window.confirm(confirmMessage)) return;
+    setModalSupplier(supplier);
+    setModalType(type);
+    setShowModal(true);
+  };
 
-    setActionLoading(supplierId);
+  // confirm delete (modal)
+  const confirmDelete = async () => {
+    if (!modalSupplier) return;
+
+    const supplier = modalSupplier;
+
+    setShowModal(false); // close modal
+    setActionLoading(supplier.id);
     setErrorMsg("");
 
     try {
@@ -168,7 +172,6 @@ export default function ConsumerLinkManagement() {
       });
 
       if (res.status === 401) {
-        setErrorMsg("Authentication failed. Please login again.");
         logout();
         navigate("/login");
         return;
@@ -181,14 +184,12 @@ export default function ConsumerLinkManagement() {
 
       await fetchSuppliers();
     } catch (err) {
-      console.error(err);
       setErrorMsg(err.message || "Error deleting link");
     } finally {
       setActionLoading(null);
     }
   };
 
-  // ----- FILTERING -----
   const filteredSuppliers =
     filterStatus === "all"
       ? suppliers
@@ -214,13 +215,12 @@ export default function ConsumerLinkManagement() {
       {errorMsg && (
         <div className="error-message">
           {errorMsg}
-          <button onClick={() => setErrorMsg("")} style={{ marginLeft: "10px", cursor: "pointer" }}>
+          <button onClick={() => setErrorMsg("")} className="close-btn">
             ✕
           </button>
         </div>
       )}
 
-      {/* Stats */}
       <div className="link-stats">
         <div className="stat-card">
           <div className="stat-icon approved-icon">✓</div>
@@ -245,7 +245,6 @@ export default function ConsumerLinkManagement() {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="link-filters">
         {["all", "linked", "pending", "not_linked", "rejected"].map((status) => (
           <button
@@ -258,7 +257,6 @@ export default function ConsumerLinkManagement() {
         ))}
       </div>
 
-      {/* Supplier Cards */}
       <div className="suppliers-grid">
         {filteredSuppliers.map((supplier) => (
           <div key={supplier.id} className="supplier-link-card">
@@ -322,6 +320,19 @@ export default function ConsumerLinkManagement() {
           <p>No suppliers found with the status: {filterStatus}</p>
         </div>
       )}
+
+      {/* MODAL */}
+      <Modal
+        show={showModal}
+        title={modalType === "cancel" ? "Cancel Request" : "Unlink Supplier"}
+        text={
+          modalType === "cancel"
+            ? "Are you sure you want to cancel this request?"
+            : "Are you sure you want to unlink this supplier?"
+        }
+        onConfirm={confirmDelete}
+        onCancel={() => setShowModal(false)}
+      />
     </div>
   );
 }

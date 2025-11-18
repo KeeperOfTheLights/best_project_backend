@@ -26,7 +26,6 @@ export default function ConsumerLinkManagement() {
     }
   };
 
-  // Accept link
   const handleAccept = async (id) => {
     try {
       const response = await fetch(`http://127.0.0.1:8000/api/accounts/link/${id}/accept/`, {
@@ -40,7 +39,6 @@ export default function ConsumerLinkManagement() {
     }
   };
 
-  // Reject link
   const handleReject = async (id) => {
     try {
       const response = await fetch(`http://127.0.0.1:8000/api/accounts/link/${id}/reject/`, {
@@ -54,7 +52,6 @@ export default function ConsumerLinkManagement() {
     }
   };
 
-  // Block link
   const handleBlock = async (id) => {
     try {
       const response = await fetch(`http://127.0.0.1:8000/api/accounts/link/${id}/block/`, {
@@ -68,7 +65,6 @@ export default function ConsumerLinkManagement() {
     }
   };
 
-  // Unblock link
   const handleUnblock = async (id) => {
     try {
       const response = await fetch(`http://127.0.0.1:8000/api/accounts/link/${id}/unblock/`, {
@@ -82,7 +78,6 @@ export default function ConsumerLinkManagement() {
     }
   };
 
-  // Unlink
   const handleUnlink = async (id) => {
     if (!window.confirm("Are you sure you want to unlink?")) return;
     try {

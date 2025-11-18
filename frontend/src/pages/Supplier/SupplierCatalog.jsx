@@ -8,6 +8,14 @@ export default function SupplierLinkRequests() {
   const [errorMsg, setErrorMsg] = useState("");
   const [actionLoading, setActionLoading] = useState(null);
 
+  // modal state
+  const [modalData, setModalData] = useState({
+    visible: false,
+    action: null,
+    linkId: null,
+    message: "",
+  });
+
   const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
   const fetchRequests = async () => {
@@ -34,8 +42,8 @@ export default function SupplierLinkRequests() {
       }
 
       if (!res.ok) throw new Error("Failed to fetch requests");
+
       const data = await res.json();
-      
       setRequests(data);
     } catch (err) {
       console.error(err);
@@ -50,6 +58,107 @@ export default function SupplierLinkRequests() {
     fetchRequests();
   }, []);
 
+  // Modal helpers
+  const openModal = (action, linkId, message) => {
+    setModalData({
+      visible: true,
+      action,
+      linkId,
+      message,
+    });
+  };
+
+  const closeModal = () => {
+    setModalData({
+      visible: false,
+      action: null,
+      linkId: null,
+      message: "",
+    });
+  };
+
+  // Wrapped action executor
+  const confirmModalAction = async () => {
+    const { action, linkId } = modalData;
+
+    if (action === "unlink") await performUnlink(linkId);
+    if (action === "block") await performBlock(linkId);
+    if (action === "reject") await performReject(linkId);
+
+    closeModal();
+  };
+
+  // Backend actions
+  const performReject = async (linkId) => {
+    const token = localStorage.getItem("token");
+    setActionLoading(linkId);
+
+    try {
+      const res = await fetch(`${API_BASE}/link/${linkId}/reject/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to reject request");
+
+      await fetchRequests();
+    } catch (err) {
+      setErrorMsg(err.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const performBlock = async (linkId) => {
+    const token = localStorage.getItem("token");
+    setActionLoading(linkId);
+
+    try {
+      const res = await fetch(`${API_BASE}/link/${linkId}/block/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to block consumer");
+
+      await fetchRequests();
+    } catch (err) {
+      setErrorMsg(err.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const performUnlink = async (linkId) => {
+    const token = localStorage.getItem("token");
+    setActionLoading(linkId);
+
+    try {
+      const res = await fetch(`${API_BASE}/link/${linkId}/`, {
+        method: "DELETE",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (!res.ok) throw new Error("Failed to unlink consumer");
+
+      await fetchRequests();
+    } catch (err) {
+      setErrorMsg(err.message);
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  // Accept (no modal)
   const handleAccept = async (linkId) => {
     const token = localStorage.getItem("token");
     setActionLoading(linkId);
@@ -64,86 +173,31 @@ export default function SupplierLinkRequests() {
         },
       });
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Failed to accept request");
-      }
-
+      if (!res.ok) throw new Error("Failed to accept request");
       await fetchRequests();
     } catch (err) {
-      console.error(err);
       setErrorMsg(err.message);
     } finally {
       setActionLoading(null);
     }
   };
 
-  const handleReject = async (linkId) => {
-    if (!window.confirm("Reject this link request?")) return;
-
-    const token = localStorage.getItem("token");
-    setActionLoading(linkId);
-    setErrorMsg("");
-
-    try {
-      const res = await fetch(`${API_BASE}/link/${linkId}/reject/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Failed to reject request");
-      }
-
-      await fetchRequests();
-    } catch (err) {
-      console.error(err);
-      setErrorMsg(err.message);
-    } finally {
-      setActionLoading(null);
-    }
+  // Modal-triggering actions
+  const handleReject = (linkId) => {
+    openModal("reject", linkId, "Reject this consumer request?");
   };
 
-  const handleBlock = async (linkId) => {
-    if (!window.confirm("Block this consumer? They won't be able to send requests again.")) return;
-
-    const token = localStorage.getItem("token");
-    setActionLoading(linkId);
-    setErrorMsg("");
-
-    try {
-      const res = await fetch(`${API_BASE}/link/${linkId}/block/`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Failed to block consumer");
-      }
-
-      await fetchRequests();
-    } catch (err) {
-      console.error(err);
-      setErrorMsg(err.message);
-    } finally {
-      setActionLoading(null);
-    }
+  const handleBlock = (linkId) => {
+    openModal(
+      "block",
+      linkId,
+      "Block this consumer? They will not be able to send requests again."
+    );
   };
 
   const handleUnblock = async (linkId) => {
-    if (!window.confirm("Unblock this consumer?")) return;
-
     const token = localStorage.getItem("token");
     setActionLoading(linkId);
-    setErrorMsg("");
 
     try {
       const res = await fetch(`${API_BASE}/link/${linkId}/unblock/`, {
@@ -154,60 +208,34 @@ export default function SupplierLinkRequests() {
         },
       });
 
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Failed to unblock consumer");
-      }
-
+      if (!res.ok) throw new Error("Failed to unblock consumer");
       await fetchRequests();
     } catch (err) {
-      console.error(err);
       setErrorMsg(err.message);
     } finally {
       setActionLoading(null);
     }
   };
 
-  const handleUnlink = async (linkId) => {
-    if (!window.confirm("Unlink this consumer? They will lose access to your catalog.")) return;
-
-    const token = localStorage.getItem("token");
-    setActionLoading(linkId);
-    setErrorMsg("");
-
-    try {
-      const res = await fetch(`${API_BASE}/link/${linkId}/`, {
-        method: "DELETE",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-      });
-
-      if (!res.ok) {
-        const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Failed to unlink consumer");
-      }
-
-      await fetchRequests();
-    } catch (err) {
-      console.error(err);
-      setErrorMsg(err.message);
-    } finally {
-      setActionLoading(null);
-    }
+  const handleUnlink = (linkId) => {
+    openModal(
+      "unlink",
+      linkId,
+      "Unlink this consumer? They will lose access to your catalog."
+    );
   };
 
-  const filteredRequests = filterStatus === "all" 
-    ? requests 
-    : requests.filter(r => r.status === filterStatus);
+  const filteredRequests =
+    filterStatus === "all"
+      ? requests
+      : requests.filter((r) => r.status === filterStatus);
 
   const counts = {
     all: requests.length,
-    pending: requests.filter(r => r.status === "pending").length,
-    linked: requests.filter(r => r.status === "linked").length,
-    rejected: requests.filter(r => r.status === "rejected").length,
-    blocked: requests.filter(r => r.status === "blocked").length
+    pending: requests.filter((r) => r.status === "pending").length,
+    linked: requests.filter((r) => r.status === "linked").length,
+    rejected: requests.filter((r) => r.status === "rejected").length,
+    blocked: requests.filter((r) => r.status === "blocked").length,
   };
 
   if (loading) return <p>Loading link requests...</p>;
@@ -216,15 +244,17 @@ export default function SupplierLinkRequests() {
     <div className="link-requests-container">
       <div className="requests-header">
         <h2>Consumer Link Requests</h2>
-        <p className="requests-subtitle">Manage consumer connections and access</p>
+        <p className="requests-subtitle">
+          Manage consumer connections and access
+        </p>
       </div>
 
       {errorMsg && (
         <div className="error-message">
           {errorMsg}
-          <button 
+          <button
             onClick={() => setErrorMsg("")}
-            style={{ marginLeft: '10px', cursor: 'pointer' }}
+            style={{ marginLeft: "10px", cursor: "pointer" }}
           >
             ✕
           </button>
@@ -263,32 +293,40 @@ export default function SupplierLinkRequests() {
       </div>
 
       <div className="requests-filters">
-        <button 
+        <button
           className={`filter-btn ${filterStatus === "all" ? "active" : ""}`}
           onClick={() => setFilterStatus("all")}
         >
           All ({counts.all})
         </button>
-        <button 
-          className={`filter-btn ${filterStatus === "pending" ? "active" : ""}`}
+        <button
+          className={`filter-btn ${
+            filterStatus === "pending" ? "active" : ""
+          }`}
           onClick={() => setFilterStatus("pending")}
         >
           Pending ({counts.pending})
         </button>
-        <button 
-          className={`filter-btn ${filterStatus === "linked" ? "active" : ""}`}
+        <button
+          className={`filter-btn ${
+            filterStatus === "linked" ? "active" : ""
+          }`}
           onClick={() => setFilterStatus("linked")}
         >
           Linked ({counts.linked})
         </button>
-        <button 
-          className={`filter-btn ${filterStatus === "rejected" ? "active" : ""}`}
+        <button
+          className={`filter-btn ${
+            filterStatus === "rejected" ? "active" : ""
+          }`}
           onClick={() => setFilterStatus("rejected")}
         >
           Rejected ({counts.rejected})
         </button>
-        <button 
-          className={`filter-btn ${filterStatus === "blocked" ? "active" : ""}`}
+        <button
+          className={`filter-btn ${
+            filterStatus === "blocked" ? "active" : ""
+          }`}
           onClick={() => setFilterStatus("blocked")}
         >
           Blocked ({counts.blocked})
@@ -300,7 +338,9 @@ export default function SupplierLinkRequests() {
           <div key={request.id} className="request-card">
             <div className="request-content">
               <div className="request-header-info">
-                <h3 className="consumer-name">{request.consumer_name || 'Unknown Consumer'}</h3>
+                <h3 className="consumer-name">
+                  {request.consumer_name || "Unknown Consumer"}
+                </h3>
                 <span className={`request-status-badge ${request.status}`}>
                   {request.status === "pending" && "⏳ Pending"}
                   {request.status === "linked" && "✓ Linked"}
@@ -313,33 +353,40 @@ export default function SupplierLinkRequests() {
                 <div className="detail-row">
                   <span className="detail-icon">📅</span>
                   <span className="detail-text">
-                    Request Date: {new Date(request.created_at).toLocaleDateString()}
+                    Request Date:{" "}
+                    {new Date(request.created_at).toLocaleDateString()}
                   </span>
                 </div>
                 <div className="detail-row">
                   <span className="detail-icon">🆔</span>
-                  <span className="detail-text">Consumer ID: {request.consumer}</span>
+                  <span className="detail-text">
+                    Consumer ID: {request.consumer}
+                  </span>
                 </div>
               </div>
 
               <div className="request-actions">
                 {request.status === "pending" && (
                   <>
-                    <button 
+                    <button
                       className="action-btn accept-btn"
                       onClick={() => handleAccept(request.id)}
                       disabled={actionLoading === request.id}
                     >
-                      {actionLoading === request.id ? "Processing..." : "✓ Accept"}
+                      {actionLoading === request.id
+                        ? "Processing..."
+                        : "✓ Accept"}
                     </button>
-                    <button 
+
+                    <button
                       className="action-btn reject-btn"
                       onClick={() => handleReject(request.id)}
                       disabled={actionLoading === request.id}
                     >
                       ✕ Reject
                     </button>
-                    <button 
+
+                    <button
                       className="action-btn block-btn"
                       onClick={() => handleBlock(request.id)}
                       disabled={actionLoading === request.id}
@@ -351,24 +398,30 @@ export default function SupplierLinkRequests() {
 
                 {request.status === "linked" && (
                   <>
-                    <button 
+                    <button
                       className="action-btn view-orders-btn"
-                      onClick={() => alert(`View orders from ${request.consumer_name}`)}
+                      onClick={() =>
+                        alert(`View orders from ${request.consumer_name}`)
+                      }
                     >
                       View Orders
                     </button>
-                    <button 
+                    <button
                       className="action-btn message-btn"
-                      onClick={() => alert(`Message ${request.consumer_name}`)}
+                      onClick={() =>
+                        alert(`Message ${request.consumer_name}`)
+                      }
                     >
                       Message
                     </button>
-                    <button 
+                    <button
                       className="action-btn unlink-btn"
                       onClick={() => handleUnlink(request.id)}
                       disabled={actionLoading === request.id}
                     >
-                      {actionLoading === request.id ? "Unlinking..." : "Unlink"}
+                      {actionLoading === request.id
+                        ? "Unlinking..."
+                        : "Unlink"}
                     </button>
                   </>
                 )}
@@ -376,14 +429,18 @@ export default function SupplierLinkRequests() {
                 {request.status === "rejected" && (
                   <>
                     <span className="status-message">Request was rejected</span>
-                    <button 
+
+                    <button
                       className="action-btn accept-btn"
                       onClick={() => handleAccept(request.id)}
                       disabled={actionLoading === request.id}
                     >
-                      {actionLoading === request.id ? "Processing..." : "Accept Now"}
+                      {actionLoading === request.id
+                        ? "Processing..."
+                        : "Accept Now"}
                     </button>
-                    <button 
+
+                    <button
                       className="action-btn block-btn"
                       onClick={() => handleBlock(request.id)}
                       disabled={actionLoading === request.id}
@@ -395,13 +452,18 @@ export default function SupplierLinkRequests() {
 
                 {request.status === "blocked" && (
                   <>
-                    <span className="status-message blocked">Consumer is blocked</span>
-                    <button 
+                    <span className="status-message blocked">
+                      Consumer is blocked
+                    </span>
+
+                    <button
                       className="action-btn unblock-btn"
                       onClick={() => handleUnblock(request.id)}
                       disabled={actionLoading === request.id}
                     >
-                      {actionLoading === request.id ? "Unblocking..." : "Unblock"}
+                      {actionLoading === request.id
+                        ? "Unblocking..."
+                        : "Unblock"}
                     </button>
                   </>
                 )}
@@ -414,6 +476,25 @@ export default function SupplierLinkRequests() {
       {filteredRequests.length === 0 && (
         <div className="empty-state">
           <p>No requests found with status: {filterStatus}</p>
+        </div>
+      )}
+
+      {/* ====================== MODAL ====================== */}
+      {modalData.visible && (
+        <div className="modal-overlay">
+          <div className="modal-window">
+            <h3 className="modal-title">Confirm Action</h3>
+            <p className="modal-message">{modalData.message}</p>
+
+            <div className="modal-buttons">
+              <button className="modal-btn cancel" onClick={closeModal}>
+                Cancel
+              </button>
+              <button className="modal-btn confirm" onClick={confirmModalAction}>
+                Confirm
+              </button>
+            </div>
+          </div>
         </div>
       )}
     </div>
