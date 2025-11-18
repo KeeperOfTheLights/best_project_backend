@@ -23,8 +23,8 @@ function RoleRoute({ role, children }) {
 
   if (loading) return <p>Loading...</p>;
 
-  if (!isLoggedIn) return <Navigate to="/login" />;
-  if (role && userRole !== role) return <Navigate to="/about" />;
+  if (!isLoggedIn) return <Navigate to="/login" replace />;
+  if (role && userRole !== role) return <Navigate to="/" replace />;
 
   return children;
 }
@@ -35,12 +35,14 @@ export default function App() {
       <Router>
         <Navbar />
         <Routes>
+          {/* Public Routes */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<SignUp />} />
           <Route path="/about" element={<About />} />
           <Route path="/chat" element={<Chat />} />
-          <Route path="/" element={<Navigate to="/about" />} />
+          <Route path="/" element={<Navigate to="/about" replace />} />
 
+          {/* Supplier Routes */}
           <Route
             path="/SupplierDashboard"
             element={
@@ -50,34 +52,10 @@ export default function App() {
             }
           />
           <Route
-            path="/ConsumerDashboard"
-            element={
-              <RoleRoute role="consumer">
-                <ConsumerDashboard />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="/ConsumerCatalog"
-            element={
-              <RoleRoute role="consumer">
-                <ConsumerCatalog />
-              </RoleRoute>
-            }
-          />
-          <Route
             path="/SupplierCatalog"
             element={
               <RoleRoute role="supplier">
                 <SupplierCatalog />
-              </RoleRoute>
-            }
-          />
-          <Route
-            path="/ConsumerOrders"
-            element={
-              <RoleRoute role="consumer">
-                <ConsumerOrders />
               </RoleRoute>
             }
           />
@@ -98,6 +76,40 @@ export default function App() {
             }
           />
           <Route
+            path="/supplier/complaints"
+            element={
+              <RoleRoute role="supplier">
+                <SComplaints />
+              </RoleRoute>
+            }
+          />
+
+          {/* Consumer Routes */}
+          <Route
+            path="/ConsumerDashboard"
+            element={
+              <RoleRoute role="consumer">
+                <ConsumerDashboard />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/ConsumerCatalog"
+            element={
+              <RoleRoute role="consumer">
+                <ConsumerCatalog />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/ConsumerOrders"
+            element={
+              <RoleRoute role="consumer">
+                <ConsumerOrders />
+              </RoleRoute>
+            }
+          />
+          <Route
             path="/consumer/supplier/:supplierId/products"
             element={
               <RoleRoute role="consumer">
@@ -113,16 +125,9 @@ export default function App() {
               </RoleRoute>
             }
           />
-          <Route
-            path="/supplier/complaints"
-            element={
-              <RoleRoute role="supplier">
-                <SComplaints />
-              </RoleRoute>
-            }
-          />
 
-          <Route path="*" element={<Navigate to="/about" />} />
+          {/* Catch-all */}
+          <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </Router>
     </AuthProvider>

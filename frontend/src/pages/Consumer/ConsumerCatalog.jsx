@@ -14,15 +14,13 @@ export default function ConsumerLinkManagement() {
   const [errorMsg, setErrorMsg] = useState("");
   const [actionLoading, setActionLoading] = useState(null);
 
-  // Универсальный Modal
   const [modalConfig, setModalConfig] = useState({
     show: false,
     type: "", // "confirm" | "catalog"
     title: "",
     text: "",
-    supplier: null,
+    supplierId: null,
     items: [],
-    onConfirm: null,
   });
 
   const API_BASE = "http://127.0.0.1:8000/api/accounts";
@@ -86,10 +84,13 @@ export default function ConsumerLinkManagement() {
     fetchSuppliers();
   }, [token]);
 
+  // === Actions ===
   const handleSendRequest = async (supplierId) => {
     const supplier = suppliers.find((s) => s.id === supplierId);
-    if (supplier && supplier.linkStatus !== "not_linked" && supplier.linkStatus !== "rejected") {
-      setErrorMsg(`Cannot send request - link already exists with status: ${supplier.linkStatus}`);
+    if (!supplier) return;
+
+    if (supplier.linkStatus !== "not_linked" && supplier.linkStatus !== "rejected") {
+      setErrorMsg(`Cannot send request - link already exists: ${supplier.linkStatus}`);
       return;
     }
 
@@ -116,16 +117,10 @@ export default function ConsumerLinkManagement() {
         return;
       }
 
-      const responseText = await res.text();
-      let data;
-      try {
-        data = JSON.parse(responseText);
-      } catch {
-        data = { detail: responseText };
-      }
-
       if (!res.ok) {
-        await fetchSuppliers();
+        const responseText = await res.text();
+        let data;
+        try { data = JSON.parse(responseText); } catch { data = { detail: responseText }; }
         throw new Error(data.detail || data.message || "Failed to send link request");
       }
 
@@ -154,16 +149,14 @@ export default function ConsumerLinkManagement() {
         type === "cancel"
           ? "Are you sure you want to cancel this request?"
           : "Are you sure you want to unlink this supplier?",
-      supplier: supplier,
+      supplierId: supplier.id,
       items: [],
-      onConfirm: confirmDelete,
     });
   };
 
   const confirmDelete = async () => {
-    if (!modalConfig.supplier) return;
-
-    const supplier = modalConfig.supplier;
+    const supplier = suppliers.find((s) => s.id === modalConfig.supplierId);
+    if (!supplier || !supplier.linkId) return;
 
     setModalConfig((prev) => ({ ...prev, show: false }));
     setActionLoading(supplier.id);
@@ -203,13 +196,12 @@ export default function ConsumerLinkManagement() {
       type: "catalog",
       title: `${supplier.name}'s Catalog`,
       text: "",
-      supplier: supplier,
+      supplierId: supplier.id,
       items: [
         { id: 1, name: "Product A", description: "Description A", price: "$10" },
         { id: 2, name: "Product B", description: "Description B", price: "$15" },
         { id: 3, name: "Product C", description: "Description C", price: "$20" },
       ],
-      onConfirm: null,
     });
   };
 
@@ -240,9 +232,7 @@ export default function ConsumerLinkManagement() {
       {errorMsg && (
         <div className="error-message">
           {errorMsg}
-          <button onClick={() => setErrorMsg("")} className="close-btn">
-            ✕
-          </button>
+          <button onClick={() => setErrorMsg("")} className="close-btn">✕</button>
         </div>
       )}
 
@@ -290,7 +280,7 @@ export default function ConsumerLinkManagement() {
               <p className="supplier-email">📧 {supplier.email}</p>
 
               <div className="link-actions">
-                {supplier.linkStatus === "not_linked" ? (
+                {supplier.linkStatus === "not_linked" && (
                   <button
                     className="link-btn send-request-btn"
                     onClick={() => handleSendRequest(supplier.id)}
@@ -298,7 +288,9 @@ export default function ConsumerLinkManagement() {
                   >
                     {actionLoading === supplier.id ? "Sending..." : "Send Link Request"}
                   </button>
-                ) : supplier.linkStatus === "pending" ? (
+                )}
+
+                {supplier.linkStatus === "pending" && (
                   <button
                     className="link-btn cancel-btn"
                     onClick={() => handleDeleteLink(supplier.id)}
@@ -306,7 +298,9 @@ export default function ConsumerLinkManagement() {
                   >
                     {actionLoading === supplier.id ? "Cancelling..." : "Cancel Request"}
                   </button>
-                ) : supplier.linkStatus === "linked" ? (
+                )}
+
+                {supplier.linkStatus === "linked" && (
                   <>
                     <button
                       className="link-btn view-catalog-btn"
@@ -322,7 +316,9 @@ export default function ConsumerLinkManagement() {
                       {actionLoading === supplier.id ? "Unlinking..." : "Unlink"}
                     </button>
                   </>
-                ) : supplier.linkStatus === "rejected" ? (
+                )}
+
+                {supplier.linkStatus === "rejected" && (
                   <>
                     <span className="rejected-message">Request was rejected</span>
                     <button
@@ -333,7 +329,7 @@ export default function ConsumerLinkManagement() {
                       {actionLoading === supplier.id ? "Sending..." : "Send Again"}
                     </button>
                   </>
-                ) : null}
+                )}
               </div>
             </div>
           </div>
@@ -346,12 +342,11 @@ export default function ConsumerLinkManagement() {
         </div>
       )}
 
-      {/* Универсальный Modal */}
       <Modal
         show={modalConfig.show}
         title={modalConfig.title}
         text={modalConfig.text}
-        onConfirm={modalConfig.type === "confirm" ? modalConfig.onConfirm : null}
+        onConfirm={modalConfig.type === "confirm" ? confirmDelete : null}
         onCancel={closeModal}
       >
         {modalConfig.type === "catalog" && (

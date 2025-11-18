@@ -1,7 +1,9 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./SupplierCatalog.css";
 
 export default function SupplierLinkRequests() {
+  const navigate = useNavigate();
   const [requests, setRequests] = useState([]);
   const [filterStatus, setFilterStatus] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -24,8 +26,9 @@ export default function SupplierLinkRequests() {
     const token = localStorage.getItem("token");
 
     if (!token) {
-      setErrorMsg("No authentication token found. Please login again.");
+      setErrorMsg("No authentication token found. Redirecting to login...");
       setLoading(false);
+      navigate("/login");
       return;
     }
 
@@ -35,9 +38,10 @@ export default function SupplierLinkRequests() {
       });
 
       if (res.status === 401) {
-        setErrorMsg("Authentication failed. Please login again.");
+        setErrorMsg("Authentication failed. Redirecting to login...");
         localStorage.removeItem("token");
         setLoading(false);
+        navigate("/login");
         return;
       }
 
@@ -77,7 +81,6 @@ export default function SupplierLinkRequests() {
     });
   };
 
-  // Wrapped action executor
   const confirmModalAction = async () => {
     const { action, linkId } = modalData;
 
@@ -103,7 +106,6 @@ export default function SupplierLinkRequests() {
       });
 
       if (!res.ok) throw new Error("Failed to reject request");
-
       await fetchRequests();
     } catch (err) {
       setErrorMsg(err.message);
@@ -126,7 +128,6 @@ export default function SupplierLinkRequests() {
       });
 
       if (!res.ok) throw new Error("Failed to block consumer");
-
       await fetchRequests();
     } catch (err) {
       setErrorMsg(err.message);
@@ -149,7 +150,6 @@ export default function SupplierLinkRequests() {
       });
 
       if (!res.ok) throw new Error("Failed to unlink consumer");
-
       await fetchRequests();
     } catch (err) {
       setErrorMsg(err.message);
@@ -158,7 +158,6 @@ export default function SupplierLinkRequests() {
     }
   };
 
-  // Accept (no modal)
   const handleAccept = async (linkId) => {
     const token = localStorage.getItem("token");
     setActionLoading(linkId);
@@ -182,7 +181,6 @@ export default function SupplierLinkRequests() {
     }
   };
 
-  // Modal-triggering actions
   const handleReject = (linkId) => {
     openModal("reject", linkId, "Reject this consumer request?");
   };
@@ -308,9 +306,7 @@ export default function SupplierLinkRequests() {
           Pending ({counts.pending})
         </button>
         <button
-          className={`filter-btn ${
-            filterStatus === "linked" ? "active" : ""
-          }`}
+          className={`filter-btn ${filterStatus === "linked" ? "active" : ""}`}
           onClick={() => setFilterStatus("linked")}
         >
           Linked ({counts.linked})

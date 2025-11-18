@@ -1,9 +1,12 @@
 .supplier-orders-container {
-  max-width: 1200px;
+  width: 95%;
+  max-width: 1200px; /* ограничение на больших экранах */
   margin: 0 auto;
   padding: 2rem;
+  padding-top: calc(2rem + 80px); /* высота navbar */
   min-height: calc(100vh - 80px);
   background-color: #f5f5f5;
+  box-sizing: border-box;
 }
 
 .orders-header {
@@ -400,9 +403,18 @@
   box-shadow: 0 4px 12px rgba(97, 218, 251, 0.3);
 }
 
+@media (max-width: 1200px) {
+  .supplier-orders-container {
+    width: 95%;
+    padding-top: calc(2rem + 80px);
+  }
+}
+
 @media (max-width: 768px) {
   .supplier-orders-container {
+    width: 100%;
     padding: 1rem;
+    padding-top: calc(1rem + 80px);
   }
 
   .header-filters {

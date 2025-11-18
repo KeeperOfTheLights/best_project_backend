@@ -6,7 +6,7 @@ export function AuthProvider({ children }) {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [role, setRole] = useState(null);
   const [token, setToken] = useState(null);
-  const [loading, setLoading] = useState(true); // новое состояние
+  const [loading, setLoading] = useState(true);
 
   // Проверка localStorage при монтировании
   useEffect(() => {
@@ -19,7 +19,7 @@ export function AuthProvider({ children }) {
       setIsLoggedIn(true);
     }
 
-    setLoading(false); // проверка завершена
+    setLoading(false);
   }, []);
 
   const login = ({ token, role }) => {
