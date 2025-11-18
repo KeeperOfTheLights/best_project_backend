@@ -22,6 +22,13 @@ export default function SupplierProducts() {
     status: "active",
   });
 
+  const [actionModal, setActionModal] = useState({
+    visible: false,
+    productId: null,
+    action: null,
+    message: "",
+  });
+
   useEffect(() => {
     fetchProducts();
   }, []);
@@ -88,16 +95,41 @@ export default function SupplierProducts() {
         body: JSON.stringify(formData),
       });
 
-      if (!response.ok) throw new Error("Failed to save product");
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Server error:", errorData);
+        throw new Error("Failed to save product");
+      }
       await fetchProducts();
       setShowModal(false);
     } catch (err) {
+      console.error("Save error:", err);
       alert(err.message);
     }
   };
 
-  const handleDelete = async (productId) => {
-    if (!window.confirm("Are you sure?")) return;
+  const openActionModal = (productId, action, message) => {
+    setActionModal({ visible: true, productId, action, message });
+  };
+
+  const confirmAction = async () => {
+    const { productId, action } = actionModal;
+
+    if (action === "delete") {
+      await handleDeleteConfirmed(productId);
+    } else if (action === "toggleStatus") {
+      const product = products.find((p) => p.id === productId);
+      if (product) await toggleStatus(product);
+    }
+
+    setActionModal({ visible: false, productId: null, action: null, message: "" });
+  };
+
+  const handleDelete = (productId) => {
+    openActionModal(productId, "delete", "Are you sure you want to delete this product?");
+  };
+
+  const handleDeleteConfirmed = async (productId) => {
     try {
       const response = await fetch(
         `http://127.0.0.1:8000/api/accounts/products/${productId}/`,
@@ -116,21 +148,25 @@ export default function SupplierProducts() {
   const toggleStatus = async (product) => {
     try {
       const response = await fetch(
-        `http://127.0.0.1:8000/api/accounts/products/${product.id}/`,
+        `http://127.0.0.1:8000/api/accounts/products/${product.id}/status/`,
         {
           method: "PATCH",
           headers: {
             "Content-Type": "application/json",
             Authorization: `Bearer ${token}`,
           },
-          body: JSON.stringify({
-            status: product.status === "active" ? "inactive" : "active",
-          }),
         }
       );
-      if (!response.ok) throw new Error("Failed to update status");
-      fetchProducts();
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        console.error("Toggle status error:", errorData);
+        throw new Error("Failed to update status");
+      }
+
+      await fetchProducts();
     } catch (err) {
+      console.error("Toggle error:", err);
       alert(err.message);
     }
   };
@@ -168,9 +204,7 @@ export default function SupplierProducts() {
                   No Image
                 </div>
               )}
-              <span className={`status-badge ${product.status}`}>
-                {product.status}
-              </span>
+              <span className={`status-badge ${product.status}`}>{product.status}</span>
             </div>
 
             <div className="product-content">
@@ -184,10 +218,24 @@ export default function SupplierProducts() {
                 <button className="action-btn edit-btn" onClick={() => handleEditClick(product)}>
                   Edit
                 </button>
-                <button className="action-btn toggle-btn" onClick={() => toggleStatus(product)}>
+                <button
+                  className="action-btn toggle-btn"
+                  onClick={() =>
+                    openActionModal(
+                      product.id,
+                      "toggleStatus",
+                      `Are you sure you want to ${
+                        product.status === "active" ? "deactivate" : "activate"
+                      } this product?`
+                    )
+                  }
+                >
                   {product.status === "active" ? "Deactivate" : "Activate"}
                 </button>
-                <button className="action-btn delete-btn" onClick={() => handleDelete(product.id)}>
+                <button
+                  className="action-btn delete-btn"
+                  onClick={() => handleDelete(product.id)}
+                >
                   Delete
                 </button>
               </div>
@@ -205,7 +253,7 @@ export default function SupplierProducts() {
                 &times;
               </button>
             </div>
-            <form className="product-form" onSubmit={handleSave}>
+            <div className="product-form">
               <div className="form-group">
                 <label>Name</label>
                 <input name="name" value={formData.name} onChange={handleInputChange} required />
@@ -228,8 +276,9 @@ export default function SupplierProducts() {
                 <label>Unit</label>
                 <select name="unit" value={formData.unit} onChange={handleInputChange}>
                   <option value="kg">kg</option>
-                  <option value="piece">piece</option>
+                  <option value="pcs">piece</option>
                   <option value="litre">litre</option>
+                  <option value="pack">pack</option>
                 </select>
               </div>
               <div className="form-group">
@@ -259,11 +308,31 @@ export default function SupplierProducts() {
                 <button type="button" className="cancel-btn" onClick={() => setShowModal(false)}>
                   Cancel
                 </button>
-                <button type="submit" className="save-btn">
+                <button type="button" className="save-btn" onClick={handleSave}>
                   Save
                 </button>
               </div>
-            </form>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {actionModal.visible && (
+        <div className="modal-overlay">
+          <div className="modal-window">
+            <h3>Confirm Action</h3>
+            <p>{actionModal.message}</p>
+            <div className="modal-buttons">
+              <button
+                className="modal-btn cancel"
+                onClick={() => setActionModal({ ...actionModal, visible: false })}
+              >
+                Cancel
+              </button>
+              <button className="modal-btn confirm" onClick={confirmAction}>
+                Confirm
+              </button>
+            </div>
           </div>
         </div>
       )}

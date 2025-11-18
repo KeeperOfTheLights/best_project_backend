@@ -64,7 +64,8 @@ class ProductSerializer(serializers.ModelSerializer):
             'id', 'name', 'category', 'price', 'unit', 'stock', 'minOrder',
             'image', 'description', 'status', 'created_at', 'supplier_name'
         ]
-        read_only_fields = ['supplier', 'status', 'created_at', 'supplier_name']
+        # УБРАЛИ 'status' из read_only_fields!
+        read_only_fields = ['supplier', 'created_at', 'supplier_name']
 
     def create(self, validated_data):
         user = self.context['request'].user
