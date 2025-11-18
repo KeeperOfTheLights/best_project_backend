@@ -1,16 +1,14 @@
-/* === Container === */
 .complaints-container {
   max-width: 95%;
   margin: 0 auto;
   padding: 2rem;
-  padding-top: 6rem; /* чтобы не уходило под navbar */
+  padding-top: 6rem;
   min-height: calc(100vh - 80px);
   background-color: #f5f5f5;
   position: relative;
   box-sizing: border-box;
 }
 
-/* === Header Card === */
 .complaints-header-card {
   background: white;
   border-radius: 12px;
@@ -48,7 +46,6 @@
   transform: translateY(-2px);
 }
 
-/* === Filters === */
 .complaints-filters {
   display: flex;
   gap: 1rem;
@@ -80,7 +77,6 @@
   font-weight: 600;
 }
 
-/* === Complaints List === */
 .complaints-list {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
@@ -140,7 +136,6 @@
   font-size: 0.85rem;
 }
 
-/* === Status Badge === */
 .status-badge {
   position: absolute;
   top: 1rem;
@@ -166,7 +161,6 @@
   color: #842029;
 }
 
-/* === No complaints message === */
 .no-complaints {
   text-align: center;
   padding: 3rem;
@@ -181,7 +175,6 @@
   margin: 0;
 }
 
-/* === Complaint Form === */
 .complaint-form {
   background: white;
   border-radius: 12px;
@@ -240,7 +233,6 @@
   transform: translateY(-2px);
 }
 
-/* === Supplier action buttons === */
 .complaint-card .action-btns {
   margin-top: 1rem;
   display: flex;

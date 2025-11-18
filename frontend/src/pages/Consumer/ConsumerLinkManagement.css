@@ -24,7 +24,6 @@
   margin: 0;
 }
 
-/* Statistics */
 .link-stats {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -82,7 +81,6 @@
   font-size: 0.9rem;
 }
 
-/* Filter Tabs */
 .link-filters {
   display: flex;
   gap: 1rem;
@@ -112,7 +110,6 @@
   color: #20232a;
 }
 
-/* Suppliers Grid */
 .suppliers-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
@@ -215,7 +212,6 @@
   line-height: 1.4;
 }
 
-/* Actions */
 .link-actions {
   display: flex;
   flex-direction: column;
@@ -289,7 +285,6 @@
   color: #41464b;
 }
 
-/* Empty State */
 .empty-state {
   text-align: center;
   padding: 3rem;
@@ -304,7 +299,6 @@
   margin: 0;
 }
 
-/* Responsive */
 @media (max-width: 768px) {
   .link-management-container {
     padding: 1rem;

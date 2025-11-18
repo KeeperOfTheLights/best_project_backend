@@ -2,7 +2,6 @@ import React, { useState } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import "./ConsumerSupplierProducts.css";
 
-// Массив поставщиков
 const dummySuppliers = [
   {
     id: 1,
@@ -40,11 +39,9 @@ export default function ConsumerSupplierProducts() {
   const [searchQuery, setSearchQuery] = useState("");
   const [categoryFilter, setCategoryFilter] = useState("all");
 
-  // Найти поставщика по id
   const supplier = dummySuppliers.find(s => s.id === parseInt(supplierId));
   if (!supplier) return <div>Supplier not found</div>;
 
-  // Продукты этого поставщика
   const productsForSupplier = dummyProducts.filter(p => p.supplierId === supplier.id);
 
   const handleQuantityChange = (productId, value) => {
@@ -123,7 +120,6 @@ export default function ConsumerSupplierProducts() {
 
   return (
     <div className="supplier-products-container">
-      {/* Supplier Header */}
       <div className="supplier-header-card">
         <img src={supplier.image} alt={supplier.name} className="supplier-header-image" />
         <div className="supplier-header-info">
@@ -135,7 +131,6 @@ export default function ConsumerSupplierProducts() {
         </div>
       </div>
 
-      {/* Filters */}
       <div className="products-filters">
         <input
           type="text"
@@ -155,7 +150,6 @@ export default function ConsumerSupplierProducts() {
         </select>
       </div>
 
-      {/* Products Grid */}
       <div className="products-grid">
         {filteredProducts.map(product => {
           const inCart = cart.find(item => item.id === product.id);
@@ -195,7 +189,6 @@ export default function ConsumerSupplierProducts() {
 
       {filteredProducts.length === 0 && <div className="no-products"><p>No products found</p></div>}
 
-      {/* Floating Cart */}
       {cart.length > 0 && (
         <div className="floating-cart">
           <div className="cart-header">

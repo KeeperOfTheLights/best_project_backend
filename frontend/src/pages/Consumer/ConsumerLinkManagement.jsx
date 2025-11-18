@@ -9,7 +9,6 @@ export default function ConsumerLinkManagement() {
   const [filterStatus, setFilterStatus] = useState("all");
   const navigate = useNavigate();
 
-  // Загружаем список поставщиков
   useEffect(() => {
     fetchSuppliers();
   }, []);
@@ -98,12 +97,10 @@ export default function ConsumerLinkManagement() {
     }
   };
 
-  // Фильтруем поставщиков
   const filteredSuppliers = filterStatus === "all"
     ? suppliers
     : suppliers.filter(s => s.link_status === filterStatus);
 
-  // Статистика
   const counts = {
     all: suppliers.length,
     approved: suppliers.filter(s => s.link_status === "approved").length,
@@ -116,7 +113,6 @@ export default function ConsumerLinkManagement() {
     <div className="link-management-container">
       <h2>Supplier Connections</h2>
 
-      {/* Filter buttons */}
       <div className="link-filters">
         {["all","approved","pending","not_linked","rejected"].map(status => (
           <button
@@ -129,7 +125,6 @@ export default function ConsumerLinkManagement() {
         ))}
       </div>
 
-      {/* Supplier list */}
       <div className="suppliers-grid">
         {filteredSuppliers.map(s => (
           <div key={s.id} className="supplier-card">

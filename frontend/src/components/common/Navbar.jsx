@@ -1,17 +1,24 @@
-import React from 'react';
-import { Link } from "react-router-dom";
+import React, { useEffect } from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 import reactLogo from "../../assets/Logo.png";
 import "./Navbar.css";
 
-
 export default function Navbar() {
-  const { isLoggedIn, role, logout } = useAuth();
+  const { isLoggedIn, role, logout, token } = useAuth();
+  const navigate = useNavigate();
+
+  useEffect(() => {
+  if (!token) {
+    logout();
+    navigate("/login");
+  }
+  }, [token]);
 
   const getDashboardRoute = () => {
-  if (role === "supplier") return "/SupplierDashboard";
-  if (role === "consumer") return "/ConsumerDashboard";
-  return "/";
+    if (role === "supplier") return "/SupplierDashboard";
+    if (role === "consumer") return "/ConsumerDashboard";
+    return "/";
   };
 
   return (
@@ -50,7 +57,7 @@ export default function Navbar() {
             </div>
 
             <input type="text" placeholder="Companies, cafes, products..." className="search-input"/>
-            <button className="nav-btn login-btn" onClick={logout}>Sign Out</button>
+            <button className="nav-btn login-btn" onClick={() => { logout(); navigate("/login"); }}>Sign Out</button>
           </>
         )}
       </div>

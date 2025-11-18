@@ -55,7 +55,6 @@ export default function SignUp() {
       if (response.ok) {
         login({ role: data.role, token: data.token });
 
-        // Делаем небольшой таймаут, чтобы контекст успел обновиться
         setTimeout(() => {
           navigate(data.role === "supplier" ? "/supplier" : "/consumer");
         }, 50);
@@ -71,7 +70,7 @@ export default function SignUp() {
     <div className="signup-container">
       <div className="signup-card">
         <h2>Create an Account</h2>
-        <p className="signup-subtext">Join Daivinvhik today 💏</p>
+        <p className="signup-subtext">Join Daivinvhik today</p>
 
         <form className="signup-form" onSubmit={handleSubmit}>
           <input type="text" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />

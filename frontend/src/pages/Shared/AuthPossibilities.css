@@ -1,7 +1,7 @@
 html, body {
   margin: 0;
   padding: 0;
-  background-color: #bfb7b7 !important; /* единый фон */
+  background-color: #bfb7b7 !important;
   height: 100%;
   font-family: sans-serif;
 }
@@ -114,7 +114,6 @@ html, body {
   font-weight: 600;
 }
 
-/* === ERRORS === */
 .error-message {
   color: #ff4d4f;
   margin-bottom: 10px;

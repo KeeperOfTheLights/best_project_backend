@@ -62,13 +62,10 @@
   color: #000;
 }
 
-/* Colors (optional refinements) */
 .stat-card.completed h3 { color: #4caf50; }
 .stat-card.in-progress h3 { color: #61dafb; }
 .stat-card.cancelled h3 { color: #f44336; }
 .stat-card.total h3 { color: #ffa726; }
-
-/* Quick Actions */
 
 .quick-actions {
   margin-top: 50px;

@@ -1,7 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useAuth } from "../../context/Auth-Context";
+import { useNavigate } from "react-router-dom";
 import "./ConsumerCatalog.css";
 
 export default function ConsumerLinkManagement() {
+  const { token, logout } = useAuth();
+  const navigate = useNavigate();
+
   const [suppliers, setSuppliers] = useState([]);
   const [filterStatus, setFilterStatus] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -14,11 +19,10 @@ export default function ConsumerLinkManagement() {
   const fetchSuppliers = async () => {
     setLoading(true);
     setErrorMsg("");
-    const token = localStorage.getItem("token");
 
     if (!token) {
-      setErrorMsg("No authentication token found. Please login again.");
-      setLoading(false);
+      logout();
+      navigate("/login");
       return;
     }
 
@@ -26,33 +30,39 @@ export default function ConsumerLinkManagement() {
       const resSuppliers = await fetch(`${API_BASE}/suppliers/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-      
+
       if (resSuppliers.status === 401) {
         setErrorMsg("Authentication failed. Please login again.");
-        localStorage.removeItem("token");
-        setLoading(false);
+        logout();
+        navigate("/login");
         return;
       }
-      
+
       if (!resSuppliers.ok) throw new Error("Failed to fetch suppliers");
       const allSuppliers = await resSuppliers.json();
 
       const resLinks = await fetch(`${API_BASE}/consumer/links/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      if (resLinks.status === 401) {
+        setErrorMsg("Authentication failed. Please login again.");
+        logout();
+        navigate("/login");
+        return;
+      }
+
       if (!resLinks.ok) throw new Error("Failed to fetch links");
       const linksData = await resLinks.json();
 
       const mapped = allSuppliers.map((sup) => {
-        const link = linksData.find(
-          (l) => Number(l.supplier) === Number(sup.id)
-        );
+        const link = linksData.find((l) => Number(l.supplier) === Number(sup.id));
 
         return {
           id: sup.id,
           linkId: link?.id,
           name: sup.full_name,
-          company: sup.supplier_company || 'N/A',
+          company: sup.supplier_company || "N/A",
           email: sup.email,
           username: sup.username,
           linkStatus: link ? link.status : "not_linked",
@@ -71,7 +81,8 @@ export default function ConsumerLinkManagement() {
 
   useEffect(() => {
     fetchSuppliers();
-  }, []);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
 
   // ----- SEND LINK REQUEST -----
   const handleSendRequest = async (supplierId) => {
@@ -81,14 +92,13 @@ export default function ConsumerLinkManagement() {
       return;
     }
 
-    const token = localStorage.getItem("token");
     setActionLoading(supplierId);
     setErrorMsg("");
 
     // Optimistic UI update
-    setSuppliers(prev => prev.map(s => 
-      s.id === supplierId ? { ...s, linkStatus: "pending" } : s
-    ));
+    setSuppliers((prev) =>
+      prev.map((s) => (s.id === supplierId ? { ...s, linkStatus: "pending" } : s))
+    );
 
     try {
       const res = await fetch(`${API_BASE}/link/send/`, {
@@ -100,6 +110,13 @@ export default function ConsumerLinkManagement() {
         body: JSON.stringify({ supplier_id: supplierId }),
       });
 
+      if (res.status === 401) {
+        setErrorMsg("Authentication failed. Please login again.");
+        logout();
+        navigate("/login");
+        return;
+      }
+
       const responseText = await res.text();
       let data;
       try {
@@ -109,12 +126,10 @@ export default function ConsumerLinkManagement() {
       }
 
       if (!res.ok) {
-        // Revert optimistic update on error
         await fetchSuppliers();
         throw new Error(data.detail || data.message || "Failed to send link request");
       }
 
-      // Refresh to get the linkId
       await fetchSuppliers();
     } catch (err) {
       console.error("Send request error:", err.message);
@@ -129,18 +144,17 @@ export default function ConsumerLinkManagement() {
     const supplier = suppliers.find((s) => s.id === supplierId);
     if (!supplier || !supplier.linkId) {
       setErrorMsg("No link found. Please refresh the page and try again.");
-      // Try to refresh data
       await fetchSuppliers();
       return;
     }
 
-    const confirmMessage = supplier.linkStatus === "pending"
-      ? "Are you sure you want to cancel this request?"
-      : "Are you sure you want to unlink this supplier?";
+    const confirmMessage =
+      supplier.linkStatus === "pending"
+        ? "Are you sure you want to cancel this request?"
+        : "Are you sure you want to unlink this supplier?";
 
     if (!window.confirm(confirmMessage)) return;
 
-    const token = localStorage.getItem("token");
     setActionLoading(supplierId);
     setErrorMsg("");
 
@@ -152,6 +166,13 @@ export default function ConsumerLinkManagement() {
           Authorization: `Bearer ${token}`,
         },
       });
+
+      if (res.status === 401) {
+        setErrorMsg("Authentication failed. Please login again.");
+        logout();
+        navigate("/login");
+        return;
+      }
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
@@ -193,10 +214,7 @@ export default function ConsumerLinkManagement() {
       {errorMsg && (
         <div className="error-message">
           {errorMsg}
-          <button 
-            onClick={() => setErrorMsg("")}
-            style={{ marginLeft: '10px', cursor: 'pointer' }}
-          >
+          <button onClick={() => setErrorMsg("")} style={{ marginLeft: "10px", cursor: "pointer" }}>
             ✕
           </button>
         </div>
@@ -229,17 +247,15 @@ export default function ConsumerLinkManagement() {
 
       {/* Filters */}
       <div className="link-filters">
-        {["all", "linked", "pending", "not_linked", "rejected"].map(
-          (status) => (
-            <button
-              key={status}
-              className={`filter-btn ${filterStatus === status ? "active" : ""}`}
-              onClick={() => setFilterStatus(status)}
-            >
-              {status.replace("_", " ")} ({counts[status] || 0})
-            </button>
-          )
-        )}
+        {["all", "linked", "pending", "not_linked", "rejected"].map((status) => (
+          <button
+            key={status}
+            className={`filter-btn ${filterStatus === status ? "active" : ""}`}
+            onClick={() => setFilterStatus(status)}
+          >
+            {status.replace("_", " ")} ({counts[status] || 0})
+          </button>
+        ))}
       </div>
 
       {/* Supplier Cards */}
@@ -285,9 +301,7 @@ export default function ConsumerLinkManagement() {
                   </>
                 ) : supplier.linkStatus === "rejected" ? (
                   <>
-                    <span className="rejected-message">
-                      Request was rejected
-                    </span>
+                    <span className="rejected-message">Request was rejected</span>
                     <button
                       className="link-btn send-request-btn"
                       onClick={() => handleSendRequest(supplier.id)}

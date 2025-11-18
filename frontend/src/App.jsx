@@ -21,7 +21,7 @@ import SComplaints from "./pages/Supplier/SupplierComplaints";
 function RoleRoute({ role, children }) {
   const { isLoggedIn, role: userRole, loading } = useAuth();
 
-  if (loading) return <p>Loading...</p>; // ждём загрузки токена
+  if (loading) return <p>Loading...</p>;
 
   if (!isLoggedIn) return <Navigate to="/login" />;
   if (role && userRole !== role) return <Navigate to="/about" />;

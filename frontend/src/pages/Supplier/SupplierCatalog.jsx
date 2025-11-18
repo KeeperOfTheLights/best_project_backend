@@ -10,7 +10,6 @@ export default function SupplierLinkRequests() {
 
   const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
-  // ----- FETCH LINK REQUESTS -----
   const fetchRequests = async () => {
     setLoading(true);
     setErrorMsg("");
@@ -51,7 +50,6 @@ export default function SupplierLinkRequests() {
     fetchRequests();
   }, []);
 
-  // ----- ACCEPT REQUEST -----
   const handleAccept = async (linkId) => {
     const token = localStorage.getItem("token");
     setActionLoading(linkId);
@@ -80,7 +78,6 @@ export default function SupplierLinkRequests() {
     }
   };
 
-  // ----- REJECT REQUEST -----
   const handleReject = async (linkId) => {
     if (!window.confirm("Reject this link request?")) return;
 
@@ -111,7 +108,6 @@ export default function SupplierLinkRequests() {
     }
   };
 
-  // ----- BLOCK CONSUMER -----
   const handleBlock = async (linkId) => {
     if (!window.confirm("Block this consumer? They won't be able to send requests again.")) return;
 
@@ -142,7 +138,6 @@ export default function SupplierLinkRequests() {
     }
   };
 
-  // ----- UNBLOCK CONSUMER -----
   const handleUnblock = async (linkId) => {
     if (!window.confirm("Unblock this consumer?")) return;
 
@@ -173,7 +168,6 @@ export default function SupplierLinkRequests() {
     }
   };
 
-  // ----- UNLINK CONSUMER -----
   const handleUnlink = async (linkId) => {
     if (!window.confirm("Unlink this consumer? They will lose access to your catalog.")) return;
 
