@@ -1,9 +1,16 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #bfb7b7 !important; /* единый фон */
+  height: 100%;
+  font-family: sans-serif;
+}
+
 .signup-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
-  background-color: #bfb7b7;
+  min-height: 100vh;
   padding-top: 4rem;
 }
 
@@ -83,6 +90,7 @@
   gap: 1rem;
   margin-bottom: 1.5rem;
 }
+
 .role-btn {
   flex: 1;
   padding: 0.6rem 1rem;
@@ -94,9 +102,11 @@
   font-weight: 500;
   transition: all 0.2s;
 }
+
 .role-btn:hover {
   background-color: #a1a1a1 !important;
 }
+
 .role-btn.active {
   background-color: #61dafb !important;
   border-color: #61dafb;
@@ -104,6 +114,7 @@
   font-weight: 600;
 }
 
+/* === ERRORS === */
 .error-message {
   color: #ff4d4f;
   margin-bottom: 10px;
@@ -120,19 +131,15 @@
 }
 
 .password-error.weak {
-  color: #ef4444; /* красный */
+  color: #ef4444;
 }
 
 .password-error.strong {
-  color: #10b981; /* зеленый */
+  color: #10b981;
 }
 
 .form-error {
-  color: #ef4444; /* красный */
+  color: #ef4444;
   font-size: 0.9rem;
   margin: 0.5rem 0 1rem 0;
 }
-
-
-
-
