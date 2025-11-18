@@ -79,5 +79,8 @@ class LinkRequest(models.Model):
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='pending')
     created_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = (("supplier", "consumer"),)
+
     def __str__(self):
         return f"{self.consumer.username} → {self.supplier.username} [{self.status}]"

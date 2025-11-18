@@ -1,3 +1,4 @@
+from django.db import models
 from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -83,9 +84,18 @@ class UnlinkView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, link_id):
-        link = get_object_or_404(LinkRequest, id=link_id, supplier=request.user)
+        link = LinkRequest.objects.filter(
+            id=link_id
+        ).filter(
+            models.Q(supplier=request.user) | models.Q(consumer=request.user)
+        ).first()
+
+        if not link:
+            return Response({"detail": "Not found or not allowed"}, status=404)
+
         link.delete()
         return Response({"detail": "Unlinked successfully"}, status=200)
+
 
 
 class AcceptLinkView(APIView):
@@ -137,14 +147,13 @@ class AllSuppliersView(APIView):
             return Response({"detail": "Only consumers can view suppliers"}, status=403)
 
         suppliers = User.objects.filter(role="supplier")
+        serializer = SupplierSerializer(suppliers, many=True)
+        return Response(serializer.data, status=200)
 
-        results = []
-        for supplier in suppliers:
-            results.append({
-                "id": supplier.id,
-                "full_name": supplier.full_name,
-                "email": supplier.email,
-                "username": supplier.username,
-            })
 
-        return Response(results, status=200)
+class ConsumerLinkListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = LinkRequestSerializer
+
+    def get_queryset(self):
+        return LinkRequest.objects.filter(consumer=self.request.user)

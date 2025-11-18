@@ -56,12 +56,15 @@ class LoginSerializer(serializers.Serializer):
 
 
 class ProductSerializer(serializers.ModelSerializer):
+    supplier_name = serializers.CharField(source='supplier.full_name', read_only=True)
+
     class Meta:
         model = Product
         fields = [
             'id', 'name', 'category', 'price', 'unit', 'stock', 'minOrder',
-            'image', 'description', 'status', 'created_at'
+            'image', 'description', 'status', 'created_at', 'supplier_name'
         ]
+        read_only_fields = ['supplier', 'status', 'created_at', 'supplier_name']
 
     def create(self, validated_data):
         user = self.context['request'].user
@@ -79,13 +82,19 @@ class ProductSerializer(serializers.ModelSerializer):
 class LinkRequestSerializer(serializers.ModelSerializer):
     consumer_name = serializers.CharField(source='consumer.full_name', read_only=True)
     supplier_name = serializers.CharField(source='supplier.full_name', read_only=True)
+    supplier_company = serializers.CharField(source='supplier.supplier_profile.company_name', read_only=True, default=None)
 
     class Meta:
         model = LinkRequest
-        fields = '__all__'
-        read_only_fields = ['status', 'created_at']
+        fields = [
+            'id', 'supplier', 'consumer', 'status', 'created_at',
+            'consumer_name', 'supplier_name', 'supplier_company'
+        ]
+        read_only_fields = ['status', 'created_at', 'consumer', 'supplier']
 
 class SupplierSerializer(serializers.ModelSerializer):
+    supplier_company = serializers.CharField(source="supplier_profile.company_name", read_only=True)
+
     class Meta:
         model = User
-        fields = ["id", "full_name", "email", "role"]
+        fields = ["id", "full_name", "email", "role", "supplier_company"]
