@@ -2,7 +2,7 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
-  padding-top: 140px;
+  padding-top: 12rem;
   min-height: calc(100vh - 80px);
   background-color: #f5f5f5;
 }
@@ -282,3 +282,26 @@
     grid-template-columns: 1fr;
   }
 }
+
+.catalog-items {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.catalog-item-card {
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #f8f9fa;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+}
+
+.catalog-item-card h4 {
+  margin: 0 0 0.3rem 0;
+}
+
+.item-price {
+  font-weight: 600;
+  color: #61dafb;
+}
+

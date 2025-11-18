@@ -14,10 +14,16 @@ export default function ConsumerLinkManagement() {
   const [errorMsg, setErrorMsg] = useState("");
   const [actionLoading, setActionLoading] = useState(null);
 
-  // modal
-  const [showModal, setShowModal] = useState(false);
-  const [modalSupplier, setModalSupplier] = useState(null);
-  const [modalType, setModalType] = useState("");
+  // Универсальный Modal
+  const [modalConfig, setModalConfig] = useState({
+    show: false,
+    type: "", // "confirm" | "catalog"
+    title: "",
+    text: "",
+    supplier: null,
+    items: [],
+    onConfirm: null,
+  });
 
   const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
@@ -35,32 +41,27 @@ export default function ConsumerLinkManagement() {
       const resSuppliers = await fetch(`${API_BASE}/suppliers/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       if (resSuppliers.status === 401) {
         logout();
         navigate("/login");
         return;
       }
-
       if (!resSuppliers.ok) throw new Error("Failed to fetch suppliers");
       const allSuppliers = await resSuppliers.json();
 
       const resLinks = await fetch(`${API_BASE}/consumer/links/`, {
         headers: { Authorization: `Bearer ${token}` },
       });
-
       if (resLinks.status === 401) {
         logout();
         navigate("/login");
         return;
       }
-
       if (!resLinks.ok) throw new Error("Failed to fetch links");
       const linksData = await resLinks.json();
 
       const mapped = allSuppliers.map((sup) => {
         const link = linksData.find((l) => Number(l.supplier) === Number(sup.id));
-
         return {
           id: sup.id,
           linkId: link?.id,
@@ -136,10 +137,8 @@ export default function ConsumerLinkManagement() {
     }
   };
 
-  // open modal instead of window.confirm
   const handleDeleteLink = (supplierId) => {
     const supplier = suppliers.find((s) => s.id === supplierId);
-
     if (!supplier || !supplier.linkId) {
       setErrorMsg("No link found. Please refresh and try again.");
       return;
@@ -147,18 +146,26 @@ export default function ConsumerLinkManagement() {
 
     const type = supplier.linkStatus === "pending" ? "cancel" : "unlink";
 
-    setModalSupplier(supplier);
-    setModalType(type);
-    setShowModal(true);
+    setModalConfig({
+      show: true,
+      type: "confirm",
+      title: type === "cancel" ? "Cancel Request" : "Unlink Supplier",
+      text:
+        type === "cancel"
+          ? "Are you sure you want to cancel this request?"
+          : "Are you sure you want to unlink this supplier?",
+      supplier: supplier,
+      items: [],
+      onConfirm: confirmDelete,
+    });
   };
 
-  // confirm delete (modal)
   const confirmDelete = async () => {
-    if (!modalSupplier) return;
+    if (!modalConfig.supplier) return;
 
-    const supplier = modalSupplier;
+    const supplier = modalConfig.supplier;
 
-    setShowModal(false); // close modal
+    setModalConfig((prev) => ({ ...prev, show: false }));
     setActionLoading(supplier.id);
     setErrorMsg("");
 
@@ -189,6 +196,24 @@ export default function ConsumerLinkManagement() {
       setActionLoading(null);
     }
   };
+
+  const handleViewCatalog = (supplier) => {
+    setModalConfig({
+      show: true,
+      type: "catalog",
+      title: `${supplier.name}'s Catalog`,
+      text: "",
+      supplier: supplier,
+      items: [
+        { id: 1, name: "Product A", description: "Description A", price: "$10" },
+        { id: 2, name: "Product B", description: "Description B", price: "$15" },
+        { id: 3, name: "Product C", description: "Description C", price: "$20" },
+      ],
+      onConfirm: null,
+    });
+  };
+
+  const closeModal = () => setModalConfig((prev) => ({ ...prev, show: false }));
 
   const filteredSuppliers =
     filterStatus === "all"
@@ -285,7 +310,7 @@ export default function ConsumerLinkManagement() {
                   <>
                     <button
                       className="link-btn view-catalog-btn"
-                      onClick={() => alert(`View catalog for ${supplier.name}`)}
+                      onClick={() => handleViewCatalog(supplier)}
                     >
                       View Catalog
                     </button>
@@ -321,18 +346,27 @@ export default function ConsumerLinkManagement() {
         </div>
       )}
 
-      {/* MODAL */}
+      {/* Универсальный Modal */}
       <Modal
-        show={showModal}
-        title={modalType === "cancel" ? "Cancel Request" : "Unlink Supplier"}
-        text={
-          modalType === "cancel"
-            ? "Are you sure you want to cancel this request?"
-            : "Are you sure you want to unlink this supplier?"
-        }
-        onConfirm={confirmDelete}
-        onCancel={() => setShowModal(false)}
-      />
+        show={modalConfig.show}
+        title={modalConfig.title}
+        text={modalConfig.text}
+        onConfirm={modalConfig.type === "confirm" ? modalConfig.onConfirm : null}
+        onCancel={closeModal}
+      >
+        {modalConfig.type === "catalog" && (
+          <div className="catalog-items">
+            {modalConfig.items.map((item) => (
+              <div key={item.id} className="catalog-item-card">
+                <h4>{item.name}</h4>
+                <p>{item.description}</p>
+                <p className="item-price">{item.price}</p>
+              </div>
+            ))}
+            {modalConfig.items.length === 0 && <p>No items to display</p>}
+          </div>
+        )}
+      </Modal>
     </div>
   );
 }

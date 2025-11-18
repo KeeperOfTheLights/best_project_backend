@@ -49,7 +49,6 @@ export default function Navbar() {
             <div className="dropdown">
               <button className="inter-btn dropdown-toggle">Communications ▾</button>
               <div className="dropdown-menu">
-                <Link to="/notifications">Notifications</Link>
                 <Link to="/chat">Chat</Link>
                 {role === "supplier" && <Link to="/supplier/complaints" className="inter-btn">Complaints</Link>}
                 {role === "consumer" && <Link to="/consumer/complaints" className="inter-btn">Complaints</Link>}
