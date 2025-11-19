@@ -157,3 +157,23 @@ class ConsumerLinkListView(generics.ListAPIView):
 
     def get_queryset(self):
         return LinkRequest.objects.filter(consumer=self.request.user)
+
+class SupplierCatalogView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, supplier_id):
+        link = LinkRequest.objects.filter(
+            supplier_id=supplier_id,
+            consumer=request.user,
+            status="linked"
+        ).first()
+
+        if not link:
+            return Response(
+                {"detail": "You are not linked with this supplier"},
+                status=403
+            )
+
+        products = Product.objects.filter(supplier_id=supplier_id)
+        serializer = ProductSerializer(products, many=True)
+        return Response(serializer.data, status=200)

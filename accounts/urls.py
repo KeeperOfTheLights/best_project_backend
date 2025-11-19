@@ -16,5 +16,6 @@ urlpatterns = [
     path("link/<int:link_id>/unblock/", UnblockLinkView.as_view()),
     path("suppliers/", AllSuppliersView.as_view(), name="all-suppliers"),
     path("consumer/links/", ConsumerLinkListView.as_view(), name="consumer-links"),
+    path("supplier/<int:supplier_id>/catalog/", SupplierCatalogView.as_view(), name="supplier-catalog"),
 
 ]
