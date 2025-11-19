@@ -190,19 +190,52 @@ export default function ConsumerLinkManagement() {
     }
   };
 
-  const handleViewCatalog = (supplier) => {
+  const handleViewCatalog = async (supplier) => {
     setModalConfig({
       show: true,
       type: "catalog",
       title: `${supplier.name}'s Catalog`,
       text: "",
       supplierId: supplier.id,
-      items: [
-        { id: 1, name: "Product A", description: "Description A", price: "$10" },
-        { id: 2, name: "Product B", description: "Description B", price: "$15" },
-        { id: 3, name: "Product C", description: "Description C", price: "$20" },
-      ],
+      items: [],
     });
+
+    try {
+      const res = await fetch(`${API_BASE}/supplier/${supplier.id}/catalog/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.status === 401) {
+        logout();
+        navigate("/login");
+        return;
+      }
+
+      if (res.status === 403) {
+        setModalConfig((prev) => ({
+          ...prev,
+          text: "You are not linked to this supplier.",
+        }));
+        return;
+      }
+
+      const data = await res.json();
+
+      setModalConfig((prev) => ({
+        ...prev,
+        items: data.map((p) => ({
+          id: p.id,
+          name: p.name,
+          description: p.description,
+          price: `${p.price} ₸`,
+        })),
+      }));
+    } catch (err) {
+      setModalConfig((prev) => ({
+        ...prev,
+        text: "Failed to load catalog",
+      }));
+    }
   };
 
   const closeModal = () => setModalConfig((prev) => ({ ...prev, show: false }));
