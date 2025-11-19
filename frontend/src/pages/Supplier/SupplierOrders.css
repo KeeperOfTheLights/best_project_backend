@@ -3,7 +3,7 @@
   max-width: 1200px; /* ограничение на больших экранах */
   margin: 0 auto;
   padding: 2rem;
-  padding-top: calc(2rem + 80px); /* высота navbar */
+  padding-top: calc(30rem + 80px); /* высота navbar */
   min-height: calc(100vh - 80px);
   background-color: #f5f5f5;
   box-sizing: border-box;

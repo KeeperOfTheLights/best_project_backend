@@ -2,7 +2,7 @@
   max-width: 1400px;
   margin: 0 auto;
   padding: 2rem;
-  padding-top: 12rem;
+  padding-top: calc(12rem + 80px);
   min-height: calc(100vh - 80px);
   background-color: #f5f5f5;
 }
@@ -304,4 +304,6 @@
   font-weight: 600;
   color: #61dafb;
 }
+
+
 

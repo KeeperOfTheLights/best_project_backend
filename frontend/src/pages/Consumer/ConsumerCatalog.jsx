@@ -191,11 +191,15 @@ export default function ConsumerLinkManagement() {
   };
 
   const handleViewCatalog = async (supplier) => {
+    console.log("=== VIEW CATALOG CLICKED ===");
+    console.log("Supplier:", supplier);
+    console.log("API URL:", `${API_BASE}/supplier/${supplier.id}/catalog/`);
+    
     setModalConfig({
       show: true,
       type: "catalog",
       title: `${supplier.name}'s Catalog`,
-      text: "",
+      text: "Loading catalog...",
       supplierId: supplier.id,
       items: [],
     });
@@ -205,35 +209,65 @@ export default function ConsumerLinkManagement() {
         headers: { Authorization: `Bearer ${token}` },
       });
 
-      if (res.status === 401) {
-        logout();
-        navigate("/login");
-        return;
-      }
+      console.log("Response status:", res.status);
+      console.log("Response ok:", res.ok);
 
       if (res.status === 403) {
+        console.log("Access denied - not linked");
         setModalConfig((prev) => ({
           ...prev,
           text: "You are not linked to this supplier.",
+          items: [],
         }));
         return;
       }
 
-      const data = await res.json();
+      if (!res.ok) {
+        const errorText = await res.text();
+        console.error("Error response:", errorText);
+        throw new Error(`Failed to load catalog: ${res.status}`);
+      }
 
-      setModalConfig((prev) => ({
-        ...prev,
-        items: data.map((p) => ({
-          id: p.id,
-          name: p.name,
-          description: p.description,
-          price: `${p.price} ₸`,
-        })),
+      const data = await res.json();
+      console.log("=== CATALOG DATA RECEIVED ===");
+      console.log("Raw data:", data);
+      console.log("Data length:", data.length);
+      console.log("First item:", data[0]);
+
+      const mappedItems = data.map((p) => ({
+        id: p.id,
+        name: p.name,
+        category: p.category,
+        description: p.description || "No description available",
+        price: `${p.price} ₸`,
+        unit: p.unit,
+        stock: p.stock,
+        minOrder: p.min_order || p.minOrder, 
+        image: p.image,
+        supplier: p.supplier_name,
       }));
+
+      console.log("Mapped items:", mappedItems);
+      console.log("Mapped items length:", mappedItems.length);
+
+      setModalConfig((prev) => {
+        console.log("Updating modal config with items:", mappedItems);
+        return {
+          ...prev,
+          text: "",
+          items: mappedItems,
+        };
+      });
+
+      console.log("Modal config updated");
     } catch (err) {
+      console.error("=== ERROR LOADING CATALOG ===");
+      console.error("Error:", err);
+      console.error("Error message:", err.message);
       setModalConfig((prev) => ({
         ...prev,
-        text: "Failed to load catalog",
+        text: `Failed to load catalog: ${err.message}`,
+        items: [],
       }));
     }
   };
@@ -310,6 +344,7 @@ export default function ConsumerLinkManagement() {
           <div key={supplier.id} className="supplier-link-card">
             <div className="supplier-content">
               <h3 className="supplier-name">{supplier.name}</h3>
+              <p className="supplier-company">🏢 {supplier.company}</p>
               <p className="supplier-email">📧 {supplier.email}</p>
 
               <div className="link-actions">
@@ -384,14 +419,34 @@ export default function ConsumerLinkManagement() {
       >
         {modalConfig.type === "catalog" && (
           <div className="catalog-items">
-            {modalConfig.items.map((item) => (
-              <div key={item.id} className="catalog-item-card">
-                <h4>{item.name}</h4>
-                <p>{item.description}</p>
-                <p className="item-price">{item.price}</p>
+            {modalConfig.items && modalConfig.items.length > 0 ? (
+              modalConfig.items.map((item) => (
+                <div key={item.id} className="catalog-item-card">
+                  {item.image && (
+                    <img 
+                      src={item.image} 
+                      alt={item.name} 
+                      className="catalog-item-image"
+                      onError={(e) => { e.target.style.display = 'none'; }}
+                    />
+                  )}
+                  <div className="catalog-item-content">
+                    <h4 className="item-name">{item.name}</h4>
+                    <p className="item-category">📦 {item.category}</p>
+                    <p className="item-description">{item.description}</p>
+                    <div className="item-details">
+                      <span className="detail-item">📊 Stock: {item.stock} {item.unit}</span>
+                      <span className="detail-item">📦 Min Order: {item.minOrder} {item.unit}</span>
+                    </div>
+                    <p className="item-price">{item.price}</p>
+                  </div>
+                </div>
+              ))
+            ) : (
+              <div className="empty-catalog">
+                <p>No products available in this catalog</p>
               </div>
-            ))}
-            {modalConfig.items.length === 0 && <p>No items to display</p>}
+            )}
           </div>
         )}
       </Modal>
