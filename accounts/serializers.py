@@ -3,7 +3,7 @@ from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
-from accounts.models import Product, LinkRequest
+from accounts.models import *
 
 User = get_user_model()
 
@@ -99,3 +99,50 @@ class SupplierSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
         fields = ["id", "full_name", "email", "role", "supplier_company"]
+
+#check postman
+class CartItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source="product.name", read_only=True)
+    product_price = serializers.DecimalField(source="product.price", read_only=True, max_digits=10, decimal_places=2)
+
+    class Meta:
+        model = CartItem
+        fields = ["id", "product", "product_name", "product_price", "quantity", "added_at"]
+
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source="product.name", read_only=True)
+
+    class Meta:
+        model = OrderItem
+        fields = ["id", "product", "product_name", "quantity", "price"]
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+    consumer_name = serializers.CharField(source="consumer.full_name", read_only=True)
+    supplier_name = serializers.CharField(source="supplier.full_name", read_only=True)
+
+    class Meta:
+        model = Order
+        fields = [
+            "id",
+            "consumer",
+            "consumer_name",
+            "supplier",
+            "supplier_name",
+            "created_at",
+            "total_price",
+            "status",
+            "items",
+        ]
+        read_only_fields = ["consumer", "total_price", "created_at"]
+
+
+class MessageSerializer(serializers.ModelSerializer):
+    sender_name = serializers.CharField(source="sender.full_name", read_only=True)
+
+    class Meta:
+        model = Message
+        fields = ["id", "room", "sender", "sender_name", "text", "timestamp"]
+        read_only_fields = ["room", "sender", "timestamp"]

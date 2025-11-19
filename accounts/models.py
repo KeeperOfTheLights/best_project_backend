@@ -84,3 +84,101 @@ class LinkRequest(models.Model):
 
     def __str__(self):
         return f"{self.consumer.username} → {self.supplier.username} [{self.status}]"
+
+  #need to check in postman
+class CartItem(models.Model):
+    consumer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="cart_items",
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.CASCADE,
+        related_name="cart_items",
+    )
+    quantity = models.PositiveIntegerField(default=1)
+    added_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        unique_together = ("consumer", "product")
+
+    def __str__(self):
+        return f"{self.consumer.username} – {self.product.name} x{self.quantity}"
+
+
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("approved", "Approved"),
+        ("delivered", "Delivered"),
+        ("cancelled", "Cancelled"),
+    ]
+
+    consumer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="orders",
+    )
+    supplier = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="supplier_orders",
+    )
+    created_at = models.DateTimeField(auto_now_add=True)
+    total_price = models.DecimalField(max_digits=10, decimal_places=2)
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+
+    def __str__(self):
+        return f"Order #{self.id} {self.consumer.username} -> {self.supplier.username}"
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(
+        Order,
+        on_delete=models.CASCADE,
+        related_name="items",
+    )
+    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    quantity = models.PositiveIntegerField()
+    price = models.DecimalField(max_digits=10, decimal_places=2)  # price per unit at time of order
+
+    def __str__(self):
+        return f"{self.order.id} – {self.product.name} x{self.quantity}"
+
+
+class ChatRoom(models.Model):
+    consumer = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="chat_as_consumer",
+    )
+    supplier = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="chat_as_supplier",
+    )
+
+    class Meta:
+        unique_together = ("consumer", "supplier")
+
+    def __str__(self):
+        return f"Chat {self.consumer.username} <-> {self.supplier.username}"
+
+
+class Message(models.Model):
+    room = models.ForeignKey(
+        ChatRoom,
+        on_delete=models.CASCADE,
+        related_name="messages",
+    )
+    sender = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="sent_messages",
+    )
+    text = models.TextField()
+    timestamp = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"[{self.timestamp}] {self.sender.username}: {self.text[:30]}"

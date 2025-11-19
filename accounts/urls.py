@@ -17,5 +17,13 @@ urlpatterns = [
     path("suppliers/", AllSuppliersView.as_view(), name="all-suppliers"),
     path("consumer/links/", ConsumerLinkListView.as_view(), name="consumer-links"),
     path("supplier/<int:supplier_id>/catalog/", SupplierCatalogView.as_view(), name="supplier-catalog"),
+    path("cart/add/", CartAddView.as_view(), name="cart-add"),
+    path("cart/", CartListView.as_view(), name="cart-list"),
+    path("cart/<int:item_id>/", CartItemUpdateDeleteView.as_view(), name="cart-item"),
+    path("orders/checkout/", CheckoutView.as_view(), name="checkout"),
+    path("orders/my/", MyOrdersView.as_view(), name="my-orders"),
+    path("orders/supplier/", SupplierOrdersView.as_view(), name="supplier-orders"),
+    path("chat/<int:supplier_id>/", ChatHistoryView.as_view(), name="chat-history"),
+    path("chat/<int:supplier_id>/send/", SendMessageView.as_view(), name="chat-send"),
 
 ]
