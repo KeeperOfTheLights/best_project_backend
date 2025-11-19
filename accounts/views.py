@@ -158,6 +158,7 @@ class ConsumerLinkListView(generics.ListAPIView):
     def get_queryset(self):
         return LinkRequest.objects.filter(consumer=self.request.user)
 
+
 class SupplierCatalogView(APIView):
     permission_classes = [IsAuthenticated]
 
