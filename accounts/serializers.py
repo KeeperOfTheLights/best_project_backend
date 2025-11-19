@@ -103,11 +103,52 @@ class SupplierSerializer(serializers.ModelSerializer):
 #check postman
 class CartItemSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source="product.name", read_only=True)
-    product_price = serializers.DecimalField(source="product.price", read_only=True, max_digits=10, decimal_places=2)
+    product_price = serializers.DecimalField(
+        source="product.price",
+        read_only=True,
+        max_digits=10,
+        decimal_places=2,
+    )
+    product_image = serializers.URLField(
+        source="product.image",
+        read_only=True,
+        allow_null=True,
+        default=None,
+    )
+    product_unit = serializers.CharField(source="product.unit", read_only=True)
+    product_min_order = serializers.IntegerField(
+        source="product.minOrder",
+        read_only=True,
+    )
+    product_stock = serializers.IntegerField(
+        source="product.stock",
+        read_only=True,
+    )
+    product_supplier_id = serializers.IntegerField(
+        source="product.supplier_id",
+        read_only=True,
+    )
+    line_total = serializers.SerializerMethodField()
 
     class Meta:
         model = CartItem
-        fields = ["id", "product", "product_name", "product_price", "quantity", "added_at"]
+        fields = [
+            "id",
+            "product",
+            "product_name",
+            "product_price",
+            "product_image",
+            "product_unit",
+            "product_min_order",
+            "product_supplier_id",
+            "product_stock",
+            "quantity",
+            "added_at",
+            "line_total",
+        ]
+
+    def get_line_total(self, obj):
+        return obj.product.price * obj.quantity
 
 
 class OrderItemSerializer(serializers.ModelSerializer):

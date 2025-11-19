@@ -175,7 +175,11 @@ class SupplierCatalogView(APIView):
                 status=403
             )
 
-        products = Product.objects.filter(supplier_id=supplier_id)
+        products = (
+            Product.objects
+            .filter(supplier_id=supplier_id, status="active")
+            .order_by("name")
+        )
         serializer = ProductSerializer(products, many=True)
         return Response(serializer.data, status=200)
 
@@ -188,12 +192,35 @@ class CartAddView(APIView):
             return Response({"detail": "Only consumers can use cart"}, status=403)
 
         product_id = request.data.get("product_id")
-        quantity = int(request.data.get("quantity", 1))
+        try:
+            quantity = int(request.data.get("quantity", 1))
+        except (TypeError, ValueError):
+            return Response({"detail": "Quantity must be a valid number"}, status=400)
 
         if quantity <= 0:
             return Response({"detail": "Quantity must be > 0"}, status=400)
 
         product = get_object_or_404(Product, id=product_id, status="active")
+
+        linked = LinkRequest.objects.filter(
+            consumer=request.user,
+            supplier=product.supplier,
+            status="linked",
+        ).exists()
+        if not linked:
+            return Response({"detail": "You must be linked with this supplier"}, status=403)
+
+        if quantity < product.minOrder:
+            return Response(
+                {"detail": f"Minimum order is {product.minOrder} {product.unit}"},
+                status=400,
+            )
+
+        if quantity > product.stock:
+            return Response(
+                {"detail": f"Only {product.stock} {product.unit} available"},
+                status=400,
+            )
 
         item, created = CartItem.objects.get_or_create(
             consumer=request.user,
@@ -201,7 +228,13 @@ class CartAddView(APIView):
             defaults={"quantity": quantity},
         )
         if not created:
-            item.quantity += quantity
+            new_quantity = item.quantity + quantity
+            if new_quantity > product.stock:
+                return Response(
+                    {"detail": f"Only {product.stock} {product.unit} available"},
+                    status=400,
+                )
+            item.quantity = new_quantity
             item.save()
 
         serializer = CartItemSerializer(item)
@@ -215,7 +248,12 @@ class CartListView(generics.ListAPIView):
     def get_queryset(self):
         if self.request.user.role != "consumer":
             return CartItem.objects.none()
-        return CartItem.objects.filter(consumer=self.request.user).select_related("product")
+        return (
+            CartItem.objects
+            .filter(consumer=self.request.user)
+            .select_related("product", "product__supplier")
+            .order_by("-added_at")
+        )
 
 
 class CartItemUpdateDeleteView(APIView):
@@ -224,10 +262,27 @@ class CartItemUpdateDeleteView(APIView):
     def patch(self, request, item_id):
         item = get_object_or_404(CartItem, id=item_id, consumer=request.user)
 
-        quantity = int(request.data.get("quantity", 1))
+        try:
+            quantity = int(request.data.get("quantity", 1))
+        except (TypeError, ValueError):
+            return Response({"detail": "Quantity must be a valid number"}, status=400)
+
         if quantity <= 0:
             item.delete()
             return Response({"detail": "Item removed (quantity <= 0)"}, status=200)
+
+        product = item.product
+        if quantity < product.minOrder:
+            return Response(
+                {"detail": f"Minimum order is {product.minOrder} {product.unit}"},
+                status=400,
+            )
+
+        if quantity > product.stock:
+            return Response(
+                {"detail": f"Only {product.stock} {product.unit} available"},
+                status=400,
+            )
 
         item.quantity = quantity
         item.save()
