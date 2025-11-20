@@ -187,3 +187,25 @@ class MessageSerializer(serializers.ModelSerializer):
         model = Message
         fields = ["id", "room", "sender", "sender_name", "text", "timestamp"]
         read_only_fields = ["room", "sender", "timestamp"]
+
+
+class ComplaintSerializer(serializers.ModelSerializer):
+    consumer_name = serializers.CharField(source="consumer.full_name", read_only=True)
+    supplier_name = serializers.CharField(source="supplier.full_name", read_only=True)
+
+    class Meta:
+        model = Complaint
+        fields = [
+            "id",
+            "order",
+            "consumer",
+            "consumer_name",
+            "supplier",
+            "supplier_name",
+            "title",
+            "description",
+            "status",
+            "created_at",
+            "resolved_at",
+        ]
+        read_only_fields = ["consumer", "supplier", "status", "created_at", "resolved_at"]

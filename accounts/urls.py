@@ -27,5 +27,10 @@ urlpatterns = [
     path("chat/<int:supplier_id>/send/", SendMessageView.as_view(), name="chat-send"),
     path("orders/<int:order_id>/accept/", SupplierAcceptOrderView.as_view(), name="order-accept"),
     path("orders/<int:order_id>/reject/", SupplierRejectOrderView.as_view(), name="order-reject"),
+    path("complaints/<int:order_id>/create/", CreateComplaintView.as_view(), name="complaint-create"),
+    path("complaints/supplier/", SupplierComplaintListView.as_view(), name="complaints-supplier"),
+    path("complaints/<int:complaint_id>/resolve/", SupplierResolveComplaintView.as_view(), name="complaint-resolve"),
+    path("complaints/<int:complaint_id>/reject/", SupplierRejectComplaintView.as_view(), name="complaint-reject"),
+    path("complaints/<int:complaint_id>/escalate/", EscalateComplaintView.as_view(), name="complaint-escalate"),
 
 ]

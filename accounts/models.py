@@ -182,3 +182,25 @@ class Message(models.Model):
 
     def __str__(self):
         return f"[{self.timestamp}] {self.sender.username}: {self.text[:30]}"
+
+class Complaint(models.Model):
+    STATUS_CHOICES = [
+        ("pending", "Pending"),
+        ("resolved", "Resolved"),
+        ("rejected", "Rejected"),
+        ("escalated", "Escalated"),
+    ]
+
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name="complaints")
+    consumer = models.ForeignKey(User, on_delete=models.CASCADE, related_name="complaints")
+    supplier = models.ForeignKey(User, on_delete=models.CASCADE, related_name="complaints_received")
+
+    title = models.CharField(max_length=200)
+    description = models.TextField()
+
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
+    created_at = models.DateTimeField(auto_now_add=True)
+    resolved_at = models.DateTimeField(null=True, blank=True)
+
+    def __str__(self):
+        return f"Complaint #{self.id} – {self.title}"
