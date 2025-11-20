@@ -21,6 +21,10 @@ export default function ChatPage() {
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
   const messagesEndRef = useRef(null);
+  const messagesContainerRef = useRef(null);
+  const shouldAutoScrollRef = useRef(true);
+  const lastMessageIdsRef = useRef(new Set());
+  const hasNewMessagesRef = useRef(false);
 
   useEffect(() => {
     if (!token) {
@@ -127,11 +131,26 @@ export default function ChatPage() {
   useEffect(() => {
     if (!selectedSupplierId || !token) {
       setMessages([]);
+      lastMessageIdsRef.current = new Set();
       return;
     }
 
-    const fetchMessages = async () => {
-      setMessagesLoading(true);
+    const checkIfAtBottom = () => {
+      if (!messagesContainerRef.current) return true;
+      const container = messagesContainerRef.current;
+      const threshold = 100; // pixels from bottom
+      return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+    };
+
+    const fetchMessages = async (isInitialLoad = false) => {
+      // Check if user is at bottom before fetching (only for polling, not initial load)
+      if (!isInitialLoad) {
+        shouldAutoScrollRef.current = checkIfAtBottom();
+      } else {
+        shouldAutoScrollRef.current = true; // Always scroll on initial load
+        lastMessageIdsRef.current = new Set(); // Reset IDs when switching chats
+      }
+      
       setError("");
 
       try {
@@ -170,24 +189,90 @@ export default function ChatPage() {
           };
         });
 
+        // Check if new messages arrived by comparing message IDs
+        if (!isInitialLoad) {
+          const currentMessageIds = new Set(formattedMessages.map(m => m.id));
+          const hadNewMessages = formattedMessages.some(msg => !lastMessageIdsRef.current.has(msg.id));
+          hasNewMessagesRef.current = hadNewMessages;
+          
+          // Only enable auto-scroll if new messages arrived AND user was at bottom
+          if (hadNewMessages) {
+            // New messages arrived - only scroll if user was at bottom
+            // Keep the current shouldAutoScrollRef state (set by scroll listener)
+          } else {
+            // No new messages - explicitly disable auto-scroll to prevent unwanted scrolling
+            shouldAutoScrollRef.current = false;
+          }
+          
+          lastMessageIdsRef.current = currentMessageIds;
+        } else {
+          // Initial load - set IDs and always scroll
+          lastMessageIdsRef.current = new Set(formattedMessages.map(m => m.id));
+          shouldAutoScrollRef.current = true;
+          hasNewMessagesRef.current = true;
+        }
+
         setMessages(formattedMessages);
       } catch (err) {
         setError(err.message || "Failed to load messages");
-        setMessages([]);
-      } finally {
-        setMessagesLoading(false);
+        // Don't clear messages on error, keep existing ones
       }
     };
 
-    fetchMessages();
+    // Initial load
+    setMessagesLoading(true);
+    fetchMessages(true).finally(() => setMessagesLoading(false));
 
-    const interval = setInterval(fetchMessages, 3000);
+    // Set up polling interval
+    const interval = setInterval(() => fetchMessages(false), 3000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSupplierId, role, token, currentUserId, currentConsumerId]);
 
+  // Track scroll position to determine if user scrolled up
   useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+    const container = messagesContainerRef.current;
+    if (!container) {
+      // Retry after a short delay if container isn't ready
+      const timeout = setTimeout(() => {
+        const retryContainer = messagesContainerRef.current;
+        if (retryContainer) {
+          const handleScroll = () => {
+            const threshold = 100;
+            const isAtBottom = retryContainer.scrollHeight - retryContainer.scrollTop - retryContainer.clientHeight < threshold;
+            shouldAutoScrollRef.current = isAtBottom;
+          };
+          retryContainer.addEventListener("scroll", handleScroll);
+        }
+      }, 100);
+      return () => clearTimeout(timeout);
+    }
+
+    const handleScroll = () => {
+      const threshold = 100;
+      const isAtBottom = container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
+      shouldAutoScrollRef.current = isAtBottom;
+    };
+
+    container.addEventListener("scroll", handleScroll);
+    return () => container.removeEventListener("scroll", handleScroll);
+  }, [messages]); // Re-attach when messages change (container might be re-rendered)
+
+  useEffect(() => {
+    // Only auto-scroll if:
+    // 1. User is at bottom (shouldAutoScrollRef.current is true)
+    // 2. AND there are new messages OR it's an initial load
+    // This prevents scrolling when messages are re-fetched but unchanged
+    if (shouldAutoScrollRef.current && messagesEndRef.current && hasNewMessagesRef.current) {
+      // Use setTimeout to ensure DOM is updated
+      setTimeout(() => {
+        if (messagesEndRef.current && shouldAutoScrollRef.current) {
+          messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 50);
+    }
+    // Reset the flag after scroll attempt
+    hasNewMessagesRef.current = false;
   }, [messages]);
 
   const handleSendMessage = async (e) => {
@@ -260,41 +345,14 @@ export default function ChatPage() {
       }
 
       setNewMessage("");
-      
+      // Auto-scroll after sending - force scroll to bottom
+      shouldAutoScrollRef.current = true;
+      hasNewMessagesRef.current = true; // Mark that we have new messages (the one we just sent)
       setTimeout(() => {
-        const fetchMessages = async () => {
-          try {
-            const partnerId = selectedSupplierId;
-            const res = await fetch(`${API_BASE}/chat/${partnerId}/`, {
-              headers: { Authorization: `Bearer ${token}` },
-            });
-            if (res.ok) {
-              const data = await res.json();
-              const formattedMessages = (Array.isArray(data) ? data : []).map((msg) => {
-                let isOwn = false;
-                if (role === "consumer" && currentConsumerId) {
-                  isOwn = Number(msg.sender) === Number(currentConsumerId);
-                } else if (role === "supplier" && currentUserId) {
-                  isOwn = Number(msg.sender) === Number(currentUserId);
-                }
-                
-                return {
-                  id: msg.id,
-                  text: msg.text,
-                  senderName: msg.sender_name,
-                  timestamp: msg.timestamp,
-                  senderId: msg.sender,
-                  isOwn: isOwn,
-                };
-              });
-              setMessages(formattedMessages);
-            }
-          } catch (err) {
-            console.error("Failed to refresh messages:", err);
-          }
-        };
-        fetchMessages();
-      }, 500);
+        if (messagesEndRef.current) {
+          messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        }
+      }, 100);
     } catch (err) {
       setError(err.message || "Failed to send message");
     } finally {
@@ -413,7 +471,7 @@ export default function ChatPage() {
               </div>
             </div>
 
-            <div className="chat-messages">
+            <div className="chat-messages" ref={messagesContainerRef}>
               {messagesLoading && messages.length === 0 ? (
                 <div className="messages-loading">Loading messages...</div>
               ) : messages.length === 0 ? (

@@ -387,6 +387,14 @@ export default function ConsumerComplaints() {
                   </p>
                 )}
               </div>
+              <div className="complaint-actions">
+                <button
+                  className="open-chat-btn"
+                  onClick={() => navigate("/chat", { state: { selectSupplierId: c.supplier } })}
+                >
+                  Open Chat
+                </button>
+              </div>
             </div>
           ))
         )}

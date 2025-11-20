@@ -329,31 +329,39 @@ export default function SupplierComplaints() {
                 )}
               </div>
 
-              {c.status?.toLowerCase() === "pending" && (
-                <div className="action-btns">
-                  <button
-                    className="resolve-btn"
-                    onClick={() => handleResolve(c.id)}
-                    disabled={actionLoading === c.id}
-                  >
-                    {actionLoading === c.id ? "Processing..." : "Resolve"}
-                  </button>
-                  <button
-                    className="reject-btn"
-                    onClick={() => handleReject(c.id)}
-                    disabled={actionLoading === c.id}
-                  >
-                    {actionLoading === c.id ? "Processing..." : "Reject"}
-                  </button>
-                  <button
-                    className="escalate-btn"
-                    onClick={() => handleEscalate(c.id)}
-                    disabled={actionLoading === c.id}
-                  >
-                    {actionLoading === c.id ? "Processing..." : "Escalate"}
-                  </button>
-                </div>
-              )}
+              <div className="complaint-actions-row">
+                <button
+                  className="open-chat-btn"
+                  onClick={() => navigate("/chat", { state: { selectConsumerId: c.consumer } })}
+                >
+                  Open Chat
+                </button>
+                {c.status?.toLowerCase() === "pending" && (
+                  <div className="action-btns">
+                    <button
+                      className="resolve-btn"
+                      onClick={() => handleResolve(c.id)}
+                      disabled={actionLoading === c.id}
+                    >
+                      {actionLoading === c.id ? "Processing..." : "Resolve"}
+                    </button>
+                    <button
+                      className="reject-btn"
+                      onClick={() => handleReject(c.id)}
+                      disabled={actionLoading === c.id}
+                    >
+                      {actionLoading === c.id ? "Processing..." : "Reject"}
+                    </button>
+                    <button
+                      className="escalate-btn"
+                      onClick={() => handleEscalate(c.id)}
+                      disabled={actionLoading === c.id}
+                    >
+                      {actionLoading === c.id ? "Processing..." : "Escalate"}
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
           ))
         )}
