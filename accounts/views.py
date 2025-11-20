@@ -9,6 +9,7 @@ from django.db import transaction
 from django.db.models import Q, Sum, F
 from .serializers import *
 from .permissions import IsSupplier
+from django.utils import timezone
 
 class RegisterView(APIView):
     def post(self, request):
@@ -485,3 +486,84 @@ class SupplierRejectOrderView(APIView):
         order.save()
 
         return Response({"detail": "Order rejected"}, status=200)
+
+
+class CreateComplaintView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, order_id):
+        if request.user.role != "consumer":
+            return Response({"detail": "Only consumers can file complaints"}, status=403)
+
+        order = get_object_or_404(Order, id=order_id, consumer=request.user)
+
+        serializer = ComplaintSerializer(data=request.data)
+        if serializer.is_valid():
+            serializer.save(
+                consumer=request.user,
+                supplier=order.supplier,
+                order=order,
+            )
+            return Response(serializer.data, status=201)
+
+        return Response(serializer.errors, status=400)
+
+class SupplierComplaintListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ComplaintSerializer
+
+    def get_queryset(self):
+        if self.request.user.role != "supplier":
+            return Complaint.objects.none()
+        return Complaint.objects.filter(supplier=self.request.user).order_by("-created_at")
+
+class SupplierResolveComplaintView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, complaint_id):
+        complaint = get_object_or_404(
+            Complaint, id=complaint_id, supplier=request.user
+        )
+
+        if complaint.status != "pending":
+            return Response({"detail": "Already processed"}, status=400)
+
+        complaint.status = "resolved"
+        complaint.resolved_at = timezone.now()
+        complaint.save()
+
+        return Response({"detail": "Complaint resolved"}, status=200)
+
+class SupplierRejectComplaintView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, complaint_id):
+        complaint = get_object_or_404(
+            Complaint, id=complaint_id, supplier=request.user
+        )
+
+        if complaint.status != "pending":
+            return Response({"detail": "Already processed"}, status=400)
+
+        complaint.status = "rejected"
+        complaint.resolved_at = timezone.now()
+        complaint.save()
+
+        return Response({"detail": "Complaint rejected"}, status=200)
+
+class EscalateComplaintView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, complaint_id):
+        complaint = get_object_or_404(
+            Complaint, id=complaint_id, supplier=request.user
+        )
+
+        if complaint.status != "pending":
+            return Response({"detail": "Already processed"}, status=400)
+
+        complaint.status = "escalated"
+        complaint.resolved_at = timezone.now()
+        complaint.save()
+
+        return Response({"detail": "Complaint escalated"}, status=200)
