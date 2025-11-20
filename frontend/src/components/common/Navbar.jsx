@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 import reactLogo from "../../assets/Logo.png";
@@ -7,6 +7,7 @@ import "./Navbar.css";
 export default function Navbar() {
   const { isLoggedIn, role, logout, token } = useAuth();
   const navigate = useNavigate();
+  const [searchQuery, setSearchQuery] = useState("");
 
   useEffect(() => {
   if (!token) {
@@ -55,7 +56,25 @@ export default function Navbar() {
               </div>
             </div>
 
-            <input type="text" placeholder="Companies, cafes, products..." className="search-input"/>
+            {role === "consumer" && (
+              <form
+                onSubmit={(e) => {
+                  e.preventDefault();
+                  if (searchQuery.trim()) {
+                    navigate(`/search?q=${encodeURIComponent(searchQuery.trim())}`);
+                  }
+                }}
+                style={{ display: "flex", gap: "5px" }}
+              >
+                <input
+                  type="text"
+                  placeholder="Companies, cafes, products..."
+                  className="search-input"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </form>
+            )}
             <button className="nav-btn login-btn" onClick={() => { logout(); navigate("/login"); }}>Sign Out</button>
           </>
         )}

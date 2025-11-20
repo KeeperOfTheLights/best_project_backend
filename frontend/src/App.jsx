@@ -14,6 +14,7 @@ import ConsumerOrders from "./pages/Consumer/ConsumerOrders";
 import SupplierOrders from "./pages/Supplier/SupplierOrders";
 import SupplierProducts from "./pages/Supplier/SupplierProducts";
 import Chat from "./pages/Shared/Chat";
+import Search from "./pages/Shared/Search";
 import ConsumerSupplierProducts from "./pages/Consumer/ConsumerSupplierProducts";
 import CComplaints from "./pages/Consumer/ConsumerComplaints";
 import SComplaints from "./pages/Supplier/SupplierComplaints";
@@ -40,6 +41,7 @@ export default function App() {
           <Route path="/signup" element={<SignUp />} />
           <Route path="/about" element={<About />} />
           <Route path="/chat" element={<Chat />} />
+          <Route path="/search" element={<Search />} />
           <Route path="/" element={<Navigate to="/about" replace />} />
 
           {/* Supplier Routes */}
