@@ -1,6 +1,6 @@
 import "./SupplierOrders.css";
 import React, { useEffect, useMemo, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 
 const API_BASE = "http://127.0.0.1:8000/api/accounts";
@@ -22,10 +22,12 @@ const getStatusText = (status) => {
 
 export default function SupplierOrders() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { token, logout } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [filterConsumerId, setFilterConsumerId] = useState(null);
 
   const fetchOrders = async () => {
     if (!token) {
@@ -66,12 +68,20 @@ export default function SupplierOrders() {
   };
 
   useEffect(() => {
+    if (location.state?.filterConsumerId) {
+      setFilterConsumerId(location.state.filterConsumerId);
+    }
     fetchOrders();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token]);
+  }, [token, location.state]);
+
+  const filteredOrders = useMemo(() => {
+    if (!filterConsumerId) return orders;
+    return orders.filter((order) => Number(order.consumer) === Number(filterConsumerId));
+  }, [orders, filterConsumerId]);
 
   const stats = useMemo(() => {
-    return orders.reduce(
+    return filteredOrders.reduce(
       (acc, order) => {
         acc.total += 1;
         if (order.status === "pending") acc.pending += 1;
@@ -82,7 +92,7 @@ export default function SupplierOrders() {
       },
       { pending: 0, processing: 0, completed: 0, total: 0, revenue: 0 }
     );
-  }, [orders]);
+  }, [filteredOrders]);
 
   const formatCurrency = (value) => {
     return `${Number(value || 0).toLocaleString()} ₸`;
@@ -101,9 +111,20 @@ export default function SupplierOrders() {
     <div className="supplier-orders-container">
       <div className="orders-header">
         <h2>Order Management</h2>
-        <button className="refresh-button" onClick={fetchOrders} disabled={loading}>
-          {loading ? "Refreshing..." : "Refresh"}
-        </button>
+        <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
+          {filterConsumerId && (
+            <button
+              className="refresh-button"
+              onClick={() => setFilterConsumerId(null)}
+              style={{ backgroundColor: "#ff9800" }}
+            >
+              Show All Orders
+            </button>
+          )}
+          <button className="refresh-button" onClick={fetchOrders} disabled={loading}>
+            {loading ? "Refreshing..." : "Refresh"}
+          </button>
+        </div>
       </div>
 
       {error && <div className="error-banner">{error}</div>}
@@ -139,16 +160,32 @@ export default function SupplierOrders() {
         </div>
       </div>
 
-      {loading && orders.length === 0 && (
+      {filterConsumerId && (
+        <div style={{ 
+          padding: "1rem", 
+          marginBottom: "1rem", 
+          backgroundColor: "#e3f2fd", 
+          borderRadius: "8px",
+          border: "1px solid #2196f3"
+        }}>
+          <strong>Filtered:</strong> Showing orders from consumer ID {filterConsumerId}
+        </div>
+      )}
+
+      {loading && filteredOrders.length === 0 && (
         <div className="loading-state">Loading orders...</div>
       )}
 
-      {!loading && orders.length === 0 && !error && (
-        <div className="empty-state">No orders found.</div>
+      {!loading && filteredOrders.length === 0 && !error && (
+        <div className="empty-state">
+          {filterConsumerId 
+            ? `No orders found for consumer ID ${filterConsumerId}.` 
+            : "No orders found."}
+        </div>
       )}
 
       <div className="orders-list">
-        {orders.map((order) => (
+        {filteredOrders.map((order) => (
           <div key={order.id} className="supplier-order-card">
             <div className="order-header-section">
               <div className="order-main-info">

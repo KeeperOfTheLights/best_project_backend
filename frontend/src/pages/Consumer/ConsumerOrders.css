@@ -1,7 +1,7 @@
 /* Main Container */
 .orders-page {
   width: 100%;
-  max-width: 1400px;
+  max-width: 1300px;
   margin: 0 auto;
   padding: 2rem;
   padding-top: calc(var(--navbar-height) + 2rem);
