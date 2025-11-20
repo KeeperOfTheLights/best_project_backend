@@ -1,17 +1,49 @@
+.about-bg {
+  width: 100%;
+  min-height: 100vh;
+  background-image: url("/About3.JPG");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 40px 20px;
+}
+
 .about-container {
-  max-width: 900px;
-  margin: 120px auto;
-  padding: 2rem;
-  color: rgb(0, 0, 0);
+  max-width: 750px;
+  width: 100%;
+  padding: 2.5rem 3rem;
   text-align: center;
+  color: white;
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(8px);
+  border-radius: 20px;
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+  animation: fadeIn 1s ease forwards;
+  transform: translateY(20px);
+  opacity: 0;
+}
+
+@keyframes fadeIn {
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }
 
 .about-container h2 {
-  font-size: 2rem;
-  margin-bottom: 1rem;
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 1.4rem;
+  letter-spacing: 1px;
 }
 
 .about-container p {
-  line-height: 1.6;
-  margin-bottom: 1rem;
+  font-size: 1.15rem;
+  font-weight: 300;
+  line-height: 1.8;
+  margin-bottom: 1.2rem;
 }

@@ -1,148 +1,218 @@
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/Auth-Context";
 import "./ConsumerOrders.css";
-import React from 'react';
 
-const dummyOrders = [
-  {
-    id: "ORD-2025-haha",
-    supplier: "Magnum",
-    orderDate: "2019",
-    deliveryDate: "2018",
-    status: "delivered",
-    total: 450000,
-    items: [
-      { name: "Diddy Oil", quantity: "20 kg", price: 15000 },
-      { name: "Cucumbers", quantity: "15 kg", price: 12000 },
-      { name: "Lettuce", quantity: "10 kg", price: 8000 },
-      { name: "Chicken meat", quantity: "12 kg", price: 10000 }
-    ]
-  }
-];
+const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
-const getStatusColor = (status) => {
-  switch (status) {
-    case "delivered":
-      return "status-delivered";
-    case "in-transit":
-      return "status-transit";
-    case "pending":
-      return "status-pending";
-    case "cancelled":
-      return "status-cancelled";
-    default:
-      return "";
-  }
-};
-
-const getStatusText = (status) => {
-  switch (status) {
-    case "delivered":
-      return "Delivered";
-    case "in-transit":
-      return "In Transit";
-    case "pending":
-      return "Pending";
-    case "cancelled":
-      return "Cancelled";
-    default:
-      return status;
-  }
+const STATUS_CONFIG = {
+  pending: { label: "Pending", class: "status-pending" },
+  "in-transit": { label: "In Transit", class: "status-transit" },
+  approved: { label: "Approved", class: "status-transit" },
+  delivered: { label: "Delivered", class: "status-delivered" },
+  cancelled: { label: "Cancelled", class: "status-cancelled" },
 };
 
 export default function ConsumerOrders() {
+  const navigate = useNavigate();
+  const { token, logout } = useAuth();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const fetchOrders = async () => {
+    if (!token) {
+      logout();
+      navigate("/login");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch(`${API_BASE}/orders/my/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      if (res.status === 401) {
+        logout();
+        navigate("/login");
+        return;
+      }
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Failed to load orders");
+      }
+
+      const data = await res.json();
+      setOrders(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError(err.message || "Failed to load orders");
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  const stats = useMemo(() => {
+    return orders.reduce(
+      (acc, order) => {
+        acc.total++;
+        if (order.status === "pending") acc.pending++;
+        if (order.status === "approved" || order.status === "in-transit") acc.transit++;
+        if (order.status === "delivered") acc.delivered++;
+        return acc;
+      },
+      { pending: 0, transit: 0, delivered: 0, total: 0 }
+    );
+  }, [orders]);
+
+  const formatCurrency = (value) => {
+    return `${Number(value || 0).toLocaleString()} ₸`;
+  };
+
+  const formatDate = (value) => {
+    if (!value) return "—";
+    try {
+      return new Date(value).toLocaleDateString();
+    } catch {
+      return value;
+    }
+  };
+
+  const getStatusInfo = (status) => {
+    return STATUS_CONFIG[status] || { label: status, class: "" };
+  };
+
   return (
-    <div className="orders-container">
-      <div className="orders-header">
-        <h2>My Orders</h2>
+    <div className="orders-page">
+      <div className="orders-page-header">
+        <h1>My Orders</h1>
+        <button
+          className="refresh-button"
+          onClick={fetchOrders}
+          disabled={loading}
+        >
+          {loading ? "Refreshing..." : "Refresh"}
+        </button>
       </div>
 
-      <div className="orders-stats">
-        <div className="stat-card">
-          <div className="stat-icon pending-icon">⏳</div>
-          <div className="stat-info">
-            <h3>0</h3>
-            <p>Pending</p>
+      {error && <div className="error-banner">{error}</div>}
+
+      <div className="stats-grid">
+        <div className="stat-box">
+          <div className="stat-icon stat-icon-pending">⏳</div>
+          <div className="stat-content">
+            <div className="stat-number">{stats.pending}</div>
+            <div className="stat-label">Pending</div>
           </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon transit-icon">🚚</div>
-          <div className="stat-info">
-            <h3>0</h3>
-            <p>In Transit</p>
+        <div className="stat-box">
+          <div className="stat-icon stat-icon-transit">🚚</div>
+          <div className="stat-content">
+            <div className="stat-number">{stats.transit}</div>
+            <div className="stat-label">In Transit</div>
           </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon delivered-icon">✓</div>
-          <div className="stat-info">
-            <h3>1</h3>
-            <p>Delivered</p>
+        <div className="stat-box">
+          <div className="stat-icon stat-icon-delivered">✓</div>
+          <div className="stat-content">
+            <div className="stat-number">{stats.delivered}</div>
+            <div className="stat-label">Delivered</div>
           </div>
         </div>
-        <div className="stat-card">
-          <div className="stat-icon total-icon">📦</div>
-          <div className="stat-info">
-            <h3>1</h3>
-            <p>Total Orders</p>
+        <div className="stat-box">
+          <div className="stat-icon stat-icon-total">📦</div>
+          <div className="stat-content">
+            <div className="stat-number">{stats.total}</div>
+            <div className="stat-label">Total Orders</div>
           </div>
         </div>
       </div>
 
-      <div className="orders-list">
-        {dummyOrders.map((order) => (
-          <div key={order.id} className="order-card">
-            <div className="order-header-section">
-              <div className="order-main-info">
-                <h3 className="order-id">{order.id}</h3>
-                <span className={`order-status ${getStatusColor(order.status)}`}>
-                  {getStatusText(order.status)}
-                </span>
-              </div>
-              <div className="order-supplier">
-                <span className="supplier-label">Supplier:</span>
-                <span className="supplier-name">{order.supplier}</span>
-              </div>
-            </div>
+      {loading && orders.length === 0 && (
+        <div className="loading-state">Loading orders...</div>
+      )}
 
-            <div className="order-dates">
-              <div className="date-item">
-                <span className="date-label">Order Date:</span>
-                <span className="date-value">{order.orderDate}</span>
-              </div>
-              <div className="date-item">
-                <span className="date-label">Delivery Date:</span>
-                <span className="date-value">{order.deliveryDate}</span>
-              </div>
-            </div>
+      {!loading && orders.length === 0 && !error && (
+        <div className="empty-state">You haven't placed any orders yet.</div>
+      )}
 
-            <div className="order-items">
-              <h4 className="items-title">Order Items:</h4>
-              <div className="items-grid">
-                {order.items.map((item, index) => (
-                  <div key={index} className="item-row">
-                    <span className="item-name">{item.name}</span>
-                    <span className="item-quantity">{item.quantity}</span>
-                    <span className="item-price">{item.price.toLocaleString()} ₸</span>
+      <div className="orders-grid">
+        {orders.map((order) => {
+          const statusInfo = getStatusInfo(order.status);
+          return (
+            <div key={order.id} className="order-box">
+              <div className="order-top">
+                <div className="order-id-section">
+                  <h3 className="order-number">Order #{order.id}</h3>
+                  <span className={`status-badge ${statusInfo.class}`}>
+                    {statusInfo.label}
+                  </span>
+                </div>
+                <div className="supplier-info">
+                  <span className="supplier-text">Supplier:</span>
+                  <span className="supplier-name">{order.supplier_name || "Unknown"}</span>
+                </div>
+              </div>
+
+              <div className="order-dates-section">
+                <div className="date-box">
+                  <span className="date-label">Order Date:</span>
+                  <span className="date-value">{formatDate(order.created_at)}</span>
+                </div>
+                {order.updated_at && (
+                  <div className="date-box">
+                    <span className="date-label">Last Update:</span>
+                    <span className="date-value">{formatDate(order.updated_at)}</span>
                   </div>
-                ))}
+                )}
               </div>
-            </div>
 
-            <div className="order-footer">
-              <div className="order-total">
-                <span className="total-label">Total:</span>
-                <span className="total-amount">{order.total.toLocaleString()} ₸</span>
+              <div className="order-items-section">
+                <h4 className="items-heading">Order Items:</h4>
+                <div className="items-list">
+                  {(order.items || []).map((item) => (
+                    <div key={`${order.id}-${item.id}`} className="item-line">
+                      <span className="item-name-text">{item.product_name}</span>
+                      <span className="item-qty">{item.quantity}</span>
+                      <span className="item-price-text">{formatCurrency(item.price)}</span>
+                    </div>
+                  ))}
+                </div>
               </div>
-              <div className="order-actions">
-                {order.status === "pending" && (
-                  <button className="action-btn cancel-btn">Cancel Order</button>
-                )}
-                {order.status === "delivered" && (
-                  <button className="action-btn reorder-btn">Reorder</button>
-                )}
-                <button className="action-btn details-btn">View Details</button>
+
+              <div className="order-bottom">
+                <div className="total-section">
+                  <span className="total-label-text">Total:</span>
+                  <span className="total-value">{formatCurrency(order.total_price)}</span>
+                </div>
+                <div className="action-buttons">
+                  {order.status === "pending" && (
+                    <button className="btn btn-disabled" disabled>
+                      Awaiting approval
+                    </button>
+                  )}
+                  {order.status === "delivered" && (
+                    <button className="btn btn-disabled" disabled>
+                      Reorder
+                    </button>
+                  )}
+                  <button className="btn btn-disabled" disabled>
+                    Details
+                  </button>
+                </div>
               </div>
             </div>
-          </div>
-        ))}
+          );
+        })}
       </div>
     </div>
   );

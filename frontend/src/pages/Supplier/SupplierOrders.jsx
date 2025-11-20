@@ -1,106 +1,165 @@
 import "./SupplierOrders.css";
-import React from 'react';
+import React, { useEffect, useMemo, useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/Auth-Context";
 
-const dummyOrders = [
-  {
-    id: "ORD-2025-haha",
-    customer: "Bahandi",
-    customerType: "Fancy Restaurant 4otam",
-    orderDate: "2025-10-05",
-    deliveryDate: "2025-10-06",
-    status: "completed",
-    total: 4500000,
-    items: [
-      { name: "Diddy Oil", quantity: "20 kg", price: 15000 },
-      { name: "Cucumbers", quantity: "15 kg", price: 12000 },
-      { name: "Lettuce", quantity: "10 kg", price: 8000 },
-      { name: "Chicken meat", quantity: "12 kg", price: 10000 }
-    ],
-    deliveryAddress: "123 Satplayev Street, Almaty"
-  }
-];
+const API_BASE = "http://127.0.0.1:8000/api/accounts";
+
+const STATUS_CONFIG = {
+  pending: { label: "Pending", class: "status-pending", display: "pending" },
+  approved: { label: "Processing", class: "status-processing", display: "processing" },
+  delivered: { label: "Completed", class: "status-completed", display: "completed" },
+  cancelled: { label: "Cancelled", class: "status-cancelled", display: "cancelled" },
+};
 
 const getStatusColor = (status) => {
-  switch (status) {
-    case "completed":
-      return "status-completed";
-    case "processing":
-      return "status-processing";
-    case "pending":
-      return "status-pending";
-    case "cancelled":
-      return "status-cancelled";
-    default:
-      return "";
-  }
+  return STATUS_CONFIG[status]?.class || "";
 };
 
 const getStatusText = (status) => {
-  switch (status) {
-    case "completed":
-      return "Completed";
-    case "processing":
-      return "Processing";
-    case "pending":
-      return "Pending";
-    case "cancelled":
-      return "Cancelled";
-    default:
-      return status;
-  }
+  return STATUS_CONFIG[status]?.label || status;
 };
 
 export default function SupplierOrders() {
+  const navigate = useNavigate();
+  const { token, logout } = useAuth();
+  const [orders, setOrders] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState("");
+
+  const fetchOrders = async () => {
+    if (!token) {
+      logout();
+      navigate("/login");
+      return;
+    }
+
+    setLoading(true);
+    setError("");
+
+    try {
+      const res = await fetch(`${API_BASE}/orders/supplier/`, {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.status === 401) {
+        logout();
+        navigate("/login");
+        return;
+      }
+
+      if (!res.ok) {
+        const text = await res.text();
+        throw new Error(text || "Failed to load orders");
+      }
+
+      const data = await res.json();
+      setOrders(Array.isArray(data) ? data : []);
+    } catch (err) {
+      setError(err.message || "Failed to load orders");
+      setOrders([]);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchOrders();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [token]);
+
+  const stats = useMemo(() => {
+    return orders.reduce(
+      (acc, order) => {
+        acc.total += 1;
+        if (order.status === "pending") acc.pending += 1;
+        if (order.status === "approved") acc.processing += 1;
+        if (order.status === "delivered") acc.completed += 1;
+        acc.revenue += Number(order.total_price || 0);
+        return acc;
+      },
+      { pending: 0, processing: 0, completed: 0, total: 0, revenue: 0 }
+    );
+  }, [orders]);
+
+  const formatCurrency = (value) => {
+    return `${Number(value || 0).toLocaleString()} ₸`;
+  };
+
+  const formatDate = (value) => {
+    if (!value) return "—";
+    try {
+      return new Date(value).toLocaleDateString();
+    } catch {
+      return value;
+    }
+  };
+
   return (
     <div className="supplier-orders-container">
       <div className="orders-header">
         <h2>Order Management</h2>
+        <button className="refresh-button" onClick={fetchOrders} disabled={loading}>
+          {loading ? "Refreshing..." : "Refresh"}
+        </button>
       </div>
+
+      {error && <div className="error-banner">{error}</div>}
 
       <div className="orders-stats">
         <div className="stat-card">
           <div className="stat-icon pending-icon">📋</div>
           <div className="stat-info">
-            <h3>1</h3>
+            <h3>{stats.pending}</h3>
             <p>Pending Orders</p>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon processing-icon">⚙️</div>
           <div className="stat-info">
-            <h3>1</h3>
+            <h3>{stats.processing}</h3>
             <p>Processing</p>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon completed-icon">✓</div>
           <div className="stat-info">
-            <h3>1</h3>
+            <h3>{stats.completed}</h3>
             <p>Completed</p>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon revenue-icon">💰</div>
           <div className="stat-info">
-            <h3>180k ₸</h3>
+            <h3>{formatCurrency(stats.revenue)}</h3>
             <p>Total Revenue</p>
           </div>
         </div>
       </div>
 
+      {loading && orders.length === 0 && (
+        <div className="loading-state">Loading orders...</div>
+      )}
+
+      {!loading && orders.length === 0 && !error && (
+        <div className="empty-state">No orders found.</div>
+      )}
+
       <div className="orders-list">
-        {dummyOrders.map((order) => (
+        {orders.map((order) => (
           <div key={order.id} className="supplier-order-card">
             <div className="order-header-section">
               <div className="order-main-info">
-                <h3 className="order-id">{order.id}</h3>
+                <h3 className="order-id">Order #{order.id}</h3>
                 <span className={`order-status ${getStatusColor(order.status)}`}>
                   {getStatusText(order.status)}
                 </span>
               </div>
               <div className="order-customer">
-                <span className="customer-name">{order.customer}</span>
-                <span className="customer-type">{order.customerType}</span>
+                <span className="customer-name">{order.consumer_name || "Unknown Consumer"}</span>
+                <span className="customer-type">Consumer</span>
               </div>
             </div>
 
@@ -109,23 +168,18 @@ export default function SupplierOrders() {
                 <span className="info-icon">📅</span>
                 <div className="info-content">
                   <span className="info-label">Order Date</span>
-                  <span className="info-value">{order.orderDate}</span>
+                  <span className="info-value">{formatDate(order.created_at)}</span>
                 </div>
               </div>
-              <div className="info-item">
-                <span className="info-icon">🚚</span>
-                <div className="info-content">
-                  <span className="info-label">Delivery Date</span>
-                  <span className="info-value">{order.deliveryDate}</span>
+              {order.updated_at && (
+                <div className="info-item">
+                  <span className="info-icon">🔄</span>
+                  <div className="info-content">
+                    <span className="info-label">Last Updated</span>
+                    <span className="info-value">{formatDate(order.updated_at)}</span>
+                  </div>
                 </div>
-              </div>
-              <div className="info-item">
-                <span className="info-icon">📍</span>
-                <div className="info-content">
-                  <span className="info-label">Delivery Address</span>
-                  <span className="info-value">{order.deliveryAddress}</span>
-                </div>
-              </div>
+              )}
             </div>
 
             <div className="order-items">
@@ -136,11 +190,11 @@ export default function SupplierOrders() {
                   <span>Quantity</span>
                   <span>Price</span>
                 </div>
-                {order.items.map((item, index) => (
-                  <div key={index} className="table-row">
-                    <span className="item-name">{item.name}</span>
+                {(order.items || []).map((item) => (
+                  <div key={item.id} className="table-row">
+                    <span className="item-name">{item.product_name}</span>
                     <span className="item-quantity">{item.quantity}</span>
-                    <span className="item-price">{item.price.toLocaleString()} ₸</span>
+                    <span className="item-price">{formatCurrency(item.price)}</span>
                   </div>
                 ))}
               </div>
@@ -149,22 +203,32 @@ export default function SupplierOrders() {
             <div className="order-footer">
               <div className="order-total">
                 <span className="total-label">Total Amount:</span>
-                <span className="total-amount">{order.total.toLocaleString()} ₸</span>
+                <span className="total-amount">{formatCurrency(order.total_price)}</span>
               </div>
               <div className="order-actions">
                 {order.status === "pending" && (
                   <>
-                    <button className="action-btn accept-btn">Accept Order</button>
-                    <button className="action-btn reject-btn">Reject</button>
+                    <button className="action-btn accept-btn" disabled>
+                      Accept Order
+                    </button>
+                    <button className="action-btn reject-btn" disabled>
+                      Reject
+                    </button>
                   </>
                 )}
-                {order.status === "processing" && (
-                  <button className="action-btn complete-btn">Mark as Complete</button>
+                {order.status === "approved" && (
+                  <button className="action-btn complete-btn" disabled>
+                    Mark as Complete
+                  </button>
                 )}
-                {order.status === "completed" && (
-                  <button className="action-btn invoice-btn">Generate Invoice</button>
+                {order.status === "delivered" && (
+                  <button className="action-btn invoice-btn" disabled>
+                    Generate Invoice
+                  </button>
                 )}
-                <button className="action-btn details-btn">View Details</button>
+                <button className="action-btn details-btn" disabled>
+                  View Details
+                </button>
               </div>
             </div>
           </div>

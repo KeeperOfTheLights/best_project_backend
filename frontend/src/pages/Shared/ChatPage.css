@@ -1,7 +1,7 @@
 .chat-page-container {
   display: flex;
-  height: calc(100vh - 80px);
-  margin-top: 80px;
+  height: calc(100vh - var(--navbar-height));
+  margin-top: var(--navbar-height);
   background-color: #f5f5f5;
   overflow: hidden;
   width: 100vw;
@@ -416,6 +416,40 @@
 .no-chat-selected h3 {
   margin: 0 0 0.5rem 0;
   color: #666;
+}
+
+.chat-loading,
+.chat-error,
+.chat-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: #6b7280;
+  font-size: 0.95rem;
+}
+
+.chat-error {
+  color: #b42318;
+  background-color: #fdecea;
+  border-radius: 8px;
+  margin: 1rem;
+}
+
+.messages-loading,
+.messages-empty {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #6b7280;
+  font-size: 1rem;
+}
+
+.chat-error-inline {
+  padding: 0.75rem 1rem;
+  background-color: #fdecea;
+  color: #b42318;
+  border-radius: 8px;
+  margin: 0.5rem 1rem;
+  font-size: 0.9rem;
+  font-weight: 500;
 }
 
 @media (max-width: 768px) {
