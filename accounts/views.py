@@ -648,3 +648,12 @@ class SupplierDeliverOrderView(APIView):
         order.save()
 
         return Response({"detail": "Order marked as delivered"}, status=200)
+
+class ConsumerComplaintListView(generics.ListAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ComplaintSerializer
+
+    def get_queryset(self):
+        if self.request.user.role != "consumer":
+            return Complaint.objects.none()
+        return Complaint.objects.filter(consumer=self.request.user).order_by("-created_at")
