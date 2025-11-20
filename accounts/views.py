@@ -451,3 +451,37 @@ class SendMessageView(APIView):
 
         serializer = MessageSerializer(msg)
         return Response(serializer.data, status=201)
+
+class SupplierAcceptOrderView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, order_id):
+        if request.user.role != "supplier":
+            return Response({"detail": "Only suppliers can accept orders"}, status=403)
+
+        order = get_object_or_404(Order, id=order_id, supplier=request.user)
+
+        if order.status != "pending":
+            return Response({"detail": "Order already processed"}, status=400)
+
+        order.status = "approved"
+        order.save()
+        return Response({"detail": "Order approved"}, status=200)
+
+
+class SupplierRejectOrderView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, order_id):
+        if request.user.role != "supplier":
+            return Response({"detail": "Only suppliers can reject orders"}, status=403)
+
+        order = get_object_or_404(Order, id=order_id, supplier=request.user)
+
+        if order.status != "pending":
+            return Response({"detail": "Order already processed"}, status=400)
+
+        order.status = "cancelled"
+        order.save()
+
+        return Response({"detail": "Order rejected"}, status=200)
