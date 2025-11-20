@@ -33,5 +33,8 @@ urlpatterns = [
     path("complaints/<int:complaint_id>/reject/", SupplierRejectComplaintView.as_view(), name="complaint-reject"),
     path("complaints/<int:complaint_id>/escalate/", EscalateComplaintView.as_view(), name="complaint-escalate"),
     path("orders/<int:order_id>/", OrderDetailView.as_view(), name="order-detail"),
+    path("orders/stats/", ConsumerOrderStatsView.as_view(), name="order-stats"),
+    path("orders/supplier/stats/", SupplierOrderStatsView.as_view(), name="supplier-order-stats"),
+    path("orders/<int:order_id>/deliver/", SupplierDeliverOrderView.as_view(), name="order-deliver"),
 
 ]

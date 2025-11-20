@@ -584,3 +584,67 @@ class OrderDetailView(APIView):
 
         serializer = OrderSerializer(order)
         return Response(serializer.data, status=200)
+
+class ConsumerOrderStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != "consumer":
+            return Response({"detail": "Only consumers can view stats"}, status=403)
+
+        orders = Order.objects.filter(consumer=request.user)
+
+        completed = orders.filter(status="delivered").count()
+        in_progress = orders.filter(status__in=["pending", "approved"]).count()
+        cancelled = orders.filter(status="cancelled").count()
+        total_spent = orders.filter(status="delivered").aggregate(
+            total=Sum("total_price")
+        )["total"] or 0
+
+        return Response({
+            "completed_orders": completed,
+            "in_progress_orders": in_progress,
+            "cancelled_orders": cancelled,
+            "total_spent": total_spent
+        })
+
+class SupplierOrderStatsView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        if request.user.role != "supplier":
+            return Response({"detail": "Only suppliers can view stats"}, status=403)
+
+        orders = Order.objects.filter(supplier=request.user)
+        active_orders = orders.filter(status__in=["pending", "approved"]).count()
+        completed_orders = orders.filter(status="delivered").count()
+        pending_deliveries = orders.filter(status="approved").count()
+
+        total_revenue = orders.filter(status="delivered").aggregate(
+            total=Sum("total_price")
+        )["total"] or 0
+
+        return Response({
+            "active_orders": active_orders,
+            "completed_orders": completed_orders,
+            "pending_deliveries": pending_deliveries,
+            "total_revenue": total_revenue,
+        })
+
+class SupplierDeliverOrderView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request, order_id):
+        if request.user.role != "supplier":
+            return Response({"detail": "Only suppliers can complete orders"}, status=403)
+
+        order = get_object_or_404(Order, id=order_id, supplier=request.user)
+
+        # Only approved orders can be delivered
+        if order.status != "approved":
+            return Response({"detail": "Order not ready for delivery"}, status=400)
+
+        order.status = "delivered"
+        order.save()
+
+        return Response({"detail": "Order marked as delivered"}, status=200)
