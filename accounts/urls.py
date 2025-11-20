@@ -37,4 +37,6 @@ urlpatterns = [
     path("orders/supplier/stats/", SupplierOrderStatsView.as_view(), name="supplier-order-stats"),
     path("orders/<int:order_id>/deliver/", SupplierDeliverOrderView.as_view(), name="order-deliver"),
     path("complaints/my/", ConsumerComplaintListView.as_view(), name="complaints-my"),
+    path("search/", GlobalSearchView.as_view(), name="global-search"),
+
 ]

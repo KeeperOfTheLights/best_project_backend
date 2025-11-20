@@ -664,3 +664,46 @@ class ConsumerComplaintListView(generics.ListAPIView):
         if self.request.user.role != "consumer":
             return Complaint.objects.none()
         return Complaint.objects.filter(consumer=self.request.user).order_by("-created_at")
+
+class GlobalSearchView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        query = request.GET.get("q", "").strip()
+
+        if not query:
+            return Response({
+                "suppliers": [],
+                "categories": [],
+                "products": []
+            })
+
+        linked_suppliers = LinkRequest.objects.filter(
+            consumer=request.user,
+            status="linked"
+        ).values_list("supplier_id", flat=True)
+
+        suppliers = User.objects.filter(
+            id__in=linked_suppliers,
+            full_name__icontains=query
+        )
+        suppliers_data = SupplierSerializer(suppliers, many=True).data
+
+        categories = Product.objects.filter(
+            supplier_id__in=linked_suppliers,
+            category__icontains=query
+        ).values_list("category", flat=True).distinct()
+
+        products = Product.objects.filter(
+            supplier_id__in=linked_suppliers
+        ).filter(
+            Q(name__icontains=query) |
+            Q(description__icontains=query)
+        )
+        products_data = ProductSerializer(products, many=True).data
+
+        return Response({
+            "suppliers": suppliers_data,
+            "categories": list(categories),
+            "products": products_data
+        })
