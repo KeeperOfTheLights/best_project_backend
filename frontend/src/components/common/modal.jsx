@@ -19,16 +19,16 @@ export default function Modal({ show, title, text, onConfirm, onCancel, children
         {/* Children renders directly, not inside modal-content */}
         {children}
 
-        <div className="modal-buttons">
-          <button className="modal-btn cancel" onClick={onCancel}>
-            {onConfirm ? "Cancel" : "Close"}
-          </button>
-          {onConfirm && (
+        {onConfirm && (
+          <div className="modal-buttons">
+            <button className="modal-btn cancel" onClick={onCancel}>
+              Cancel
+            </button>
             <button className="modal-btn confirm" onClick={onConfirm}>
               Confirm
             </button>
-          )}
-        </div>
+          </div>
+        )}
       </div>
     </div>
   );

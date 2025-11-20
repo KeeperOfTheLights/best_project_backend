@@ -1,6 +1,6 @@
 .supplier-orders-container {
   width: 95%;
-  max-width: 1200px;
+  max-width: 700px;
   margin: 0 auto;
   padding: 2rem;
   padding-top: calc(var(--navbar-height) + 2rem);

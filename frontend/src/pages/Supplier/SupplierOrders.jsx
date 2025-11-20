@@ -28,6 +28,7 @@ export default function SupplierOrders() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [filterConsumerId, setFilterConsumerId] = useState(null);
+  const [actionLoading, setActionLoading] = useState(null);
 
   const fetchOrders = async () => {
     if (!token) {
@@ -72,7 +73,6 @@ export default function SupplierOrders() {
       setFilterConsumerId(location.state.filterConsumerId);
     }
     fetchOrders();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, location.state]);
 
   const filteredOrders = useMemo(() => {
@@ -104,6 +104,82 @@ export default function SupplierOrders() {
       return new Date(value).toLocaleDateString();
     } catch {
       return value;
+    }
+  };
+
+  const handleAcceptOrder = async (orderId) => {
+    if (!token) {
+      logout();
+      navigate("/login");
+      return;
+    }
+
+    setActionLoading(orderId);
+    setError("");
+
+    try {
+      const res = await fetch(`${API_BASE}/orders/${orderId}/accept/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.status === 401) {
+        logout();
+        navigate("/login");
+        return;
+      }
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || "Failed to accept order");
+      }
+
+      await fetchOrders();
+    } catch (err) {
+      setError(err.message || "Failed to accept order");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleRejectOrder = async (orderId) => {
+    if (!token) {
+      logout();
+      navigate("/login");
+      return;
+    }
+
+    setActionLoading(orderId);
+    setError("");
+
+    try {
+      const res = await fetch(`${API_BASE}/orders/${orderId}/reject/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.status === 401) {
+        logout();
+        navigate("/login");
+        return;
+      }
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || "Failed to reject order");
+      }
+
+      await fetchOrders();
+    } catch (err) {
+      setError(err.message || "Failed to reject order");
+    } finally {
+      setActionLoading(null);
     }
   };
 
@@ -245,11 +321,19 @@ export default function SupplierOrders() {
               <div className="order-actions">
                 {order.status === "pending" && (
                   <>
-                    <button className="action-btn accept-btn" disabled>
-                      Accept Order
+                    <button
+                      className="action-btn accept-btn"
+                      onClick={() => handleAcceptOrder(order.id)}
+                      disabled={actionLoading === order.id}
+                    >
+                      {actionLoading === order.id ? "Processing..." : "Accept Order"}
                     </button>
-                    <button className="action-btn reject-btn" disabled>
-                      Reject
+                    <button
+                      className="action-btn reject-btn"
+                      onClick={() => handleRejectOrder(order.id)}
+                      disabled={actionLoading === order.id}
+                    >
+                      {actionLoading === order.id ? "Processing..." : "Reject"}
                     </button>
                   </>
                 )}

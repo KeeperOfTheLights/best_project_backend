@@ -479,7 +479,6 @@ export default function SupplierLinkRequests() {
         </div>
       )}
 
-      {/* ====================== MODAL ====================== */}
       {modalData.visible && (
         <div className="modal-overlay">
           <div className="modal-window">

@@ -601,7 +601,25 @@ export default function ConsumerLinkManagement() {
     <div className="catalog-cart-panel">
       <div className="cart-panel-header">
         <h3>Cart ({supplierCartItems.length} items)</h3>
-        {cartLoading && <span className="cart-loading">Refreshing...</span>}
+        <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
+          {cartLoading && <span className="cart-loading">Refreshing...</span>}
+          <button
+            className="cart-close-btn"
+            onClick={closeModal}
+            style={{
+              padding: "0.5rem 1rem",
+              border: "none",
+              borderRadius: "8px",
+              background: "#f44336",
+              color: "white",
+              fontWeight: "600",
+              cursor: "pointer",
+              fontSize: "0.9rem",
+            }}
+          >
+            Close
+          </button>
+        </div>
       </div>
 
       {cartError && <div className="catalog-inline-alert error">{cartError}</div>}
