@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
+import OrderDetailModal from "../../components/OrderDetailModal";
 import "./ConsumerOrders.css";
 
 const API_BASE = "http://127.0.0.1:8000/api/accounts";
@@ -19,6 +20,7 @@ export default function ConsumerOrders() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
 
   const fetchOrders = async () => {
     if (!token) {
@@ -195,6 +197,16 @@ export default function ConsumerOrders() {
                   <span className="total-value">{formatCurrency(order.total_price)}</span>
                 </div>
                 <div className="action-buttons">
+                  <button
+                    className="btn complaint-btn"
+                    onClick={() =>
+                      navigate("/consumer/complaints", {
+                        state: { orderId: order.id },
+                      })
+                    }
+                  >
+                    File Complaint
+                  </button>
                   {order.status === "pending" && (
                     <button className="btn btn-disabled" disabled>
                       Awaiting approval
@@ -205,8 +217,11 @@ export default function ConsumerOrders() {
                       Reorder
                     </button>
                   )}
-                  <button className="btn btn-disabled" disabled>
-                    Details
+                  <button
+                    className="btn details-btn"
+                    onClick={() => setSelectedOrderId(order.id)}
+                  >
+                    View Details
                   </button>
                 </div>
               </div>
@@ -214,6 +229,12 @@ export default function ConsumerOrders() {
           );
         })}
       </div>
+
+      <OrderDetailModal
+        show={selectedOrderId !== null}
+        orderId={selectedOrderId}
+        onClose={() => setSelectedOrderId(null)}
+      />
     </div>
   );
 }

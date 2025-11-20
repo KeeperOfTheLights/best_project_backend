@@ -2,6 +2,7 @@ import "./SupplierOrders.css";
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
+import OrderDetailModal from "../../components/OrderDetailModal";
 
 const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
@@ -29,6 +30,7 @@ export default function SupplierOrders() {
   const [error, setError] = useState("");
   const [filterConsumerId, setFilterConsumerId] = useState(null);
   const [actionLoading, setActionLoading] = useState(null);
+  const [selectedOrderId, setSelectedOrderId] = useState(null);
 
   const fetchOrders = async () => {
     if (!token) {
@@ -178,6 +180,44 @@ export default function SupplierOrders() {
       await fetchOrders();
     } catch (err) {
       setError(err.message || "Failed to reject order");
+    } finally {
+      setActionLoading(null);
+    }
+  };
+
+  const handleDeliverOrder = async (orderId) => {
+    if (!token) {
+      logout();
+      navigate("/login");
+      return;
+    }
+
+    setActionLoading(orderId);
+    setError("");
+
+    try {
+      const res = await fetch(`${API_BASE}/orders/${orderId}/deliver/`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+
+      if (res.status === 401) {
+        logout();
+        navigate("/login");
+        return;
+      }
+
+      if (!res.ok) {
+        const errorData = await res.json().catch(() => ({}));
+        throw new Error(errorData.detail || "Failed to mark order as delivered");
+      }
+
+      await fetchOrders();
+    } catch (err) {
+      setError(err.message || "Failed to mark order as delivered");
     } finally {
       setActionLoading(null);
     }
@@ -338,8 +378,12 @@ export default function SupplierOrders() {
                   </>
                 )}
                 {order.status === "approved" && (
-                  <button className="action-btn complete-btn" disabled>
-                    Mark as Complete
+                  <button
+                    className="action-btn complete-btn"
+                    onClick={() => handleDeliverOrder(order.id)}
+                    disabled={actionLoading === order.id}
+                  >
+                    {actionLoading === order.id ? "Processing..." : "Mark as Delivered"}
                   </button>
                 )}
                 {order.status === "delivered" && (
@@ -347,7 +391,10 @@ export default function SupplierOrders() {
                     Generate Invoice
                   </button>
                 )}
-                <button className="action-btn details-btn" disabled>
+                <button
+                  className="action-btn details-btn"
+                  onClick={() => setSelectedOrderId(order.id)}
+                >
                   View Details
                 </button>
               </div>
@@ -355,6 +402,12 @@ export default function SupplierOrders() {
           </div>
         ))}
       </div>
+
+      <OrderDetailModal
+        show={selectedOrderId !== null}
+        orderId={selectedOrderId}
+        onClose={() => setSelectedOrderId(null)}
+      />
     </div>
   );
 }

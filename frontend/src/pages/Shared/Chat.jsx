@@ -12,6 +12,7 @@ export default function ChatPage() {
   const [chats, setChats] = useState([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState(null);
   const [currentUserId, setCurrentUserId] = useState(null);
+  const [currentConsumerId, setCurrentConsumerId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -49,6 +50,10 @@ export default function ChatPage() {
           if (linksRes.ok) {
             const links = await linksRes.json();
             const linkedSuppliers = links.filter((link) => link.status === "linked");
+            
+            if (links.length > 0 && links[0].consumer) {
+              setCurrentConsumerId(links[0].consumer);
+            }
 
             const suppliersRes = await fetch(`${API_BASE}/suppliers/`, {
               headers: { Authorization: `Bearer ${token}` },
@@ -120,23 +125,18 @@ export default function ChatPage() {
   }, [token, role, location.state]);
 
   useEffect(() => {
-    if (!selectedSupplierId || !token) return;
-    
-    if (role === "supplier") {
+    if (!selectedSupplierId || !token) {
       setMessages([]);
-      setMessagesLoading(false);
-      setError("");
       return;
     }
-
-    if (role !== "consumer") return;
 
     const fetchMessages = async () => {
       setMessagesLoading(true);
       setError("");
 
       try {
-        const res = await fetch(`${API_BASE}/chat/${selectedSupplierId}/`, {
+        const partnerId = selectedSupplierId;
+        const res = await fetch(`${API_BASE}/chat/${partnerId}/`, {
           headers: { Authorization: `Bearer ${token}` },
         });
 
@@ -152,14 +152,23 @@ export default function ChatPage() {
         }
 
         const data = await res.json();
-        const formattedMessages = (Array.isArray(data) ? data : []).map((msg) => ({
-          id: msg.id,
-          text: msg.text,
-          senderName: msg.sender_name,
-          timestamp: msg.timestamp,
-          senderId: msg.sender,
-          isOwn: false,
-        }));
+        const formattedMessages = (Array.isArray(data) ? data : []).map((msg) => {
+          let isOwn = false;
+          if (role === "consumer" && currentConsumerId) {
+            isOwn = Number(msg.sender) === Number(currentConsumerId);
+          } else if (role === "supplier" && currentUserId) {
+            isOwn = Number(msg.sender) === Number(currentUserId);
+          }
+          
+          return {
+            id: msg.id,
+            text: msg.text,
+            senderName: msg.sender_name,
+            timestamp: msg.timestamp,
+            senderId: msg.sender,
+            isOwn: isOwn,
+          };
+        });
 
         setMessages(formattedMessages);
       } catch (err) {
@@ -175,7 +184,7 @@ export default function ChatPage() {
     const interval = setInterval(fetchMessages, 3000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [selectedSupplierId, role, token]);
+  }, [selectedSupplierId, role, token, currentUserId, currentConsumerId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -223,18 +232,69 @@ export default function ChatPage() {
       }
 
       const sentMessage = await res.json();
-      setMessages((prev) => [
-        ...prev,
-        {
-          id: sentMessage.id,
-          text: sentMessage.text,
-          senderName: sentMessage.sender_name || "You",
-          timestamp: sentMessage.timestamp,
-          isOwn: true,
-        },
-      ]);
+      
+      if (role === "consumer") {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: sentMessage.id,
+            text: sentMessage.text,
+            senderName: sentMessage.sender_name || "You",
+            timestamp: sentMessage.timestamp,
+            senderId: sentMessage.sender,
+            isOwn: true,
+          },
+        ]);
+      } else {
+        setMessages((prev) => [
+          ...prev,
+          {
+            id: sentMessage.id || Date.now(),
+            text: sentMessage.text,
+            senderName: sentMessage.sender_name || "You",
+            timestamp: sentMessage.timestamp || new Date().toISOString(),
+            senderId: currentUserId,
+            isOwn: true,
+          },
+        ]);
+      }
 
       setNewMessage("");
+      
+      setTimeout(() => {
+        const fetchMessages = async () => {
+          try {
+            const partnerId = selectedSupplierId;
+            const res = await fetch(`${API_BASE}/chat/${partnerId}/`, {
+              headers: { Authorization: `Bearer ${token}` },
+            });
+            if (res.ok) {
+              const data = await res.json();
+              const formattedMessages = (Array.isArray(data) ? data : []).map((msg) => {
+                let isOwn = false;
+                if (role === "consumer" && currentConsumerId) {
+                  isOwn = Number(msg.sender) === Number(currentConsumerId);
+                } else if (role === "supplier" && currentUserId) {
+                  isOwn = Number(msg.sender) === Number(currentUserId);
+                }
+                
+                return {
+                  id: msg.id,
+                  text: msg.text,
+                  senderName: msg.sender_name,
+                  timestamp: msg.timestamp,
+                  senderId: msg.sender,
+                  isOwn: isOwn,
+                };
+              });
+              setMessages(formattedMessages);
+            }
+          } catch (err) {
+            console.error("Failed to refresh messages:", err);
+          }
+        };
+        fetchMessages();
+      }, 500);
     } catch (err) {
       setError(err.message || "Failed to send message");
     } finally {
@@ -358,9 +418,7 @@ export default function ChatPage() {
                 <div className="messages-loading">Loading messages...</div>
               ) : messages.length === 0 ? (
                 <div className="messages-empty">
-                  {role === "consumer"
-                    ? "No messages yet. Start the conversation!"
-                    : "You can send messages, but message history is not available for suppliers."}
+                  No messages yet. Start the conversation!
                 </div>
               ) : (
                 messages.map((message) => (

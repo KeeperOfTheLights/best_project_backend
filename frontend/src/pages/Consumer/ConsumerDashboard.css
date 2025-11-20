@@ -107,6 +107,39 @@
   transform: translateY(-3px);
 }
 
+.error-banner {
+  background-color: #fdecea;
+  color: #b42318;
+  padding: 1rem 1.25rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.error-banner button {
+  background-color: #61dafb;
+  color: #20232a;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.error-banner button:hover {
+  background-color: #4fcbe4;
+}
+
+.loading-state {
+  text-align: center;
+  padding: 3rem 2rem;
+  color: #6b7280;
+  font-size: 1.1rem;
+}
+
 @media (max-width: 768px) {
   .dashboard-stats {
     flex-direction: column;
