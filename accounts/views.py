@@ -386,28 +386,35 @@ def get_or_create_room(consumer, supplier):
 class ChatHistoryView(APIView):
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, supplier_id):
+    def get(self, request, partner_id):
         user = request.user
 
-        if user.role != "consumer":
-            return Response({"detail": "Only consumers start this chat view"}, status=403)
+        if user.role == "consumer":
+            supplier = get_object_or_404(User, id=partner_id, role="supplier")
+            consumer = user
 
-        supplier = get_object_or_404(User, id=supplier_id, role="supplier")
+        elif user.role == "supplier":
+            consumer = get_object_or_404(User, id=partner_id, role="consumer")
+            supplier = user
 
-        # ensure they are linked
+        else:
+            return Response({"detail": "Access denied"}, status=403)
+
         linked = LinkRequest.objects.filter(
-            consumer=user,
+            consumer=consumer,
             supplier=supplier,
             status="linked"
         ).exists()
-        if not linked:
-            return Response({"detail": "You are not linked to this supplier"}, status=403)
 
-        room = get_or_create_room(user, supplier)
+        if not linked:
+            return Response({"detail": "Not linked"}, status=403)
+
+        room = get_or_create_room(consumer, supplier)
         messages = room.messages.select_related("sender").order_by("timestamp")
 
         serializer = MessageSerializer(messages, many=True)
         return Response(serializer.data, status=200)
+
 
 
 class SendMessageView(APIView):
