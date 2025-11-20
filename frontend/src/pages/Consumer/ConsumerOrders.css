@@ -432,6 +432,40 @@
   }
 }
 
+.complaint-btn {
+  background-color: #f44336;
+  color: white;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.9rem;
+}
+
+.complaint-btn:hover {
+  background-color: #d32f2f;
+  transform: translateY(-2px);
+}
+
+.details-btn {
+  background-color: #61dafb;
+  color: #20232a;
+  border: none;
+  padding: 0.7rem 1.2rem;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s;
+  font-size: 0.9rem;
+}
+
+.details-btn:hover {
+  background-color: #4fcbe4;
+  transform: translateY(-2px);
+}
+
 @media (max-width: 480px) {
   .stats-grid {
     grid-template-columns: 1fr;
