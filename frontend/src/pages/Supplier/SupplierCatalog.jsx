@@ -397,7 +397,9 @@ export default function SupplierLinkRequests() {
                     <button
                       className="action-btn view-orders-btn"
                       onClick={() =>
-                        alert(`View orders from ${request.consumer_name}`)
+                        navigate("/SupplierOrders", {
+                          state: { filterConsumerId: request.consumer },
+                        })
                       }
                     >
                       View Orders
@@ -405,7 +407,9 @@ export default function SupplierLinkRequests() {
                     <button
                       className="action-btn message-btn"
                       onClick={() =>
-                        alert(`Message ${request.consumer_name}`)
+                        navigate("/chat", {
+                          state: { selectConsumerId: request.consumer },
+                        })
                       }
                     >
                       Message

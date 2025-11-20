@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 import "./ChatPage.css";
 
@@ -7,9 +7,11 @@ const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
 export default function ChatPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { token, logout, role, user } = useAuth();
   const [chats, setChats] = useState([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState(null);
+  const [currentUserId, setCurrentUserId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
   const [searchQuery, setSearchQuery] = useState("");
@@ -19,7 +21,6 @@ export default function ChatPage() {
   const [error, setError] = useState("");
   const messagesEndRef = useRef(null);
 
-  // Fetch linked suppliers/consumers for chat list
   useEffect(() => {
     if (!token) {
       logout();
@@ -35,7 +36,6 @@ export default function ChatPage() {
         let linkedPartners = [];
 
         if (role === "consumer") {
-          // Fetch linked suppliers
           const linksRes = await fetch(`${API_BASE}/consumer/links/`, {
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -50,7 +50,6 @@ export default function ChatPage() {
             const links = await linksRes.json();
             const linkedSuppliers = links.filter((link) => link.status === "linked");
 
-            // Fetch supplier details
             const suppliersRes = await fetch(`${API_BASE}/suppliers/`, {
               headers: { Authorization: `Bearer ${token}` },
             });
@@ -68,7 +67,6 @@ export default function ChatPage() {
             }
           }
         } else if (role === "supplier") {
-          // Fetch linked consumers
           const linksRes = await fetch(`${API_BASE}/links/`, {
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -81,6 +79,9 @@ export default function ChatPage() {
 
           if (linksRes.ok) {
             const links = await linksRes.json();
+            if (links.length > 0 && links[0].supplier) {
+              setCurrentUserId(links[0].supplier);
+            }
             linkedPartners = links
               .filter((link) => link.status === "linked")
               .map((link) => ({
@@ -92,8 +93,17 @@ export default function ChatPage() {
         }
 
         setChats(linkedPartners);
-        if (linkedPartners.length > 0 && !selectedSupplierId) {
-          // Auto-select first chat for consumers
+        
+        const consumerIdToSelect = location.state?.selectConsumerId;
+        
+        if (consumerIdToSelect && role === "supplier") {
+          const consumerChat = linkedPartners.find(
+            (chat) => Number(chat.consumerId) === Number(consumerIdToSelect)
+          );
+          if (consumerChat) {
+            setSelectedSupplierId(consumerChat.consumerId);
+          }
+        } else if (linkedPartners.length > 0 && !selectedSupplierId) {
           if (role === "consumer" && linkedPartners[0].supplierId) {
             setSelectedSupplierId(linkedPartners[0].supplierId);
           }
@@ -107,11 +117,19 @@ export default function ChatPage() {
 
     fetchChats();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [token, role]);
+  }, [token, role, location.state]);
 
-  // Fetch messages when supplier is selected (consumers only)
   useEffect(() => {
-    if (!selectedSupplierId || role !== "consumer" || !token) return;
+    if (!selectedSupplierId || !token) return;
+    
+    if (role === "supplier") {
+      setMessages([]);
+      setMessagesLoading(false);
+      setError("");
+      return;
+    }
+
+    if (role !== "consumer") return;
 
     const fetchMessages = async () => {
       setMessagesLoading(true);
@@ -134,15 +152,13 @@ export default function ChatPage() {
         }
 
         const data = await res.json();
-        // Note: We can't determine if message is "own" without current user ID
-        // For now, we'll show all messages. In a real app, you'd need user ID from auth
         const formattedMessages = (Array.isArray(data) ? data : []).map((msg) => ({
           id: msg.id,
           text: msg.text,
           senderName: msg.sender_name,
           timestamp: msg.timestamp,
           senderId: msg.sender,
-          isOwn: false, // Will be determined by comparing sender with current user if needed
+          isOwn: false,
         }));
 
         setMessages(formattedMessages);
@@ -156,13 +172,11 @@ export default function ChatPage() {
 
     fetchMessages();
 
-    // Poll for new messages every 3 seconds
     const interval = setInterval(fetchMessages, 3000);
     return () => clearInterval(interval);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSupplierId, role, token]);
 
-  // Scroll to bottom when messages change
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -175,12 +189,20 @@ export default function ChatPage() {
     setError("");
 
     try {
-      const body =
-        role === "consumer"
-          ? { text: newMessage.trim() }
-          : { text: newMessage.trim(), consumer_id: selectedSupplierId };
+      let url, body;
+      
+      if (role === "consumer") {
+        url = `${API_BASE}/chat/${selectedSupplierId}/send/`;
+        body = { text: newMessage.trim() };
+      } else {
+        if (!currentUserId) {
+          throw new Error("Unable to determine supplier ID. Please refresh the page.");
+        }
+        url = `${API_BASE}/chat/${currentUserId}/send/`;
+        body = { text: newMessage.trim(), consumer_id: selectedSupplierId };
+      }
 
-      const res = await fetch(`${API_BASE}/chat/${selectedSupplierId}/send/`, {
+      const res = await fetch(url, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -200,7 +222,6 @@ export default function ChatPage() {
         throw new Error(text || "Failed to send message");
       }
 
-      // Add message optimistically (we know it's from current user)
       const sentMessage = await res.json();
       setMessages((prev) => [
         ...prev,
