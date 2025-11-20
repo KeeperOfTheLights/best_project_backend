@@ -25,5 +25,7 @@ urlpatterns = [
     path("orders/supplier/", SupplierOrdersView.as_view(), name="supplier-orders"),
     path("chat/<int:supplier_id>/", ChatHistoryView.as_view(), name="chat-history"),
     path("chat/<int:supplier_id>/send/", SendMessageView.as_view(), name="chat-send"),
+    path("orders/<int:order_id>/accept/", SupplierAcceptOrderView.as_view(), name="order-accept"),
+    path("orders/<int:order_id>/reject/", SupplierRejectOrderView.as_view(), name="order-reject"),
 
 ]
