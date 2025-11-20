@@ -32,5 +32,6 @@ urlpatterns = [
     path("complaints/<int:complaint_id>/resolve/", SupplierResolveComplaintView.as_view(), name="complaint-resolve"),
     path("complaints/<int:complaint_id>/reject/", SupplierRejectComplaintView.as_view(), name="complaint-reject"),
     path("complaints/<int:complaint_id>/escalate/", EscalateComplaintView.as_view(), name="complaint-escalate"),
+    path("orders/<int:order_id>/", OrderDetailView.as_view(), name="order-detail"),
 
 ]

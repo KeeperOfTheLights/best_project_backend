@@ -567,3 +567,20 @@ class EscalateComplaintView(APIView):
         complaint.save()
 
         return Response({"detail": "Complaint escalated"}, status=200)
+
+class OrderDetailView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, order_id):
+        if request.user.role == "consumer":
+            order = get_object_or_404(Order, id=order_id, consumer=request.user)
+
+        # supplier can see only their own orders
+        elif request.user.role == "supplier":
+            order = get_object_or_404(Order, id=order_id, supplier=request.user)
+
+        else:
+            return Response({"detail": "Access denied"}, status=403)
+
+        serializer = OrderSerializer(order)
+        return Response(serializer.data, status=200)
