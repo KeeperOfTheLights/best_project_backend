@@ -1,11 +1,11 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
-import '../models/staff_member.dart';
+import '../models/supplier.dart';
 import '../utils/constants.dart';
 import 'storage_service.dart';
 
-// StaffService - handles staff management operations
-class StaffService {
+// SupplierService - handles supplier management operations (Sales Management)
+class SupplierService {
   // Helper method to get headers with authentication token
   static Map<String, String> _getHeaders() {
     final token = StorageService.getToken();
@@ -18,87 +18,89 @@ class StaffService {
     return headers;
   }
 
-  // Get all staff members
-  static Future<List<StaffMember>> getStaff() async {
+  // Get all suppliers created by current user (Owner/Manager)
+  static Future<List<Supplier>> getMySuppliers() async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl${ApiEndpoints.getStaff}'),
+        Uri.parse('$baseUrl/suppliers/my-suppliers'),
         headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final List<dynamic> staffJson = data['staff'] ?? data;
-        return staffJson.map((json) => StaffMember.fromJson(json)).toList();
+        final List<dynamic> suppliersJson = data['suppliers'] ?? data;
+        return suppliersJson.map((json) => Supplier.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to get staff');
+        throw Exception('Failed to get suppliers');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
     }
   }
 
-  // Add new staff member - creates a full login account
-  static Future<StaffMember> addStaff({
-    required String email,
-    required String name,
-    required String role,
-    required String password,
+  // Create new supplier (Sales name)
+  static Future<Supplier> createSupplier({
+    required String companyName,
+    String? companyType,
+    String? address,
     String? phone,
+    String? email,
+    String? description,
   }) async {
     try {
       final body = {
-        'email': email,
-        'name': name,
-        'role': role,
-        'password': password,
+        'company_name': companyName,
+        if (companyType != null) 'company_type': companyType,
+        if (address != null) 'address': address,
         if (phone != null) 'phone': phone,
+        if (email != null) 'email': email,
+        if (description != null) 'description': description,
       };
 
       final response = await http.post(
-        Uri.parse('$baseUrl${ApiEndpoints.addStaff}'),
+        Uri.parse('$baseUrl/suppliers'),
         headers: _getHeaders(),
         body: jsonEncode(body),
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        return StaffMember.fromJson(data);
+        return Supplier.fromJson(data);
       } else {
         final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Failed to add staff');
+        throw Exception(error['message'] ?? 'Failed to create supplier');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
     }
   }
 
-  // Update staff member
-  static Future<StaffMember> updateStaff(StaffMember staff) async {
+  // Update supplier
+  static Future<Supplier> updateSupplier(Supplier supplier) async {
     try {
       final response = await http.put(
-        Uri.parse('$baseUrl${ApiEndpoints.updateStaff}/${staff.id}'),
+        Uri.parse('$baseUrl/suppliers/${supplier.id}'),
         headers: _getHeaders(),
-        body: jsonEncode(staff.toJson()),
+        body: jsonEncode(supplier.toJson()),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        return StaffMember.fromJson(data);
+        return Supplier.fromJson(data);
       } else {
         final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Failed to update staff');
+        throw Exception(error['message'] ?? 'Failed to update supplier');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
     }
   }
 
-  // Remove/deactivate staff member
-  static Future<bool> removeStaff(String staffId) async {
+  // Delete supplier
+  static Future<bool> deleteSupplier(String supplierId) async {
     try {
       final response = await http.delete(
-        Uri.parse('$baseUrl${ApiEndpoints.removeStaff}/$staffId'),
+        Uri.parse('$baseUrl/suppliers/$supplierId'),
         headers: _getHeaders(),
       );
 
@@ -106,14 +108,11 @@ class StaffService {
         return true;
       } else {
         final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Failed to remove staff');
+        throw Exception(error['message'] ?? 'Failed to delete supplier');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
     }
   }
 }
-
-
-
 

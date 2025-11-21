@@ -7,6 +7,7 @@ import 'providers/catalog_provider.dart';
 import 'providers/order_provider.dart';
 import 'providers/chat_provider.dart';
 import 'providers/staff_provider.dart';
+import 'providers/supplier_provider.dart';
 import 'services/storage_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/consumer_dashboard.dart';
@@ -58,6 +59,10 @@ class MyApp extends StatelessWidget {
                 // StaffProvider - manages staff
                 ChangeNotifierProvider(
                   create: (_) => StaffProvider(),
+                ),
+                // SupplierProvider - manages suppliers (Sales Management)
+                ChangeNotifierProvider(
+                  create: (_) => SupplierProvider(),
                 ),
               ],
       child: MaterialApp(

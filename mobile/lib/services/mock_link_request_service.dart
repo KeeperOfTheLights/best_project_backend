@@ -2,6 +2,7 @@ import '../models/supplier.dart';
 import '../models/link_request.dart';
 import '../models/user.dart';
 import '../services/storage_service.dart';
+import '../services/mock_supplier_service.dart';
 
 // MockLinkRequestService - simulates link request operations for testing
 class MockLinkRequestService {
@@ -27,7 +28,7 @@ class MockLinkRequestService {
     );
   }
 
-  // Mock suppliers list for search
+  // Mock suppliers list for search (includes both default and user-created suppliers)
   static final List<Supplier> _mockSuppliers = [
     Supplier(
       id: '1',
@@ -66,11 +67,29 @@ class MockLinkRequestService {
       description: 'Fresh dairy products and beverages',
     ),
   ];
+  
+  // Get all searchable suppliers (combines default + Sales Management suppliers)
+  static List<Supplier> _getAllSearchableSuppliers() {
+    final salesSuppliers = MockSupplierService.getAllSearchableSuppliers();
+    // Combine default suppliers with Sales Management suppliers
+    // Remove duplicates based on company name
+    final allSuppliers = <Supplier>[];
+    final seenNames = <String>{};
+    
+    for (var supplier in [..._mockSuppliers, ...salesSuppliers]) {
+      if (!seenNames.contains(supplier.companyName.toLowerCase())) {
+        seenNames.add(supplier.companyName.toLowerCase());
+        allSuppliers.add(supplier);
+      }
+    }
+    
+    return allSuppliers;
+  }
 
   // Mock link requests storage (in real app, this would be in backend)
   static final List<LinkRequest> _mockLinkRequests = [];
 
-  // Search suppliers by name
+  // Search suppliers by name (includes Sales Management suppliers)
   static Future<List<Supplier>> searchSuppliers(String query) async {
     await _delay();
 
@@ -78,8 +97,9 @@ class MockLinkRequestService {
       return [];
     }
 
+    final allSuppliers = _getAllSearchableSuppliers();
     final lowerQuery = query.toLowerCase();
-    return _mockSuppliers
+    return allSuppliers
         .where((supplier) =>
             supplier.companyName.toLowerCase().contains(lowerQuery) ||
             (supplier.companyType?.toLowerCase().contains(lowerQuery) ?? false))
@@ -106,9 +126,10 @@ class MockLinkRequestService {
       throw Exception('Link request already sent');
     }
 
-    final supplier = _mockSuppliers.firstWhere(
+    final allSuppliers = _getAllSearchableSuppliers();
+    final supplier = allSuppliers.firstWhere(
       (s) => s.id == supplierId,
-      orElse: () => _mockSuppliers[0],
+      orElse: () => allSuppliers.isNotEmpty ? allSuppliers[0] : _mockSuppliers[0],
     );
 
     // Get current consumer user

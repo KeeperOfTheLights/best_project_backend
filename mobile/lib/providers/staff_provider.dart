@@ -45,11 +45,13 @@ class StaffProvider with ChangeNotifier {
     }
   }
 
-  // Add new staff member
+  // Add new staff member - creates a full login account
   Future<bool> addStaff({
     required String email,
     required String name,
     required String role,
+    required String password,
+    String? phone,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -61,11 +63,15 @@ class StaffProvider with ChangeNotifier {
               email: email,
               name: name,
               role: role,
+              password: password,
+              phone: phone,
             )
           : await StaffService.addStaff(
               email: email,
               name: name,
               role: role,
+              password: password,
+              phone: phone,
             );
 
       _staff.add(newStaff);

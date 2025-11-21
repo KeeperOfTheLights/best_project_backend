@@ -7,6 +7,7 @@ import 'manage_link_requests_screen.dart';
 import 'orders_screen.dart';
 import 'chat_list_screen.dart';
 import 'staff_management_screen.dart';
+import 'sales_management_screen.dart';
 
 // SupplierDashboard - the main screen for suppliers after login
 class SupplierDashboard extends StatefulWidget {
@@ -227,7 +228,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                           ),
                     ],
                   ),
-                   // Staff management (Owner: Staff Management, Manager: Sales Management)
+                   // Sales Management (Owners and Managers only)
                    if (userRole == UserRole.owner || userRole == UserRole.manager) ...[
                      const SizedBox(height: 12),
                      Row(
@@ -235,18 +236,42 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                          Expanded(
                            child: _buildActionCard(
                              context,
-                             icon: Icons.people,
-                             title: userRole == UserRole.owner 
-                                 ? 'Staff Management' 
-                                 : 'Sales Management',
+                             icon: Icons.business,
+                             title: 'Sales Management',
                              color: Colors.teal,
                              onTap: () {
                                Navigator.push(
                                  context,
                                  MaterialPageRoute(
-                                   builder: (context) => StaffManagementScreen(
-                                     isSalesManagement: userRole == UserRole.manager,
-                                   ),
+                                   builder: (context) => const SalesManagementScreen(),
+                                 ),
+                               );
+                             },
+                           ),
+                         ),
+                         const SizedBox(width: 12),
+                         Expanded(
+                           child: Container(), // Empty space for alignment
+                         ),
+                       ],
+                     ),
+                   ],
+                   // Staff Management (Owners only)
+                   if (userRole == UserRole.owner) ...[
+                     const SizedBox(height: 12),
+                     Row(
+                       children: [
+                         Expanded(
+                           child: _buildActionCard(
+                             context,
+                             icon: Icons.people,
+                             title: 'Staff Management',
+                             color: Colors.indigo,
+                             onTap: () {
+                               Navigator.push(
+                                 context,
+                                 MaterialPageRoute(
+                                   builder: (context) => const StaffManagementScreen(),
                                  ),
                                );
                              },

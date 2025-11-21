@@ -53,6 +53,8 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
 
     final nameController = TextEditingController();
     final emailController = TextEditingController();
+    final passwordController = TextEditingController();
+    final phoneController = TextEditingController();
     String selectedRole = availableRoles[0];
 
     showDialog(
@@ -60,45 +62,66 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
       builder: (context) => StatefulBuilder(
         builder: (context, setDialogState) => AlertDialog(
           title: const Text('Add Staff Member'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                  border: OutlineInputBorder(),
+          content: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                TextField(
+                  controller: nameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Full Name *',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: emailController,
-                keyboardType: TextInputType.emailAddress,
-                decoration: const InputDecoration(
-                  labelText: 'Email',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: emailController,
+                  keyboardType: TextInputType.emailAddress,
+                  decoration: const InputDecoration(
+                    labelText: 'Email *',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-              ),
-              const SizedBox(height: 16),
-              DropdownButtonFormField<String>(
-                value: selectedRole,
-                decoration: const InputDecoration(
-                  labelText: 'Role',
-                  border: OutlineInputBorder(),
+                const SizedBox(height: 16),
+                TextField(
+                  controller: passwordController,
+                  obscureText: true,
+                  decoration: const InputDecoration(
+                    labelText: 'Password *',
+                    hintText: 'Min. 6 characters',
+                    border: OutlineInputBorder(),
+                  ),
                 ),
-                items: availableRoles.map((role) {
-                  return DropdownMenuItem(
-                    value: role,
-                    child: Text(role.toUpperCase()),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setDialogState(() {
-                    selectedRole = value!;
-                  });
-                },
-              ),
-            ],
+                const SizedBox(height: 16),
+                TextField(
+                  controller: phoneController,
+                  keyboardType: TextInputType.phone,
+                  decoration: const InputDecoration(
+                    labelText: 'Phone Number',
+                    border: OutlineInputBorder(),
+                  ),
+                ),
+                const SizedBox(height: 16),
+                DropdownButtonFormField<String>(
+                  value: selectedRole,
+                  decoration: const InputDecoration(
+                    labelText: 'Role *',
+                    border: OutlineInputBorder(),
+                  ),
+                  items: availableRoles.map((role) {
+                    return DropdownMenuItem(
+                      value: role,
+                      child: Text(role.toUpperCase()),
+                    );
+                  }).toList(),
+                  onChanged: (value) {
+                    setDialogState(() {
+                      selectedRole = value!;
+                    });
+                  },
+                ),
+              ],
+            ),
           ),
           actions: [
             TextButton(
@@ -107,10 +130,22 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
-                if (nameController.text.isEmpty || emailController.text.isEmpty) {
+                if (nameController.text.isEmpty || 
+                    emailController.text.isEmpty || 
+                    passwordController.text.isEmpty) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Please fill all fields'),
+                      content: Text('Please fill all required fields'),
+                      backgroundColor: Colors.red,
+                    ),
+                  );
+                  return;
+                }
+                
+                if (passwordController.text.length < 6) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('Password must be at least 6 characters'),
                       backgroundColor: Colors.red,
                     ),
                   );
@@ -123,6 +158,10 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
                   email: emailController.text.trim(),
                   name: nameController.text.trim(),
                   role: selectedRole,
+                  password: passwordController.text,
+                  phone: phoneController.text.trim().isEmpty 
+                      ? null 
+                      : phoneController.text.trim(),
                 );
 
                 if (mounted) {
@@ -130,8 +169,9 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
                   if (success) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text('Staff member added successfully'),
+                        content: Text('Staff member added successfully. They can now login with their email and password.'),
                         backgroundColor: Colors.green,
+                        duration: Duration(seconds: 3),
                       ),
                     );
                   } else {
@@ -158,8 +198,11 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Remove Staff Member'),
-        content: Text('Are you sure you want to remove ${staff.name}?'),
+        title: const Text('Delete Staff Account'),
+        content: Text(
+          'Are you sure you want to delete ${staff.name}\'s account? '
+          'This will permanently delete their account and they will no longer be able to login.',
+        ),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -176,15 +219,16 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
                 if (success) {
                   ScaffoldMessenger.of(context).showSnackBar(
                     const SnackBar(
-                      content: Text('Staff member removed'),
+                      content: Text('Account deleted. They can no longer login.'),
                       backgroundColor: Colors.orange,
+                      duration: Duration(seconds: 3),
                     ),
                   );
                 } else {
                   ScaffoldMessenger.of(context).showSnackBar(
                     SnackBar(
                       content: Text(
-                        staffProvider.errorMessage ?? 'Failed to remove staff',
+                        staffProvider.errorMessage ?? 'Failed to delete account',
                       ),
                       backgroundColor: Colors.red,
                     ),
@@ -196,7 +240,7 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
               backgroundColor: Colors.red,
               foregroundColor: Colors.white,
             ),
-            child: const Text('Remove'),
+            child: const Text('Delete Account'),
           ),
         ],
       ),
@@ -309,6 +353,9 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text('Email: ${staff.email}'),
+                        if (staff.phone != null && staff.phone!.isNotEmpty)
+                          Text('Phone: ${staff.phone}'),
+                        const SizedBox(height: 4),
                         Chip(
                           label: Text(
                             staff.role.toUpperCase(),

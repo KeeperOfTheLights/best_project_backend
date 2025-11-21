@@ -7,6 +7,7 @@ class StaffMember {
   final String email;
   final String name;
   final String role; // 'owner', 'manager', 'sales'
+  final String? phone;
   final bool isActive;
   final DateTime createdAt;
   final DateTime? updatedAt;
@@ -17,6 +18,7 @@ class StaffMember {
     required this.email,
     required this.name,
     required this.role,
+    this.phone,
     required this.isActive,
     required this.createdAt,
     this.updatedAt,
@@ -30,6 +32,7 @@ class StaffMember {
       email: json['email'] ?? '',
       name: json['name'] ?? '',
       role: json['role'] ?? '',
+      phone: json['phone'],
       isActive: json['is_active'] ?? json['isActive'] ?? true,
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
@@ -48,6 +51,7 @@ class StaffMember {
       'email': email,
       'name': name,
       'role': role,
+      'phone': phone,
       'is_active': isActive,
       'created_at': createdAt.toIso8601String(),
       'updated_at': updatedAt?.toIso8601String(),

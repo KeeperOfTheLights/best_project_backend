@@ -1,4 +1,5 @@
 import '../models/catalog_item.dart';
+import '../services/mock_supplier_service.dart';
 
 // MockCatalogService - simulates catalog operations for testing
 class MockCatalogService {
@@ -8,6 +9,7 @@ class MockCatalogService {
   }
 
   // Mock catalog items storage (in real app, this would be in backend)
+  // Key: supplierId (the Sales Management supplier ID), Value: List of catalog items
   static final Map<String, List<CatalogItem>> _supplierCatalogs = {};
   static int _nextItemId = 1;
 
@@ -72,17 +74,37 @@ class MockCatalogService {
   }
 
   // Get all catalog items for current supplier
+  // Returns all items for all suppliers in the company (shared between Owner and Manager)
   static Future<List<CatalogItem>> getMyCatalog() async {
     await _delay();
     _initializeSampleData();
-    // In mock, assume current supplier is '1'
-    return List.from(_supplierCatalogs['1'] ?? []);
+    
+    // Get all suppliers for the company
+    final suppliers = await MockSupplierService.getMySuppliers();
+    
+    // Get all catalog items for all suppliers in this company
+    final allItems = <CatalogItem>[];
+    for (final supplier in suppliers) {
+      final items = _supplierCatalogs[supplier.id] ?? [];
+      allItems.addAll(items);
+    }
+    
+    return allItems;
   }
 
-  // Create new catalog item
+  // Create new catalog item - can be created by Owner or Manager
   static Future<CatalogItem> createItem(CatalogItem item) async {
     await _delay();
     _initializeSampleData();
+    
+    // Verify that the supplierId belongs to the user's company
+    final suppliers = await MockSupplierService.getMySuppliers();
+    
+    // Check if supplier belongs to this company
+    final supplierExists = suppliers.any((s) => s.id == item.supplierId);
+    if (!supplierExists) {
+      throw Exception('Supplier not found or does not belong to your company');
+    }
     
     final newItem = item.copyWith(id: '${_nextItemId++}');
     final supplierId = item.supplierId;
@@ -95,10 +117,18 @@ class MockCatalogService {
     return newItem;
   }
 
-  // Update catalog item
+  // Update catalog item - can be updated by Owner or Manager
   static Future<CatalogItem> updateItem(CatalogItem item) async {
     await _delay();
     _initializeSampleData();
+    
+    // Verify that the supplierId belongs to the user's company
+    final suppliers = await MockSupplierService.getMySuppliers();
+    
+    final supplierExists = suppliers.any((s) => s.id == item.supplierId);
+    if (!supplierExists) {
+      throw Exception('Supplier not found or does not belong to your company');
+    }
     
     final supplierId = item.supplierId;
     final items = _supplierCatalogs[supplierId] ?? [];
@@ -112,12 +142,18 @@ class MockCatalogService {
     return item;
   }
 
-  // Delete catalog item
+  // Delete catalog item - can be deleted by Owner or Manager
   static Future<bool> deleteItem(String itemId) async {
     await _delay();
     _initializeSampleData();
     
-    for (final catalog in _supplierCatalogs.values) {
+    // Get all suppliers for the company
+    final suppliers = await MockSupplierService.getMySuppliers();
+    final supplierIds = suppliers.map((s) => s.id).toSet();
+    
+    // Only delete from suppliers in this company
+    for (final supplierId in supplierIds) {
+      final catalog = _supplierCatalogs[supplierId] ?? [];
       final index = catalog.indexWhere((item) => item.id == itemId);
       if (index != -1) {
         catalog.removeAt(index);
