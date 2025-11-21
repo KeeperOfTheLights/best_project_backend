@@ -8,7 +8,7 @@ const API_BASE = "http://127.0.0.1:8000/api/accounts";
 export default function ConsumerComplaints() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { token, logout } = useAuth();
+  const { token, logout, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState([]);
   const [complaints, setComplaints] = useState([]);
   const [filterStatus, setFilterStatus] = useState("all");
@@ -23,6 +23,7 @@ export default function ConsumerComplaints() {
   });
 
   const fetchComplaints = async () => {
+    if (authLoading) return;
     if (!token) {
       logout();
       navigate("/login");
@@ -56,6 +57,7 @@ export default function ConsumerComplaints() {
   };
 
   const fetchOrders = async () => {
+    if (authLoading) return;
     if (!token) {
       logout();
       navigate("/login");
@@ -94,9 +96,10 @@ export default function ConsumerComplaints() {
   };
 
   useEffect(() => {
+    if (authLoading) return;
     fetchOrders();
     fetchComplaints();
-  }, [token]);
+  }, [token, authLoading]);
 
   useEffect(() => {
     if (location.state?.orderId) {
@@ -117,6 +120,8 @@ export default function ConsumerComplaints() {
 
   const handleSubmitComplaint = async (e) => {
     e.preventDefault();
+    
+    if (authLoading) return;
     
     if (!selectedOrderId) {
       setError("Please select an order");

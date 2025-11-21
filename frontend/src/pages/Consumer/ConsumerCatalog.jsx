@@ -5,7 +5,7 @@ import "./ConsumerCatalog.css";
 import Modal from "../../components/common/modal";
 
 export default function ConsumerLinkManagement() {
-  const { token, logout } = useAuth();
+  const { token, logout, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
   const [suppliers, setSuppliers] = useState([]);
@@ -49,6 +49,7 @@ export default function ConsumerLinkManagement() {
   };
 
   const fetchCart = async () => {
+    if (authLoading) return;
     if (!token) return;
     setCartLoading(true);
     setCartError("");
@@ -73,6 +74,8 @@ export default function ConsumerLinkManagement() {
   };
 
   const fetchSuppliers = async () => {
+    if (authLoading) return;
+    
     setLoading(true);
     setErrorMsg("");
 
@@ -128,12 +131,14 @@ export default function ConsumerLinkManagement() {
   };
 
   useEffect(() => {
+    if (authLoading) return;
     fetchSuppliers();
-  }, [token]);
+  }, [token, authLoading]);
 
   useEffect(() => {
+    if (authLoading) return;
     fetchCart();
-  }, [token]);
+  }, [token, authLoading]);
 
   const handleSendRequest = async (supplierId) => {
     const supplier = suppliers.find((s) => s.id === supplierId);

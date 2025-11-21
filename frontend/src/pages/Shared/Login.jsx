@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
+import { is_supplier_side } from "../../utils/roleUtils";
 import "./AuthPossibilities.css";
 
 export default function Login() {
@@ -25,8 +26,8 @@ export default function Login() {
       const data = await response.json();
 
       if (response.ok) {
-        login({ token: data.access, role: data.role });
-        navigate(data.role === "supplier" ? "/supplier" : "/consumer");
+        login({ token: data.access, refreshToken: data.refresh, role: data.role, id: data.id });
+        navigate(is_supplier_side(data.role) ? "/SupplierDashboard" : "/ConsumerDashboard");
       } else {
         let message = data?.non_field_errors?.[0] || "Invalid email or password";
         setErrorMsg(message);

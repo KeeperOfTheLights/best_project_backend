@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
+import { is_supplier_side } from "../../utils/roleUtils";
 import './AuthPossibilities.css'
 
 export default function SignUp() {
@@ -53,10 +54,10 @@ export default function SignUp() {
       const data = await response.json();
 
       if (response.ok) {
-        login({ role: data.role, token: data.token });
+        login({ role: data.role, token: data.token, refreshToken: data.refresh, id: data.id });
 
         setTimeout(() => {
-          navigate(data.role === "supplier" ? "/supplier" : "/consumer");
+          navigate(is_supplier_side(data.role) ? "/SupplierDashboard" : "/ConsumerDashboard");
         }, 50);
       } else {
         setErrorMessage(data.detail || "Registration failed");
@@ -83,8 +84,14 @@ export default function SignUp() {
             <button type="button" className={`role-btn ${role === "consumer" ? "active" : ""}`} onClick={() => setRole("consumer")}>
               Consumer
             </button>
-            <button type="button" className={`role-btn ${role === "supplier" ? "active" : ""}`} onClick={() => setRole("supplier")}>
-              Supplier
+            <button type="button" className={`role-btn ${role === "owner" ? "active" : ""}`} onClick={() => setRole("owner")}>
+              Owner
+            </button>
+            <button type="button" className={`role-btn ${role === "manager" ? "active" : ""}`} onClick={() => setRole("manager")}>
+              Manager
+            </button>
+            <button type="button" className={`role-btn ${role === "sales" ? "active" : ""}`} onClick={() => setRole("sales")}>
+              Sales Rep
             </button>
           </div>
 

@@ -8,7 +8,7 @@ const API_BASE = "http://127.0.0.1:8000/api/accounts";
 export default function Search() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { token, logout, role } = useAuth();
+  const { token, logout, role, loading: authLoading } = useAuth();
 
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [results, setResults] = useState({
@@ -20,6 +20,8 @@ export default function Search() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (authLoading) return;
+    
     if (!token) {
       logout();
       navigate("/login");
@@ -39,7 +41,7 @@ export default function Search() {
     } else {
       setResults({ suppliers: [], categories: [], products: [] });
     }
-  }, [searchParams, token, role]);
+  }, [searchParams, token, role, authLoading]);
 
   const performSearch = async (searchQuery) => {
     if (!searchQuery.trim()) {

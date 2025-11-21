@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
+import { is_supplier_side, is_catalog_manager, is_sales } from "../../utils/roleUtils";
 import reactLogo from "../../assets/Logo.png";
 import "./Navbar.css";
 
@@ -10,7 +11,7 @@ export default function Navbar() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const getDashboardRoute = () => {
-    if (role === "supplier") return "/SupplierDashboard";
+    if (is_supplier_side(role)) return "/SupplierDashboard";
     if (role === "consumer") return "/ConsumerDashboard";
     return "/";
   };
@@ -36,17 +37,18 @@ export default function Navbar() {
         ) : (
           <>
             {role === "consumer" && <Link to="/ConsumerCatalog" className="inter-btn">Catalog</Link>}
-            {role === "supplier" && <Link to="/SupplierCatalog" className="inter-btn">My Catalog</Link>}
+            {is_catalog_manager(role) && <Link to="/SupplierCatalog" className="inter-btn">My Catalog</Link>}
 
-            {role === "supplier" && <Link to="/supplier/products" className="inter-btn">Products</Link>}
-            {role === "supplier" && <Link to="/SupplierOrders" className="inter-btn">Orders</Link>}
+            {is_catalog_manager(role) && <Link to="/supplier/products" className="inter-btn">Products</Link>}
+            {is_supplier_side(role) && <Link to="/SupplierOrders" className="inter-btn">Orders</Link>}
+            {role === "owner" && <Link to="/supplier/company" className="inter-btn">Company</Link>}
             {role === "consumer" && <Link to="/ConsumerOrders" className="inter-btn">My Orders</Link>}
 
             <div className="dropdown">
               <button className="inter-btn dropdown-toggle">Communications ▾</button>
               <div className="dropdown-menu">
                 <Link to="/chat">Chat</Link>
-                {role === "supplier" && <Link to="/supplier/complaints" className="inter-btn">Complaints</Link>}
+                {is_supplier_side(role) && <Link to="/supplier/complaints" className="inter-btn">Complaints</Link>}
                 {role === "consumer" && <Link to="/consumer/complaints" className="inter-btn">Complaints</Link>}
               </div>
             </div>

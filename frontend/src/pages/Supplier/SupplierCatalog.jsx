@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuth } from "../../context/Auth-Context";
+import { is_catalog_manager } from "../../utils/roleUtils";
 import "./SupplierCatalog.css";
 
 export default function SupplierLinkRequests() {
   const navigate = useNavigate();
+  const { role, loading: authLoading } = useAuth();
   const [requests, setRequests] = useState([]);
   const [filterStatus, setFilterStatus] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -21,6 +24,8 @@ export default function SupplierLinkRequests() {
   const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
   const fetchRequests = async () => {
+    if (authLoading) return;
+    
     setLoading(true);
     setErrorMsg("");
     const token = localStorage.getItem("token");
@@ -59,8 +64,9 @@ export default function SupplierLinkRequests() {
   };
 
   useEffect(() => {
+    if (authLoading) return;
     fetchRequests();
-  }, []);
+  }, [authLoading]);
 
   // Modal helpers
   const openModal = (action, linkId, message) => {
@@ -234,6 +240,20 @@ export default function SupplierLinkRequests() {
     rejected: requests.filter((r) => r.status === "rejected").length,
     blocked: requests.filter((r) => r.status === "blocked").length,
   };
+
+  if (!is_catalog_manager(role)) {
+    return (
+      <div className="link-requests-container">
+        <div className="error-message" style={{ padding: "2rem", textAlign: "center" }}>
+          <h2>Access Denied</h2>
+          <p>Only Owners and Managers can view link requests.</p>
+          <button onClick={() => navigate("/SupplierDashboard")} style={{ marginTop: "1rem", padding: "0.5rem 1rem" }}>
+            Go to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) return <p>Loading link requests...</p>;
 

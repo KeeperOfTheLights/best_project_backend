@@ -96,13 +96,12 @@ class ProductSerializer(serializers.ModelSerializer):
 class LinkRequestSerializer(serializers.ModelSerializer):
     consumer_name = serializers.CharField(source='consumer.full_name', read_only=True)
     supplier_name = serializers.CharField(source='supplier.full_name', read_only=True)
-    supplier_company = serializers.CharField(source='supplier.supplier_profile.company_name', read_only=True, default=None)
 
     class Meta:
         model = LinkRequest
         fields = [
             'id', 'supplier', 'consumer', 'status', 'created_at',
-            'consumer_name', 'supplier_name', 'supplier_company'
+            'consumer_name', 'supplier_name'
         ]
         read_only_fields = ['status', 'created_at', 'consumer', 'supplier']
 

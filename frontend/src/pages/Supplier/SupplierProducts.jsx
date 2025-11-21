@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import "./SupplierProducts.css";
 import { useAuth } from "../../context/Auth-Context";
+import { is_catalog_manager } from "../../utils/roleUtils";
 
 export default function SupplierProducts() {
-  const { token } = useAuth();
+  const { token, role, loading: authLoading } = useAuth();
+  const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -34,8 +37,13 @@ export default function SupplierProducts() {
   });
 
   useEffect(() => {
+    if (authLoading) return;
+    if (!is_catalog_manager(role)) {
+      navigate("/SupplierDashboard");
+      return;
+    }
     fetchProducts();
-  }, []);
+  }, [role, navigate, authLoading]);
 
   const fetchProducts = async () => {
     try {
@@ -196,6 +204,20 @@ export default function SupplierProducts() {
       alert(err.message);
     }
   };
+
+  if (!is_catalog_manager(role)) {
+    return (
+      <div className="products-container">
+        <div className="error-message" style={{ padding: "2rem", textAlign: "center" }}>
+          <h2>Access Denied</h2>
+          <p>Only Owners and Managers can manage products.</p>
+          <button onClick={() => navigate("/SupplierDashboard")} style={{ marginTop: "1rem", padding: "0.5rem 1rem" }}>
+            Go to Dashboard
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   if (loading) return <p>Loading products...</p>;
   if (error) return <p>Error: {error}</p>;

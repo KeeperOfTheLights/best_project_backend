@@ -8,7 +8,7 @@ const API_BASE = "http://127.0.0.1:8000/api/accounts";
 export default function ConsumerSupplierProducts() {
   const { supplierId } = useParams();
   const navigate = useNavigate();
-  const { token, logout } = useAuth();
+  const { token, logout, loading: authLoading } = useAuth();
 
   const [supplier, setSupplier] = useState(null);
   const [products, setProducts] = useState([]);
@@ -39,6 +39,7 @@ export default function ConsumerSupplierProducts() {
   };
 
   const ensureAuth = () => {
+    if (authLoading) return false;
     if (!token) {
       logout();
       navigate("/login");
