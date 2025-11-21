@@ -1,26 +1,21 @@
-import React, { useEffect, useState } from "react";
+import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 import reactLogo from "../../assets/Logo.png";
 import "./Navbar.css";
 
 export default function Navbar() {
-  const { isLoggedIn, role, logout, token } = useAuth();
+  const { isLoggedIn, role, logout, token, loading } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
-
-  useEffect(() => {
-  if (!token) {
-    logout();
-    navigate("/login");
-  }
-  }, [token]);
 
   const getDashboardRoute = () => {
     if (role === "supplier") return "/SupplierDashboard";
     if (role === "consumer") return "/ConsumerDashboard";
     return "/";
   };
+
+  const isAuthenticated = isLoggedIn && token;
 
   return (
     <nav className="navbar">
@@ -32,7 +27,7 @@ export default function Navbar() {
       </div>
 
       <div className="navbar-right">
-        {!isLoggedIn ? (
+        {loading ? null : !isAuthenticated ? (
           <>
             <Link to="/about" className="inter-btn">About</Link>
             <Link to="/login" className="nav-btn login-btn">Login</Link>

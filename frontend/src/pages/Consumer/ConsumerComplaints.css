@@ -212,7 +212,14 @@
   transition: border-color 0.3s;
   box-sizing: border-box;
   background-color: white;
+  color: #20232a;
   cursor: pointer;
+}
+
+.form-group select option {
+  background-color: white;
+  color: #20232a;
+  padding: 0.5rem;
 }
 
 .form-group select:focus {

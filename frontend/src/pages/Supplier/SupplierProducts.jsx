@@ -28,6 +28,10 @@ export default function SupplierProducts() {
     action: null,
     message: "",
   });
+  const [errorModal, setErrorModal] = useState({
+    visible: false,
+    message: "",
+  });
 
   useEffect(() => {
     fetchProducts();
@@ -62,6 +66,7 @@ export default function SupplierProducts() {
       description: "",
       status: "active",
     });
+    setErrorModal({ visible: false, message: "" });
     setShowModal(true);
   };
 
@@ -69,6 +74,7 @@ export default function SupplierProducts() {
     setModalMode("edit");
     setCurrentProduct(product);
     setFormData({ ...product });
+    setErrorModal({ visible: false, message: "" });
     setShowModal(true);
   };
 
@@ -79,6 +85,7 @@ export default function SupplierProducts() {
 
   const handleSave = async (e) => {
     e.preventDefault();
+    
     try {
       const url =
         modalMode === "add"
@@ -96,15 +103,34 @@ export default function SupplierProducts() {
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({}));
         console.error("Server error:", errorData);
-        throw new Error("Failed to save product");
+        
+        let errorMessage = "Failed to save product";
+        if (errorData.detail) {
+          errorMessage = errorData.detail;
+        } else if (errorData.message) {
+          errorMessage = errorData.message;
+        } else if (typeof errorData === "object") {
+          const fieldErrors = Object.entries(errorData)
+            .map(([field, errors]) => {
+              const errorList = Array.isArray(errors) ? errors.join(", ") : errors;
+              return `${field}: ${errorList}`;
+            })
+            .join("; ");
+          if (fieldErrors) errorMessage = fieldErrors;
+        }
+        
+        setErrorModal({ visible: true, message: errorMessage });
+        return;
       }
+      
       await fetchProducts();
       setShowModal(false);
+      setErrorModal({ visible: false, message: "" });
     } catch (err) {
       console.error("Save error:", err);
-      alert(err.message);
+      setErrorModal({ visible: true, message: err.message || "Failed to save product" });
     }
   };
 
@@ -331,6 +357,23 @@ export default function SupplierProducts() {
               </button>
               <button className="modal-btn confirm" onClick={confirmAction}>
                 Confirm
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {errorModal.visible && (
+        <div className="modal-overlay">
+          <div className="modal-window error-modal">
+            <h3>Error</h3>
+            <p>{errorModal.message}</p>
+            <div className="modal-buttons">
+              <button
+                className="modal-btn confirm"
+                onClick={() => setErrorModal({ visible: false, message: "" })}
+              >
+                OK
               </button>
             </div>
           </div>

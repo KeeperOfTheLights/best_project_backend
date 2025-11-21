@@ -492,3 +492,21 @@
 .modal-btn.cancel:hover {
   background-color: #da190b;
 }
+
+.error-modal {
+  border-left: 4px solid #f44336;
+}
+
+.error-modal h3 {
+  color: #f44336;
+}
+
+.error-modal .modal-btn.confirm {
+  background-color: #f44336;
+  color: #fff;
+  width: 100%;
+}
+
+.error-modal .modal-btn.confirm:hover {
+  background-color: #da190b;
+}

@@ -277,13 +277,7 @@ export default function SupplierOrders() {
       </div>
 
       {filterConsumerId && (
-        <div style={{ 
-          padding: "1rem", 
-          marginBottom: "1rem", 
-          backgroundColor: "#e3f2fd", 
-          borderRadius: "8px",
-          border: "1px solid #2196f3"
-        }}>
+        <div className="filter-message">
           <strong>Filtered:</strong> Showing orders from consumer ID {filterConsumerId}
         </div>
       )}
