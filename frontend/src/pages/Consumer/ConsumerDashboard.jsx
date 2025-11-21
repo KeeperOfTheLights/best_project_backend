@@ -20,7 +20,6 @@ export default function ConsumerDashboard() {
 
   useEffect(() => {
     fetchStats();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const fetchStats = async () => {

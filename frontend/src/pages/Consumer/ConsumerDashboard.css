@@ -9,8 +9,6 @@
   box-sizing: border-box;
 }
 
-/* Header */
-
 .dashboard-header h2 {
   font-size: 2rem;
   margin-bottom: 10px;
@@ -24,8 +22,6 @@
   margin-bottom: 40px;
   text-align: center;
 }
-
-/* Stats Grid */
 
 .dashboard-stats {
   display: flex;

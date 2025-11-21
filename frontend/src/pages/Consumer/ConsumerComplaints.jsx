@@ -96,7 +96,6 @@ export default function ConsumerComplaints() {
   useEffect(() => {
     fetchOrders();
     fetchComplaints();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   useEffect(() => {
@@ -107,7 +106,6 @@ export default function ConsumerComplaints() {
         setShowForm(true);
       }
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [location.state]);
 
   const handleInputChange = (e) => {

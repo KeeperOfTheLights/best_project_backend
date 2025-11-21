@@ -60,7 +60,6 @@ export default function ConsumerOrders() {
 
   useEffect(() => {
     fetchOrders();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const stats = useMemo(() => {

@@ -131,14 +131,11 @@ export default function ConsumerSupplierProducts() {
     if (!supplierId) return;
     fetchSupplierData();
     fetchCart();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [supplierId, token]);
 
   const supplierCartItems = useMemo(
     () =>
-      cartItems.filter(
-        (item) => Number(item.product_supplier_id) === supplierNumericId
-      ),
+      cartItems.filter((item) => Number(item.product_supplier_id) === supplierNumericId),
     [cartItems, supplierNumericId]
   );
 
@@ -151,11 +148,8 @@ export default function ConsumerSupplierProducts() {
   }, [products]);
 
   const filteredProducts = products.filter((product) => {
-    const matchesSearch = product.name
-      ?.toLowerCase()
-      .includes(searchQuery.toLowerCase());
-    const matchesCategory =
-      categoryFilter === "all" || product.category === categoryFilter;
+    const matchesSearch = product.name ?.toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesCategory = categoryFilter === "all" || product.category === categoryFilter;
     return matchesSearch && matchesCategory;
   });
 
