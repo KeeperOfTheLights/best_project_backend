@@ -222,3 +222,6 @@ class ComplaintSerializer(serializers.ModelSerializer):
             "resolved_at",
         ]
         read_only_fields = ["consumer", "supplier", "status", "created_at", "resolved_at"]
+
+
+
