@@ -2,12 +2,15 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/link_request_provider.dart';
+import '../providers/complaint_provider.dart';
+import '../models/complaint.dart';
 import '../utils/constants.dart';
 import 'manage_link_requests_screen.dart';
 import 'orders_screen.dart';
 import 'chat_list_screen.dart';
 import 'staff_management_screen.dart';
 import 'sales_management_screen.dart';
+import 'complaints_management_screen.dart';
 
 // SupplierDashboard - the main screen for suppliers after login
 class SupplierDashboard extends StatefulWidget {
@@ -21,10 +24,12 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
   @override
   void initState() {
     super.initState();
-    // Load link requests when dashboard opens
+    // Load link requests and complaints when dashboard opens
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<LinkRequestProvider>(context, listen: false)
           .loadLinkRequests();
+      Provider.of<ComplaintProvider>(context, listen: false)
+          .loadComplaints();
     });
   }
 
@@ -124,11 +129,21 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                   Row(
                     children: [
                       Expanded(
-                        child: _buildStatCard(
-                          'Open Complaints',
-                          '0', // TODO: Get from complaints provider
-                          Colors.red,
-                          Icons.report_problem,
+                        child: Consumer<ComplaintProvider>(
+                          builder: (context, complaintProvider, child) {
+                            // Count open complaints (pending + in progress)
+                            final openComplaints = complaintProvider.complaints
+                                .where((c) =>
+                                    c.status == ComplaintStatus.pending ||
+                                    c.status == ComplaintStatus.inProgress)
+                                .length;
+                            return _buildStatCard(
+                              'Open Complaints',
+                              openComplaints.toString(),
+                              Colors.red,
+                              Icons.report_problem,
+                            );
+                          },
                         ),
                       ),
                       const SizedBox(width: 12),
@@ -210,22 +225,48 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                         ),
                       ),
                       const SizedBox(width: 12),
-                          Expanded(
-                            child: _buildActionCard(
+                      Expanded(
+                        child: _buildActionCard(
+                          context,
+                          icon: Icons.chat,
+                          title: 'Chats',
+                          color: Colors.purple,
+                          onTap: () {
+                            Navigator.push(
                               context,
-                              icon: Icons.chat,
-                              title: 'Chats',
-                              color: Colors.purple,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const ChatListScreen(),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
+                              MaterialPageRoute(
+                                builder: (context) => const ChatListScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildActionCard(
+                          context,
+                          icon: Icons.report_problem,
+                          title: 'Complaints',
+                          color: Colors.red,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) =>
+                                    const ComplaintsManagementScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Container(), // Empty space for alignment
+                      ),
                     ],
                   ),
                    // Sales Management (Owners and Managers only)

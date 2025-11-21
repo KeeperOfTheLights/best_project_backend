@@ -11,6 +11,7 @@ import 'cart_screen.dart';
 import 'orders_screen.dart';
 import 'chat_room_screen.dart';
 import 'chat_list_screen.dart';
+import 'view_complaints_screen.dart';
 
 // ConsumerDashboard - the main screen for consumers after login
 class ConsumerDashboard extends StatefulWidget {
@@ -194,6 +195,31 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                             );
                           },
                         ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildActionCard(
+                          context,
+                          icon: Icons.report_problem,
+                          title: 'My Complaints',
+                          color: Colors.red,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ViewComplaintsScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: Container(), // Empty space for alignment
                       ),
                     ],
                   ),

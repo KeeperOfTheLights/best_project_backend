@@ -49,6 +49,12 @@ class ApiEndpoints {
   static const String addStaff = '/staff';
   static const String updateStaff = '/staff';
   static const String removeStaff = '/staff';
+  
+  // Complaints
+  static const String createComplaint = '/complaints';
+  static const String getComplaints = '/complaints';
+  static const String getComplaintDetails = '/complaints';
+  static const String updateComplaintStatus = '/complaints';
 }
 
 // Storage keys - keys used to save data in local storage

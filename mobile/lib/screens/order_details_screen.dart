@@ -4,6 +4,7 @@ import '../providers/order_provider.dart';
 import '../providers/auth_provider.dart';
 import '../models/order.dart';
 import '../utils/constants.dart';
+import 'create_complaint_screen.dart';
 
 // OrderDetailsScreen - shows detailed order information
 class OrderDetailsScreen extends StatefulWidget {
@@ -183,6 +184,36 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                             ],
                           ),
                         ],
+                      ),
+                    ),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+
+                // Create Complaint button (Consumer only, for completed orders)
+                if (isConsumer && order.status == OrderStatus.completed) ...[
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton.icon(
+                      onPressed: () async {
+                        final result = await Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => CreateComplaintScreen(
+                              orderId: order.id,
+                            ),
+                          ),
+                        );
+                        // Refresh if complaint was created
+                        if (result == true && mounted) {
+                          // Optionally refresh order details
+                        }
+                      },
+                      icon: const Icon(Icons.report_problem),
+                      label: const Text('File a Complaint'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
                       ),
                     ),
                   ),
