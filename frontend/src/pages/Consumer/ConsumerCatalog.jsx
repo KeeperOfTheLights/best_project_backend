@@ -16,7 +16,7 @@ export default function ConsumerLinkManagement() {
 
   const getInitialModalState = () => ({
     show: false,
-    type: "", // "confirm" | "catalog"
+    type: "",
     title: "",
     text: "",
     supplierId: null,
@@ -135,7 +135,6 @@ export default function ConsumerLinkManagement() {
     fetchCart();
   }, [token]);
 
-  // === Actions ===
   const handleSendRequest = async (supplierId) => {
     const supplier = suppliers.find((s) => s.id === supplierId);
     if (!supplier) return;

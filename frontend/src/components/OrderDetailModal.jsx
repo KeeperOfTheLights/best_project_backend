@@ -17,7 +17,6 @@ export default function OrderDetailModal({ show, orderId, onClose }) {
       setOrder(null);
       setError("");
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [show, orderId]);
 
   const fetchOrderDetails = async () => {

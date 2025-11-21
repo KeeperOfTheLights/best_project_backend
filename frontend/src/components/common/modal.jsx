@@ -16,7 +16,6 @@ export default function Modal({ show, title, text, onConfirm, onCancel, children
 
         {text && <p className="modal-message">{text}</p>}
 
-        {/* Children renders directly, not inside modal-content */}
         {children}
 
         {onConfirm && (
