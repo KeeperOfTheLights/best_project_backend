@@ -40,17 +40,32 @@ def is_supplier_side(user: User) -> bool:
 
 
 def is_catalog_manager(user: User) -> bool:
-    #Who can manage catalog + stock + accept/reject orders.
     return user.role in ["owner", "manager"]
+
+
+def get_company_owner(user: User) -> User:
+    if user.role == "owner":
+        return user
+    elif user.company and user.company.owner:
+        return user.company.owner
+    return user
 
 
 class RegisterView(APIView):
     def post(self, request):
         serializer = RegisterSerializer(data=request.data)
         if serializer.is_valid():
-            serializer.save()
+            user = serializer.save()
+            from rest_framework_simplejwt.tokens import RefreshToken
+            refresh = RefreshToken.for_user(user)
             return Response(
-                {"message": "User registered successfully"},
+                {
+                    "message": "User registered successfully",
+                    "id": user.id,
+                    "role": user.role,
+                    "token": str(refresh.access_token),
+                    "refresh": str(refresh),
+                },
                 status=status.HTTP_201_CREATED,
             )
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
@@ -72,7 +87,8 @@ class SupplierProductListCreateView(generics.ListCreateAPIView):
         user = self.request.user
         if not is_catalog_manager(user):
             return Product.objects.none()
-        return Product.objects.filter(supplier=user)
+        company_owner = get_company_owner(user)
+        return Product.objects.filter(supplier=company_owner)
 
     def perform_create(self, serializer):
         user = self.request.user
@@ -89,7 +105,8 @@ class SupplierProductDetailView(generics.RetrieveUpdateDestroyAPIView):
         user = self.request.user
         if not is_catalog_manager(user):
             return Product.objects.none()
-        return Product.objects.filter(supplier=user)
+        company_owner = get_company_owner(user)
+        return Product.objects.filter(supplier=company_owner)
 
 
 class ProductStatusToggleView(APIView):
@@ -102,8 +119,9 @@ class ProductStatusToggleView(APIView):
                 {"error": "Only Owner/Manager can change product status"},
                 status=status.HTTP_403_FORBIDDEN,
             )
+        company_owner = get_company_owner(user)
         try:
-            product = Product.objects.get(id=pk, supplier=user)
+            product = Product.objects.get(id=pk, supplier=company_owner)
         except Product.DoesNotExist:
             return Response(
                 {"error": "Not found or not your product"},
@@ -118,6 +136,7 @@ class ProductStatusToggleView(APIView):
             status=status.HTTP_200_OK,
         )
 
+
 class SendLinkRequestView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -129,7 +148,7 @@ class SendLinkRequestView(APIView):
 
         supplier_id = request.data.get("supplier_id")
         supplier = get_object_or_404(
-            User, id=supplier_id, role__in=SUPPLIER_ROLES
+            User, id=supplier_id, role="owner"
         )
 
         existing = LinkRequest.objects.filter(
@@ -154,18 +173,30 @@ class SupplierLinkListView(generics.ListAPIView):
     serializer_class = LinkRequestSerializer
 
     def get_queryset(self):
-        if not is_supplier_side(self.request.user):
+        user = self.request.user
+        if not is_supplier_side(user):
             return LinkRequest.objects.none()
-        return LinkRequest.objects.filter(supplier=self.request.user)
+        company_owner = get_company_owner(user)
+        queryset = LinkRequest.objects.filter(supplier=company_owner)
+        if user.role == "sales":
+            return queryset.filter(status="linked")
+        return queryset
 
 
 class UnlinkView(APIView):
     permission_classes = [IsAuthenticated]
 
     def delete(self, request, link_id):
-        link = LinkRequest.objects.filter(id=link_id).filter(
-            models.Q(supplier=request.user) | models.Q(consumer=request.user)
-        ).first()
+        user = request.user
+        if user.role == "consumer":
+            link = LinkRequest.objects.filter(id=link_id, consumer=user).first()
+        elif is_supplier_side(user):
+            if user.role == "sales":
+                return Response({"detail": "Sales representatives cannot manage links"}, status=403)
+            company_owner = get_company_owner(user)
+            link = LinkRequest.objects.filter(id=link_id, supplier=company_owner).first()
+        else:
+            return Response({"detail": "Not found or not allowed"}, status=404)
 
         if not link:
             return Response({"detail": "Not found or not allowed"}, status=404)
@@ -180,8 +211,10 @@ class AcceptLinkView(APIView):
     def post(self, request, link_id):
         if not is_supplier_side(request.user):
             return Response({"detail": "Only supplier staff can accept"}, status=403)
-
-        link = get_object_or_404(LinkRequest, id=link_id, supplier=request.user)
+        if request.user.role == "sales":
+            return Response({"detail": "Sales representatives cannot manage links"}, status=403)
+        company_owner = get_company_owner(request.user)
+        link = get_object_or_404(LinkRequest, id=link_id, supplier=company_owner)
         if link.status == "blocked":
             return Response(
                 {"detail": "User is blocked, cannot accept"}, status=400
@@ -197,7 +230,10 @@ class RejectLinkView(APIView):
     def post(self, request, link_id):
         if not is_supplier_side(request.user):
             return Response({"detail": "Only supplier staff can reject"}, status=403)
-        link = get_object_or_404(LinkRequest, id=link_id, supplier=request.user)
+        if request.user.role == "sales":
+            return Response({"detail": "Sales representatives cannot manage links"}, status=403)
+        company_owner = get_company_owner(request.user)
+        link = get_object_or_404(LinkRequest, id=link_id, supplier=company_owner)
         link.status = "rejected"
         link.save()
         return Response({"detail": "Rejected"}, status=200)
@@ -209,7 +245,10 @@ class BlockLinkView(APIView):
     def post(self, request, link_id):
         if not is_supplier_side(request.user):
             return Response({"detail": "Only supplier staff can block"}, status=403)
-        link = get_object_or_404(LinkRequest, id=link_id, supplier=request.user)
+        if request.user.role == "sales":
+            return Response({"detail": "Sales representatives cannot manage links"}, status=403)
+        company_owner = get_company_owner(request.user)
+        link = get_object_or_404(LinkRequest, id=link_id, supplier=company_owner)
         link.status = "blocked"
         link.save()
         return Response({"detail": "Blocked"}, status=200)
@@ -221,7 +260,10 @@ class UnblockLinkView(APIView):
     def post(self, request, link_id):
         if not is_supplier_side(request.user):
             return Response({"detail": "Only supplier staff can unblock"}, status=403)
-        link = get_object_or_404(LinkRequest, id=link_id, supplier=request.user)
+        if request.user.role == "sales":
+            return Response({"detail": "Sales representatives cannot manage links"}, status=403)
+        company_owner = get_company_owner(request.user)
+        link = get_object_or_404(LinkRequest, id=link_id, supplier=company_owner)
         link.status = "pending"
         link.save()
         return Response({"detail": "Unblocked"}, status=200)
@@ -236,8 +278,7 @@ class AllSuppliersView(APIView):
                 {"detail": "Only consumers can view suppliers"}, status=403
             )
 
-        # for now, treat all supplier-side users as selectable suppliers
-        suppliers = User.objects.filter(role__in=SUPPLIER_ROLES)
+        suppliers = User.objects.filter(role="owner")
         serializer = SupplierSerializer(suppliers, many=True)
         return Response(serializer.data, status=200)
 
@@ -254,7 +295,13 @@ class SupplierCatalogView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request, supplier_id):
-        # consumer must be linked with that supplier user
+        supplier = get_object_or_404(User, id=supplier_id)
+
+        if supplier.role != "owner":
+            return Response(
+                {"detail": "Only owners can have catalogs"}, status=403
+            )
+
         link = LinkRequest.objects.filter(
             supplier_id=supplier_id,
             consumer=request.user,
@@ -351,6 +398,7 @@ class CartListView(generics.ListAPIView):
             .select_related("product", "product__supplier")
             .order_by("-added_at")
         )
+
 
 class CartItemUpdateDeleteView(APIView):
     permission_classes = [IsAuthenticated]
@@ -473,10 +521,12 @@ class SupplierOrdersView(generics.ListAPIView):
     serializer_class = OrderSerializer
 
     def get_queryset(self):
-        if not is_supplier_side(self.request.user):
+        user = self.request.user
+        if not is_supplier_side(user):
             return Order.objects.none()
+        company_owner = get_company_owner(user)
         return (
-            Order.objects.filter(supplier=self.request.user)
+            Order.objects.filter(supplier=company_owner)
             .prefetch_related("items__product")
             .order_by("-created_at")
         )
@@ -496,15 +546,16 @@ class ChatHistoryView(APIView):
         user = request.user
 
         if user.role == "consumer":
-            supplier = get_object_or_404(
+            supplier_user = get_object_or_404(
                 User, id=partner_id, role__in=SUPPLIER_ROLES
             )
+            supplier = get_company_owner(supplier_user)
             consumer = user
         elif is_supplier_side(user):
             consumer = get_object_or_404(
                 User, id=partner_id, role="consumer"
             )
-            supplier = user
+            supplier = get_company_owner(user)
         else:
             return Response({"detail": "Access denied"}, status=403)
 
@@ -532,9 +583,10 @@ class SendMessageView(APIView):
         if not text:
             return Response({"detail": "Text is required"}, status=400)
 
-        supplier = get_object_or_404(
+        supplier_user = get_object_or_404(
             User, id=supplier_id, role__in=SUPPLIER_ROLES
         )
+        supplier = get_company_owner(supplier_user)
 
         if user.role == "consumer":
             consumer = user
@@ -547,6 +599,7 @@ class SendMessageView(APIView):
             consumer = get_object_or_404(
                 User, id=consumer_id, role="consumer"
             )
+            supplier = get_company_owner(user)
         else:
             return Response(
                 {"detail": "Only consumers or supplier staff can chat"},
@@ -577,8 +630,8 @@ class SupplierAcceptOrderView(APIView):
             return Response(
                 {"detail": "Only Owner/Manager can accept orders"}, status=403
             )
-
-        order = get_object_or_404(Order, id=order_id, supplier=request.user)
+        company_owner = get_company_owner(request.user)
+        order = get_object_or_404(Order, id=order_id, supplier=company_owner)
 
         if order.status != "pending":
             return Response({"detail": "Order already processed"}, status=400)
@@ -596,8 +649,8 @@ class SupplierRejectOrderView(APIView):
             return Response(
                 {"detail": "Only Owner/Manager can reject orders"}, status=403
             )
-
-        order = get_object_or_404(Order, id=order_id, supplier=request.user)
+        company_owner = get_company_owner(request.user)
+        order = get_object_or_404(Order, id=order_id, supplier=company_owner)
 
         if order.status != "pending":
             return Response({"detail": "Order already processed"}, status=400)
@@ -617,8 +670,8 @@ class SupplierDeliverOrderView(APIView):
                 {"detail": "Only Owner/Manager can complete orders"},
                 status=403,
             )
-
-        order = get_object_or_404(Order, id=order_id, supplier=request.user)
+        company_owner = get_company_owner(request.user)
+        order = get_object_or_404(Order, id=order_id, supplier=company_owner)
 
         if order.status != "approved":
             return Response(
@@ -629,7 +682,6 @@ class SupplierDeliverOrderView(APIView):
         order.save()
 
         return Response({"detail": "Order marked as delivered"}, status=200)
-
 
 
 class CreateComplaintView(APIView):
@@ -660,11 +712,18 @@ class SupplierComplaintListView(generics.ListAPIView):
     serializer_class = ComplaintSerializer
 
     def get_queryset(self):
-        if not is_supplier_side(self.request.user):
+        user = self.request.user
+        if not is_supplier_side(user):
             return Complaint.objects.none()
-        return Complaint.objects.filter(supplier=self.request.user).order_by(
-            "-created_at"
-        )
+        company_owner = get_company_owner(user)
+        complaints = Complaint.objects.filter(supplier=company_owner)
+
+        if user.role == "sales":
+            return complaints.filter(status__in=["pending", "resolved", "rejected"]).order_by("-created_at")
+        elif is_catalog_manager(user):
+            return complaints.filter(status="escalated").order_by("-created_at")
+
+        return complaints.order_by("-created_at")
 
 
 class SupplierResolveComplaintView(APIView):
@@ -673,13 +732,19 @@ class SupplierResolveComplaintView(APIView):
     def post(self, request, complaint_id):
         if not is_catalog_manager(request.user) and not request.user.role == "sales":
             return Response({"detail": "Access denied"}, status=403)
-
+        company_owner = get_company_owner(request.user)
         complaint = get_object_or_404(
-            Complaint, id=complaint_id, supplier=request.user
+            Complaint, id=complaint_id, supplier=company_owner
         )
 
-        if complaint.status != "pending":
-            return Response({"detail": "Already processed"}, status=400)
+        if request.user.role == "sales":
+            if complaint.status != "pending":
+                return Response({"detail": "Already processed"}, status=400)
+        elif is_catalog_manager(request.user):
+            if complaint.status != "escalated":
+                return Response({"detail": "Only escalated complaints can be resolved by managers/owners"}, status=400)
+        else:
+            return Response({"detail": "Access denied"}, status=403)
 
         complaint.status = "resolved"
         complaint.resolved_at = timezone.now()
@@ -694,13 +759,19 @@ class SupplierRejectComplaintView(APIView):
     def post(self, request, complaint_id):
         if not is_catalog_manager(request.user) and not request.user.role == "sales":
             return Response({"detail": "Access denied"}, status=403)
-
+        company_owner = get_company_owner(request.user)
         complaint = get_object_or_404(
-            Complaint, id=complaint_id, supplier=request.user
+            Complaint, id=complaint_id, supplier=company_owner
         )
 
-        if complaint.status != "pending":
-            return Response({"detail": "Already processed"}, status=400)
+        if request.user.role == "sales":
+            if complaint.status != "pending":
+                return Response({"detail": "Already processed"}, status=400)
+        elif is_catalog_manager(request.user):
+            if complaint.status != "escalated":
+                return Response({"detail": "Only escalated complaints can be rejected by managers/owners"}, status=400)
+        else:
+            return Response({"detail": "Access denied"}, status=403)
 
         complaint.status = "rejected"
         complaint.resolved_at = timezone.now()
@@ -715,9 +786,9 @@ class EscalateComplaintView(APIView):
     def post(self, request, complaint_id):
         if not is_supplier_side(request.user):
             return Response({"detail": "Access denied"}, status=403)
-
+        company_owner = get_company_owner(request.user)
         complaint = get_object_or_404(
-            Complaint, id=complaint_id, supplier=request.user
+            Complaint, id=complaint_id, supplier=company_owner
         )
 
         if complaint.status != "pending":
@@ -776,10 +847,10 @@ class ConsumerOrderStatsView(APIView):
         in_progress = orders.filter(status__in=["pending", "approved"]).count()
         cancelled = orders.filter(status="cancelled").count()
         total_spent = (
-            orders.filter(status="delivered").aggregate(total=Sum("total_price"))[
-                "total"
-            ]
-            or 0
+                orders.filter(status="delivered").aggregate(total=Sum("total_price"))[
+                    "total"
+                ]
+                or 0
         )
 
         return Response(
@@ -809,10 +880,10 @@ class SupplierOrderStatsView(APIView):
         pending_deliveries = orders.filter(status="approved").count()
 
         total_revenue = (
-            orders.filter(status="delivered").aggregate(total=Sum("total_price"))[
-                "total"
-            ]
-            or 0
+                orders.filter(status="delivered").aggregate(total=Sum("total_price"))[
+                    "total"
+                ]
+                or 0
         )
 
         return Response(
@@ -869,6 +940,7 @@ class GlobalSearchView(APIView):
             }
         )
 
+
 class UnassignedUsersView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -884,6 +956,7 @@ class UnassignedUsersView(APIView):
         serializer = UserSerializer(users, many=True)
         return Response(serializer.data)
 
+
 class CompanyEmployeesView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -898,6 +971,7 @@ class CompanyEmployeesView(APIView):
         employees = User.objects.filter(company=company)
         serializer = UserSerializer(employees, many=True)
         return Response(serializer.data)
+
 
 class AssignEmployeeView(APIView):
     permission_classes = [IsAuthenticated]
@@ -920,6 +994,7 @@ class AssignEmployeeView(APIView):
 
         return Response({"detail": "Employee assigned successfully"})
 
+
 class RemoveEmployeeView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -934,6 +1009,7 @@ class RemoveEmployeeView(APIView):
         employee.save()
 
         return Response({"detail": "Employee removed from company"})
+
 
 class DeleteOwnerAccountView(APIView):
     permission_classes = [IsAuthenticated]
