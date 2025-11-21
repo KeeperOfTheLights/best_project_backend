@@ -1,6 +1,7 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/Auth-Context";
+import { is_supplier_side } from "./utils/roleUtils";
 
 import Navbar from "./components/common/Navbar";
 import Login from "./pages/Shared/Login";
@@ -18,6 +19,7 @@ import Search from "./pages/Shared/Search";
 import ConsumerSupplierProducts from "./pages/Consumer/ConsumerSupplierProducts";
 import CComplaints from "./pages/Consumer/ConsumerComplaints";
 import SComplaints from "./pages/Supplier/SupplierComplaints";
+import CompanyManagement from "./pages/Supplier/CompanyManagement";
 
 function RoleRoute({ role, children }) {
   const { isLoggedIn, role: userRole, loading } = useAuth();
@@ -25,7 +27,12 @@ function RoleRoute({ role, children }) {
   if (loading) return <p>Loading...</p>;
 
   if (!isLoggedIn) return <Navigate to="/login" replace />;
-  if (role && userRole !== role) return <Navigate to="/" replace />;
+  
+  if (role === "supplier") {
+    if (!is_supplier_side(userRole)) return <Navigate to="/" replace />;
+  } else if (role && userRole !== role) {
+    return <Navigate to="/" replace />;
+  }
 
   return children;
 }
@@ -82,6 +89,14 @@ export default function App() {
             element={
               <RoleRoute role="supplier">
                 <SComplaints />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/supplier/company"
+            element={
+              <RoleRoute role="supplier">
+                <CompanyManagement />
               </RoleRoute>
             }
           />

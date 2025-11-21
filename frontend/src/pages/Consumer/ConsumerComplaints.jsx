@@ -8,7 +8,7 @@ const API_BASE = "http://127.0.0.1:8000/api/accounts";
 export default function ConsumerComplaints() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { token, logout } = useAuth();
+  const { token, logout, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState([]);
   const [complaints, setComplaints] = useState([]);
   const [filterStatus, setFilterStatus] = useState("all");

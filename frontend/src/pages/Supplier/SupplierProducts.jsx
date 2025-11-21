@@ -5,7 +5,7 @@ import { useAuth } from "../../context/Auth-Context";
 import { is_catalog_manager } from "../../utils/roleUtils";
 
 export default function SupplierProducts() {
-  const { token, role } = useAuth();
+  const { token, role, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,12 +37,13 @@ export default function SupplierProducts() {
   });
 
   useEffect(() => {
+    if (authLoading) return;
     if (!is_catalog_manager(role)) {
       navigate("/SupplierDashboard");
       return;
     }
     fetchProducts();
-  }, [role, navigate]);
+  }, [role, navigate, authLoading]);
 
   const fetchProducts = async () => {
     try {

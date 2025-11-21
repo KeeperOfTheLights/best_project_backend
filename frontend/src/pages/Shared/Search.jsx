@@ -8,7 +8,7 @@ const API_BASE = "http://127.0.0.1:8000/api/accounts";
 export default function Search() {
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
-  const { token, logout, role } = useAuth();
+  const { token, logout, role, loading: authLoading } = useAuth();
 
   const [query, setQuery] = useState(searchParams.get("q") || "");
   const [results, setResults] = useState({
