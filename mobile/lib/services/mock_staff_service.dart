@@ -106,6 +106,55 @@ class MockStaffService {
     return filteredStaff;
   }
 
+  // Get all staff without filtering (for internal company ID lookup)
+  static Future<List<StaffMember>> getAllStaffForCompanyLookup() async {
+    await _delay();
+    // Return all staff from management list (for company ID lookup purposes)
+    final allStaff = List<StaffMember>.from(_staff);
+    
+    // Also include users from Sign Up that are managers/sales
+    try {
+      final allUsers = await MockApiService.getAllAccounts();
+      for (final user in allUsers) {
+        if (user.role == UserRole.manager || user.role == UserRole.sales) {
+          if (!allStaff.any((s) => s.email.toLowerCase() == user.email.toLowerCase())) {
+            // For Sign Up users, try to find their owner by matching company name
+            String supplierIdForSignUp = '';
+            if (user.companyName != null && user.companyName!.isNotEmpty) {
+              // Try to find an Owner with matching company name
+              try {
+                final matchingOwner = allUsers.firstWhere(
+                  (owner) => owner.role == UserRole.owner &&
+                      owner.companyName != null &&
+                      owner.companyName!.toLowerCase() == user.companyName!.toLowerCase(),
+                );
+                supplierIdForSignUp = matchingOwner.id;
+              } catch (e) {
+                // No matching owner found, leave empty
+              }
+            }
+            
+            final staffFromSignUp = StaffMember(
+              id: 'signup_${user.id}',
+              supplierId: supplierIdForSignUp,
+              email: user.email,
+              name: user.name,
+              role: user.role,
+              phone: user.phone,
+              isActive: true,
+              createdAt: DateTime.now(),
+            );
+            allStaff.add(staffFromSignUp);
+          }
+        }
+      }
+    } catch (e) {
+      print('Warning: Failed to get accounts for company lookup: $e');
+    }
+    
+    return allStaff;
+  }
+
   // Add new staff member - creates a full login account
   static Future<StaffMember> addStaff({
     required String email,

@@ -1,6 +1,7 @@
 import '../models/supplier.dart';
 import '../services/storage_service.dart';
 import '../services/mock_staff_service.dart';
+import '../services/mock_api_service.dart';
 import '../utils/constants.dart';
 
 // MockSupplierService - simulates supplier management operations for testing
@@ -21,6 +22,7 @@ class MockSupplierService {
   static Future<String> _getCompanyIdForUser() async {
     final currentUserId = StorageService.getUserId() ?? '';
     final currentRole = StorageService.getUserRole() ?? '';
+    final currentEmail = StorageService.getUserEmail() ?? '';
     
     // If Owner, use their own userId
     if (currentRole == UserRole.owner) {
@@ -29,17 +31,44 @@ class MockSupplierService {
     
     // For Manager/Sales, find their staff record to get supplierId (owner's userId)
     try {
-      final staffList = await MockStaffService.getStaff();
-      final staffMember = staffList.firstWhere(
-        (s) => s.email.toLowerCase() == StorageService.getUserEmail()?.toLowerCase(),
+      // Get ALL staff to find the current user's record (without role filtering)
+      final allStaff = await MockStaffService.getAllStaffForCompanyLookup();
+      final staffMember = allStaff.firstWhere(
+        (s) => s.email.toLowerCase() == currentEmail.toLowerCase(),
         orElse: () => throw Exception('Staff member not found'),
       );
       // Return the supplierId (which is the Owner's userId)
-      return staffMember.supplierId;
+      final ownerId = staffMember.supplierId;
+      if (ownerId.isNotEmpty) {
+        return ownerId;
+      }
     } catch (e) {
-      // If not found in staff list, it might be the Owner themselves
-      return currentUserId;
+      // If not found in staff list, try to find Owner by matching company name
+      print('Warning: Could not find staff record for company lookup: $e');
     }
+    
+    // Fallback: If Manager/Sales was created through Sign Up, try to find Owner by company name
+    try {
+      final currentCompanyName = StorageService.getUserCompanyName();
+      if (currentCompanyName != null && currentCompanyName.isNotEmpty) {
+        // Find Owner with matching company name
+        final allUsers = await MockApiService.getAllAccounts();
+        final matchingOwner = allUsers.firstWhere(
+          (user) => user.role == UserRole.owner &&
+              user.companyName != null &&
+              user.companyName!.toLowerCase() == currentCompanyName.toLowerCase(),
+          orElse: () => throw Exception('No matching owner found'),
+        );
+        // Use the Owner's userId as company ID
+        print('Found matching owner by company name: ${matchingOwner.id}');
+        return matchingOwner.id;
+      }
+    } catch (e) {
+      print('Warning: Could not find owner by company name: $e');
+    }
+    
+    // Final fallback: use current userId (this should rarely happen)
+    return currentUserId;
   }
 
   // Get all suppliers for the current user's company (shared between Owner and Manager)

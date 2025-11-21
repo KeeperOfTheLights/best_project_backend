@@ -67,10 +67,20 @@ class MockCatalogService {
   }
 
   // Get catalog items for a specific supplier
+  // This uses supplierId which is the Sales Management supplier ID
   static Future<List<CatalogItem>> getCatalogBySupplier(String supplierId) async {
     await _delay();
     _initializeSampleData();
-    return List.from(_supplierCatalogs[supplierId] ?? []);
+    
+    // Get all catalog items for all suppliers in the company (if supplierId belongs to company)
+    // First check if supplierId exists directly
+    if (_supplierCatalogs.containsKey(supplierId)) {
+      return List.from(_supplierCatalogs[supplierId] ?? []);
+    }
+    
+    // If not found, it might be that the supplier was created in a different session
+    // Return empty list - in production this would query by company
+    return [];
   }
 
   // Get all catalog items for current supplier

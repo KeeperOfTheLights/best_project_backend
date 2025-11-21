@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
+import '../providers/link_request_provider.dart';
 import '../models/cart_item.dart';
 import 'checkout_screen.dart';
 
@@ -33,6 +34,8 @@ class CartScreen extends StatelessWidget {
           }
 
           final itemsBySupplier = cartProvider.itemsBySupplier;
+          final linkProvider = Provider.of<LinkRequestProvider>(context, listen: false);
+          final approvedLinks = linkProvider.getApprovedRequests();
 
           return Column(
             children: [
@@ -47,6 +50,18 @@ class CartScreen extends StatelessWidget {
                       (sum, item) => sum + item.totalPrice,
                     );
 
+                    // Get supplier name from link requests
+                    String supplierName = 'Supplier';
+                    try {
+                      final link = approvedLinks.firstWhere(
+                        (l) => l.supplierId == supplierId,
+                      );
+                      supplierName = link.supplier?.companyName ?? supplierId;
+                    } catch (e) {
+                      // If not found in link requests, use supplier ID as fallback
+                      supplierName = supplierId;
+                    }
+
                     return Card(
                       margin: const EdgeInsets.all(16),
                       child: Column(
@@ -60,7 +75,7 @@ class CartScreen extends StatelessWidget {
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(
-                                    'Supplier ${supplierId}',
+                                    supplierName,
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
