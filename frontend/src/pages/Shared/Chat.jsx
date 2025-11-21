@@ -21,6 +21,13 @@ export default function ChatPage() {
   const [messagesLoading, setMessagesLoading] = useState(false);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const [selectedFile, setSelectedFile] = useState(null);
+  const [cannedReplies, setCannedReplies] = useState([]);
+  const [showCannedReplies, setShowCannedReplies] = useState(false);
+  const [orders, setOrders] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [showOrderSelector, setShowOrderSelector] = useState(false);
+  const [showProductSelector, setShowProductSelector] = useState(false);
   const messagesEndRef = useRef(null);
   const messagesContainerRef = useRef(null);
   const shouldAutoScrollRef = useRef(true);
@@ -186,11 +193,17 @@ export default function ChatPage() {
           
           return {
             id: msg.id,
-            text: msg.text,
+            text: msg.text || "",
             senderName: msg.sender_name,
             timestamp: msg.timestamp,
             senderId: msg.sender,
             isOwn: isOwn,
+            messageType: msg.message_type || "text",
+            attachmentUrl: msg.attachment_url,
+            attachmentName: msg.attachment_name,
+            orderId: msg.order_id,
+            productId: msg.product_id,
+            productName: msg.product_name,
           };
         });
 
@@ -225,6 +238,65 @@ export default function ChatPage() {
   }, [selectedSupplierId, role, token, userId, currentConsumerId, authLoading]);
 
   useEffect(() => {
+    if (authLoading || !is_supplier_side(role) || !token) return;
+    
+    const fetchCannedReplies = async () => {
+      try {
+        const res = await fetch(`${API_BASE}/canned-replies/`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (res.ok) {
+          const data = await res.json();
+          setCannedReplies(Array.isArray(data) ? data : []);
+        }
+      } catch (err) {
+        console.error("Failed to load canned replies:", err);
+      }
+    };
+
+    fetchCannedReplies();
+  }, [role, token, authLoading]);
+
+  useEffect(() => {
+    if (authLoading || !selectedSupplierId || !token) return;
+    
+    if (role === "consumer") {
+      const fetchOrders = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/orders/my/`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            const supplierOrders = Array.isArray(data) 
+              ? data.filter(o => Number(o.supplier) === Number(selectedSupplierId))
+              : [];
+            setOrders(supplierOrders);
+          }
+        } catch (err) {
+          console.error("Failed to load orders:", err);
+        }
+      };
+      fetchOrders();
+    } else if (is_supplier_side(role)) {
+      const fetchProducts = async () => {
+        try {
+          const res = await fetch(`${API_BASE}/products/`, {
+            headers: { Authorization: `Bearer ${token}` },
+          });
+          if (res.ok) {
+            const data = await res.json();
+            setProducts(Array.isArray(data) ? data : []);
+          }
+        } catch (err) {
+          console.error("Failed to load products:", err);
+        }
+      };
+      fetchProducts();
+    }
+  }, [selectedSupplierId, role, token, authLoading]);
+
+  useEffect(() => {
     const container = messagesContainerRef.current;
     if (!container) {
       const timeout = setTimeout(() => {
@@ -256,10 +328,11 @@ export default function ChatPage() {
     // 1. User is at bottom (shouldAutoScrollRef.current is true)
     // 2. AND there are new messages OR it's an initial load
     // This prevents scrolling when messages are re-fetched but unchanged
-    if (shouldAutoScrollRef.current && messagesEndRef.current && hasNewMessagesRef.current) {
+    if (shouldAutoScrollRef.current && messagesContainerRef.current && hasNewMessagesRef.current) {
       setTimeout(() => {
-        if (messagesEndRef.current && shouldAutoScrollRef.current) {
-          messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        if (messagesContainerRef.current && shouldAutoScrollRef.current) {
+          // Scroll the container, not the page
+          messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
         }
       }, 50);
     }
@@ -268,17 +341,17 @@ export default function ChatPage() {
 
   const handleSendMessage = async (e) => {
     e.preventDefault();
-    if (!newMessage.trim() || !selectedSupplierId) return;
+    if ((!newMessage.trim() && !selectedFile) || !selectedSupplierId) return;
 
     setSending(true);
     setError("");
 
     try {
-      let url, body;
+      let url;
+      const formData = new FormData();
       
       if (role === "consumer") {
         url = `${API_BASE}/chat/${selectedSupplierId}/send/`;
-        body = { text: newMessage.trim() };
       } else {
         if (!selectedSupplierId) {
           throw new Error("Please select a consumer to chat with.");
@@ -287,16 +360,23 @@ export default function ChatPage() {
           throw new Error("Unable to determine supplier ID. Please refresh the page.");
         }
         url = `${API_BASE}/chat/${companyOwnerId}/send/`;
-        body = { text: newMessage.trim(), consumer_id: selectedSupplierId };
+        formData.append("consumer_id", selectedSupplierId);
+      }
+
+      if (newMessage.trim()) {
+        formData.append("text", newMessage.trim());
+      }
+      
+      if (selectedFile) {
+        formData.append("attachment", selectedFile);
       }
 
       const res = await fetch(url, {
         method: "POST",
         headers: {
-          "Content-Type": "application/json",
           Authorization: `Bearer ${token}`,
         },
-        body: JSON.stringify(body),
+        body: formData,
       });
 
       if (res.status === 401) {
@@ -312,39 +392,33 @@ export default function ChatPage() {
 
       const sentMessage = await res.json();
       
-      if (role === "consumer") {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: sentMessage.id,
-            text: sentMessage.text,
-            senderName: sentMessage.sender_name || "You",
-            timestamp: sentMessage.timestamp,
-            senderId: sentMessage.sender,
-            isOwn: true,
-          },
-        ]);
-      } else {
-        setMessages((prev) => [
-          ...prev,
-          {
-            id: sentMessage.id || Date.now(),
-            text: sentMessage.text,
-            senderName: sentMessage.sender_name || "You",
-            timestamp: sentMessage.timestamp || new Date().toISOString(),
-            senderId: userId,
-            isOwn: true,
-          },
-        ]);
-      }
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: sentMessage.id,
+          text: sentMessage.text || "",
+          senderName: sentMessage.sender_name || "You",
+          timestamp: sentMessage.timestamp,
+          senderId: sentMessage.sender,
+          isOwn: true,
+          messageType: sentMessage.message_type || "text",
+          attachmentUrl: sentMessage.attachment_url,
+          attachmentName: sentMessage.attachment_name,
+          orderId: sentMessage.order_id,
+          productId: sentMessage.product_id,
+          productName: sentMessage.product_name,
+        },
+      ]);
 
       setNewMessage("");
+      setSelectedFile(null);
       // Auto-scroll after sending - force scroll to bottom
       shouldAutoScrollRef.current = true;
       hasNewMessagesRef.current = true;
       setTimeout(() => {
-        if (messagesEndRef.current) {
-          messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
+        if (messagesContainerRef.current) {
+          // Scroll the container, not the page
+          messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
         }
       }, 100);
     } catch (err) {
@@ -489,7 +563,40 @@ export default function ChatPage() {
                     )}
                     <div className="message-content">
                       <div className="message-bubble">
-                        <p>{message.text}</p>
+                        {message.messageType === "receipt" && message.orderId && (
+                          <div className="message-receipt">
+                            <strong>Order Receipt</strong>
+                            <p>Order #{message.orderId}</p>
+                            <button 
+                              onClick={() => {
+                                const ordersPath = role === "consumer" ? "/ConsumerOrders" : "/SupplierOrders";
+                                navigate(ordersPath, { state: { orderId: message.orderId } });
+                              }}
+                              className="view-order-btn"
+                            >
+                              View Order
+                            </button>
+                          </div>
+                        )}
+                        {message.messageType === "product_link" && message.productId && (
+                          <div className="message-product-link">
+                            <strong>Product Link</strong>
+                            <p>{message.productName || `Product #${message.productId}`}</p>
+                          </div>
+                        )}
+                        {message.attachmentUrl && (
+                          <div className="message-attachment">
+                            <a 
+                              href={message.attachmentUrl} 
+                              target="_blank" 
+                              rel="noopener noreferrer"
+                              className="attachment-link"
+                            >
+                              {message.attachmentName || "Attachment"}
+                            </a>
+                          </div>
+                        )}
+                        {message.text && <p>{message.text}</p>}
                       </div>
                       <span className="message-time">
                         {formatTime(message.timestamp)}
@@ -503,6 +610,25 @@ export default function ChatPage() {
 
             <form className="chat-input-container" onSubmit={handleSendMessage}>
               <input
+                type="file"
+                id="file-input"
+                style={{ display: "none" }}
+                onChange={(e) => setSelectedFile(e.target.files[0])}
+                accept="image/*,application/pdf,.doc,.docx"
+              />
+              {selectedFile && (
+                <span className="selected-file">
+                  {selectedFile.name}
+                  <button
+                    type="button"
+                    onClick={() => setSelectedFile(null)}
+                    className="remove-file-btn"
+                  >
+                    ×
+                  </button>
+                </span>
+              )}
+              <input
                 type="text"
                 placeholder="Type a message..."
                 value={newMessage}
@@ -510,13 +636,167 @@ export default function ChatPage() {
                 className="message-input"
                 disabled={sending}
               />
+              <div className="chat-action-buttons">
+                <label htmlFor="file-input" className="file-input-label" title="Attach File">
+                  doc
+                </label>
+                {is_supplier_side(role) && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => setShowCannedReplies(!showCannedReplies)}
+                      className="action-btn"
+                      title="Canned Replies"
+                    >
+                      💬
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setShowProductSelector(!showProductSelector)}
+                      className="action-btn"
+                      title="Share Product"
+                    >
+                      🛒
+                    </button>
+                  </>
+                )}
+                {role === "consumer" && (
+                  <button
+                    type="button"
+                    onClick={() => setShowOrderSelector(!showOrderSelector)}
+                    className="action-btn action-btn-receipt"
+                    title="Share Order Receipt"
+                  >
+                    Send Receipt
+                  </button>
+                )}
+              </div>
               <button
                 type="submit"
                 className="send-btn"
-                disabled={!newMessage.trim() || sending}
+                disabled={(!newMessage.trim() && !selectedFile) || sending}
               >
-                {sending ? "..." : "➤"}
+                {sending ? "..." : "Send"}
               </button>
+              {showCannedReplies && is_supplier_side(role) && (
+                <div className="canned-replies-dropdown">
+                  {cannedReplies.length === 0 ? (
+                    <p>No canned replies. Create one in settings.</p>
+                  ) : (
+                    cannedReplies.map((reply) => (
+                      <div
+                        key={reply.id}
+                        className="canned-reply-item"
+                        onClick={() => {
+                          setNewMessage(reply.message);
+                          setShowCannedReplies(false);
+                        }}
+                      >
+                        <strong>{reply.title}</strong>
+                        <p>{reply.message.substring(0, 50)}...</p>
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+              {showOrderSelector && role === "consumer" && (
+                <div className="order-selector-dropdown">
+                  {orders.length === 0 ? (
+                    <p>No orders to share</p>
+                  ) : (
+                    orders.map((order) => (
+                      <div
+                        key={order.id}
+                        className="order-selector-item"
+                        onClick={async () => {
+                          try {
+                            const url = `${API_BASE}/chat/${selectedSupplierId}/send/`;
+                            const formData = new FormData();
+                            formData.append("text", `Order Receipt #${order.id}`);
+                            formData.append("message_type", "receipt");
+                            formData.append("order_id", order.id);
+                            
+                            const res = await fetch(url, {
+                              method: "POST",
+                              headers: { Authorization: `Bearer ${token}` },
+                              body: formData,
+                            });
+                            
+                            if (res.ok) {
+                              const sentMessage = await res.json();
+                              setMessages((prev) => [...prev, {
+                                id: sentMessage.id,
+                                text: sentMessage.text || "",
+                                senderName: sentMessage.sender_name || "You",
+                                timestamp: sentMessage.timestamp,
+                                senderId: sentMessage.sender,
+                                isOwn: true,
+                                messageType: "receipt",
+                                orderId: sentMessage.order_id,
+                              }]);
+                              setShowOrderSelector(false);
+                            }
+                          } catch (err) {
+                            setError(err.message);
+                          }
+                        }}
+                      >
+                        Order #{order.id} - ${order.total_price}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
+              {showProductSelector && is_supplier_side(role) && (
+                <div className="product-selector-dropdown">
+                  {products.length === 0 ? (
+                    <p>No products to share</p>
+                  ) : (
+                    products.map((product) => (
+                      <div
+                        key={product.id}
+                        className="product-selector-item"
+                        onClick={async () => {
+                          try {
+                            const url = `${API_BASE}/chat/${companyOwnerId}/send/`;
+                            const formData = new FormData();
+                            formData.append("text", `Check out: ${product.name}`);
+                            formData.append("message_type", "product_link");
+                            formData.append("product_id", product.id);
+                            formData.append("consumer_id", selectedSupplierId);
+                            
+                            const res = await fetch(url, {
+                              method: "POST",
+                              headers: { Authorization: `Bearer ${token}` },
+                              body: formData,
+                            });
+                            
+                            if (res.ok) {
+                              const sentMessage = await res.json();
+                              setMessages((prev) => [...prev, {
+                                id: sentMessage.id,
+                                text: sentMessage.text || "",
+                                senderName: sentMessage.sender_name || "You",
+                                timestamp: sentMessage.timestamp,
+                                senderId: sentMessage.sender,
+                                isOwn: true,
+                                messageType: "product_link",
+                                productId: sentMessage.product_id,
+                                productName: sentMessage.product_name,
+                              }]);
+                              setShowProductSelector(false);
+                            }
+                          } catch (err) {
+                            setError(err.message);
+                          }
+                        }}
+                      >
+                        {product.name} - ${product.price}
+                      </div>
+                    ))
+                  )}
+                </div>
+              )}
             </form>
 
             {error && <div className="chat-error-inline">{error}</div>}
