@@ -18,6 +18,7 @@ from .models import (
     ChatRoom,
     Message,
     Complaint,
+    CannedReply,
 )
 from .serializers import (
     RegisterSerializer,
@@ -30,6 +31,7 @@ from .serializers import (
     MessageSerializer,
     ComplaintSerializer,
     UserSerializer,
+    CannedReplySerializer,
 )
 
 SUPPLIER_ROLES = ["owner", "manager", "sales"]
@@ -581,9 +583,9 @@ class ChatHistoryView(APIView):
             return Response({"detail": "Not linked"}, status=403)
 
         room = get_or_create_room(consumer, supplier)
-        messages = room.messages.select_related("sender").order_by("timestamp")
+        messages = room.messages.select_related("sender", "order", "product").order_by("timestamp")
 
-        serializer = MessageSerializer(messages, many=True)
+        serializer = MessageSerializer(messages, many=True, context={"request": request})
         return Response(serializer.data, status=200)
 
 
@@ -594,8 +596,13 @@ class SendMessageView(APIView):
         user = request.user
 
         text = request.data.get("text", "").strip()
-        if not text:
-            return Response({"detail": "Text is required"}, status=400)
+        message_type = request.data.get("message_type", "text")
+        order_id = request.data.get("order_id")
+        product_id = request.data.get("product_id")
+        attachment = request.FILES.get("attachment")
+
+        if not text and not attachment and not order_id and not product_id:
+            return Response({"detail": "Text, attachment, order, or product is required"}, status=400)
 
         supplier_user = get_object_or_404(
             User, id=supplier_id, role__in=SUPPLIER_ROLES
@@ -630,9 +637,40 @@ class SendMessageView(APIView):
 
         room = get_or_create_room(consumer, supplier)
 
-        msg = Message.objects.create(room=room, sender=user, text=text)
+        order = None
+        if order_id:
+            order = get_object_or_404(Order, id=order_id, consumer=consumer, supplier=supplier)
 
-        serializer = MessageSerializer(msg)
+        product = None
+        if product_id:
+            product = get_object_or_404(Product, id=product_id, supplier=supplier)
+
+        msg_data = {
+            "room": room,
+            "sender": user,
+            "text": text,
+            "message_type": message_type,
+        }
+
+        if attachment:
+            msg_data["attachment"] = attachment
+            msg_data["attachment_name"] = attachment.name
+            if not message_type or message_type == "text":
+                msg_data["message_type"] = "attachment"
+
+        if order:
+            msg_data["order"] = order
+            if not message_type or message_type == "text":
+                msg_data["message_type"] = "receipt"
+
+        if product:
+            msg_data["product"] = product
+            if not message_type or message_type == "text":
+                msg_data["message_type"] = "product_link"
+
+        msg = Message.objects.create(**msg_data)
+
+        serializer = MessageSerializer(msg, context={"request": request})
         return Response(serializer.data, status=201)
 
 
@@ -1057,4 +1095,30 @@ class DeleteOwnerAccountView(APIView):
             {"detail": "Owner account and business deleted successfully"},
             status=200
         )
+
+
+class CannedReplyListView(generics.ListCreateAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CannedReplySerializer
+
+    def get_queryset(self):
+        if not is_supplier_side(self.request.user):
+            return CannedReply.objects.none()
+        company_owner = get_company_owner(self.request.user)
+        return CannedReply.objects.filter(supplier=company_owner)
+
+    def perform_create(self, serializer):
+        company_owner = get_company_owner(self.request.user)
+        serializer.save(supplier=company_owner)
+
+
+class CannedReplyDetailView(generics.RetrieveUpdateDestroyAPIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CannedReplySerializer
+
+    def get_queryset(self):
+        if not is_supplier_side(self.request.user):
+            return CannedReply.objects.none()
+        company_owner = get_company_owner(self.request.user)
+        return CannedReply.objects.filter(supplier=company_owner)
 

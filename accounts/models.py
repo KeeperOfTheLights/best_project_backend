@@ -204,6 +204,13 @@ class ChatRoom(models.Model):
 
 
 class Message(models.Model):
+    MESSAGE_TYPE_CHOICES = [
+        ("text", "Text"),
+        ("receipt", "Receipt"),
+        ("product_link", "Product Link"),
+        ("attachment", "Attachment"),
+    ]
+
     room = models.ForeignKey(
         ChatRoom,
         on_delete=models.CASCADE,
@@ -214,11 +221,47 @@ class Message(models.Model):
         on_delete=models.CASCADE,
         related_name="sent_messages",
     )
-    text = models.TextField()
+    text = models.TextField(blank=True)
+    message_type = models.CharField(max_length=20, choices=MESSAGE_TYPE_CHOICES, default="text")
+    attachment = models.FileField(upload_to="chat_attachments/", blank=True, null=True)
+    attachment_name = models.CharField(max_length=255, blank=True, null=True)
+    order = models.ForeignKey(
+        "Order",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="receipt_messages",
+    )
+    product = models.ForeignKey(
+        "Product",
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="shared_in_messages",
+    )
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"[{self.timestamp}] {self.sender.full_name}: {self.text[:30]}"
+        return f"[{self.timestamp}] {self.sender.full_name}: {self.text[:30] if self.text else self.message_type}"
+
+
+class CannedReply(models.Model):
+    supplier = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="canned_replies",
+    )
+    title = models.CharField(max_length=200)
+    message = models.TextField()
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        verbose_name_plural = "Canned Replies"
+        ordering = ["-updated_at"]
+
+    def __str__(self):
+        return f"{self.supplier.full_name} - {self.title}"
 
 class Complaint(models.Model):
     STATUS_CHOICES = [

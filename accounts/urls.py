@@ -44,4 +44,6 @@ urlpatterns = [
     path("company/remove/", RemoveEmployeeView.as_view()),
     path("account/delete/", DeleteOwnerAccountView.as_view()),
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
+    path("canned-replies/", CannedReplyListView.as_view(), name="canned-replies-list"),
+    path("canned-replies/<int:pk>/", CannedReplyDetailView.as_view(), name="canned-reply-detail"),
 ]

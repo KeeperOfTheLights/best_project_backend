@@ -194,11 +194,27 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class MessageSerializer(serializers.ModelSerializer):
     sender_name = serializers.CharField(source="sender.full_name", read_only=True)
+    order_id = serializers.IntegerField(source="order.id", read_only=True)
+    product_id = serializers.IntegerField(source="product.id", read_only=True)
+    product_name = serializers.CharField(source="product.name", read_only=True)
+    attachment_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Message
-        fields = ["id", "room", "sender", "sender_name", "text", "timestamp"]
-        read_only_fields = ["room", "sender", "timestamp"]
+        fields = [
+            "id", "room", "sender", "sender_name", "text", "timestamp",
+            "message_type", "attachment", "attachment_name", "attachment_url",
+            "order", "order_id", "product", "product_id", "product_name"
+        ]
+        read_only_fields = ["room", "sender", "timestamp", "attachment"]
+
+    def get_attachment_url(self, obj):
+        if obj.attachment:
+            request = self.context.get("request")
+            if request:
+                return request.build_absolute_uri(obj.attachment.url)
+            return obj.attachment.url
+        return None
 
 
 class ComplaintSerializer(serializers.ModelSerializer):
@@ -221,6 +237,13 @@ class ComplaintSerializer(serializers.ModelSerializer):
             "resolved_at",
         ]
         read_only_fields = ["consumer", "supplier", "status", "created_at", "resolved_at"]
+
+
+class CannedReplySerializer(serializers.ModelSerializer):
+    class Meta:
+        model = CannedReply
+        fields = ["id", "supplier", "title", "message", "created_at", "updated_at"]
+        read_only_fields = ["supplier", "created_at", "updated_at"]
 
 
 
