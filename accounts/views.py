@@ -478,6 +478,15 @@ class CheckoutView(APIView):
         for item in cart_items:
             total_price += item.product.price * item.quantity
 
+        for item in cart_items:
+            if item.product.stock < item.quantity:
+                return Response(
+                    {
+                        "detail": f"Insufficient stock for {item.product.name}. Only {item.product.stock} {item.product.unit} available."
+                    },
+                    status=400,
+                )
+
         order = Order.objects.create(
             consumer=request.user,
             supplier_id=supplier_id,
@@ -495,6 +504,11 @@ class CheckoutView(APIView):
             for item in cart_items
         ]
         OrderItem.objects.bulk_create(order_items)
+
+        for item in cart_items:
+            product = item.product
+            product.stock -= item.quantity
+            product.save()
 
         cart_items.delete()
 
@@ -644,6 +658,7 @@ class SupplierAcceptOrderView(APIView):
 class SupplierRejectOrderView(APIView):
     permission_classes = [IsAuthenticated]
 
+    @transaction.atomic
     def post(self, request, order_id):
         if not is_catalog_manager(request.user):
             return Response(
@@ -654,6 +669,11 @@ class SupplierRejectOrderView(APIView):
 
         if order.status != "pending":
             return Response({"detail": "Order already processed"}, status=400)
+
+        for order_item in order.items.all():
+            product = order_item.product
+            product.stock += order_item.quantity
+            product.save()
 
         order.status = "cancelled"
         order.save()
