@@ -2,6 +2,7 @@ import "./SupplierOrders.css";
 import React, { useEffect, useMemo, useState } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
+import { is_catalog_manager } from "../../utils/roleUtils";
 import OrderDetailModal from "../../components/OrderDetailModal";
 
 const API_BASE = "http://127.0.0.1:8000/api/accounts";
@@ -24,7 +25,7 @@ const getStatusText = (status) => {
 export default function SupplierOrders() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { token, logout } = useAuth();
+  const { token, logout, role, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -33,6 +34,7 @@ export default function SupplierOrders() {
   const [selectedOrderId, setSelectedOrderId] = useState(null);
 
   const fetchOrders = async () => {
+    if (authLoading) return;
     if (!token) {
       logout();
       navigate("/login");
@@ -110,6 +112,7 @@ export default function SupplierOrders() {
   };
 
   const handleAcceptOrder = async (orderId) => {
+    if (authLoading) return;
     if (!token) {
       logout();
       navigate("/login");
@@ -148,6 +151,7 @@ export default function SupplierOrders() {
   };
 
   const handleRejectOrder = async (orderId) => {
+    if (authLoading) return;
     if (!token) {
       logout();
       navigate("/login");
@@ -186,6 +190,7 @@ export default function SupplierOrders() {
   };
 
   const handleDeliverOrder = async (orderId) => {
+    if (authLoading) return;
     if (!token) {
       logout();
       navigate("/login");
@@ -353,7 +358,7 @@ export default function SupplierOrders() {
                 <span className="total-amount">{formatCurrency(order.total_price)}</span>
               </div>
               <div className="order-actions">
-                {order.status === "pending" && (
+                {is_catalog_manager(role) && order.status === "pending" && (
                   <>
                     <button
                       className="action-btn accept-btn"
@@ -371,7 +376,7 @@ export default function SupplierOrders() {
                     </button>
                   </>
                 )}
-                {order.status === "approved" && (
+                {is_catalog_manager(role) && order.status === "approved" && (
                   <button
                     className="action-btn complete-btn"
                     onClick={() => handleDeliverOrder(order.id)}
@@ -380,7 +385,7 @@ export default function SupplierOrders() {
                     {actionLoading === order.id ? "Processing..." : "Mark as Delivered"}
                   </button>
                 )}
-                {order.status === "delivered" && (
+                {is_catalog_manager(role) && order.status === "delivered" && (
                   <button className="action-btn invoice-btn" disabled>
                     Generate Invoice
                   </button>

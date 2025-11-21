@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
+import { is_supplier_side } from "../../utils/roleUtils";
 import "./ChatPage.css";
 
 const API_BASE = "http://127.0.0.1:8000/api/accounts";
@@ -8,10 +9,10 @@ const API_BASE = "http://127.0.0.1:8000/api/accounts";
 export default function ChatPage() {
   const navigate = useNavigate();
   const location = useLocation();
-  const { token, logout, role, user } = useAuth();
+  const { token, logout, role, userId, loading: authLoading } = useAuth();
   const [chats, setChats] = useState([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState(null);
-  const [currentUserId, setCurrentUserId] = useState(null);
+  const [companyOwnerId, setCompanyOwnerId] = useState(null);
   const [currentConsumerId, setCurrentConsumerId] = useState(null);
   const [messages, setMessages] = useState([]);
   const [newMessage, setNewMessage] = useState("");
@@ -27,6 +28,8 @@ export default function ChatPage() {
   const hasNewMessagesRef = useRef(false);
 
   useEffect(() => {
+    if (authLoading) return;
+    
     if (!token) {
       logout();
       navigate("/login");
@@ -75,7 +78,11 @@ export default function ChatPage() {
               });
             }
           }
-        } else if (role === "supplier") {
+        } else if (is_supplier_side(role)) {
+          if (role === "owner") {
+            setCompanyOwnerId(userId);
+          }
+          
           const linksRes = await fetch(`${API_BASE}/links/`, {
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -89,7 +96,7 @@ export default function ChatPage() {
           if (linksRes.ok) {
             const links = await linksRes.json();
             if (links.length > 0 && links[0].supplier) {
-              setCurrentUserId(links[0].supplier);
+              setCompanyOwnerId(links[0].supplier);
             }
             linkedPartners = links
               .filter((link) => link.status === "linked")
@@ -105,7 +112,7 @@ export default function ChatPage() {
         
         const consumerIdToSelect = location.state?.selectConsumerId;
         
-        if (consumerIdToSelect && role === "supplier") {
+        if (consumerIdToSelect && is_supplier_side(role)) {
           const consumerChat = linkedPartners.find(
             (chat) => Number(chat.consumerId) === Number(consumerIdToSelect)
           );
@@ -125,7 +132,7 @@ export default function ChatPage() {
     };
 
     fetchChats();
-  }, [token, role, location.state]);
+  }, [token, role, location.state, authLoading]);
 
   useEffect(() => {
     if (!selectedSupplierId || !token) {
@@ -171,10 +178,10 @@ export default function ChatPage() {
         const data = await res.json();
         const formattedMessages = (Array.isArray(data) ? data : []).map((msg) => {
           let isOwn = false;
-          if (role === "consumer" && currentConsumerId) {
-            isOwn = Number(msg.sender) === Number(currentConsumerId);
-          } else if (role === "supplier" && currentUserId) {
-            isOwn = Number(msg.sender) === Number(currentUserId);
+          if (role === "consumer" && userId) {
+            isOwn = Number(msg.sender) === Number(userId);
+          } else if (is_supplier_side(role) && userId) {
+            isOwn = Number(msg.sender) === Number(userId);
           }
           
           return {
@@ -215,7 +222,7 @@ export default function ChatPage() {
 
     const interval = setInterval(() => fetchMessages(false), 3000);
     return () => clearInterval(interval);
-  }, [selectedSupplierId, role, token, currentUserId, currentConsumerId]);
+  }, [selectedSupplierId, role, token, userId, currentConsumerId, authLoading]);
 
   useEffect(() => {
     const container = messagesContainerRef.current;
@@ -273,10 +280,13 @@ export default function ChatPage() {
         url = `${API_BASE}/chat/${selectedSupplierId}/send/`;
         body = { text: newMessage.trim() };
       } else {
-        if (!currentUserId) {
+        if (!selectedSupplierId) {
+          throw new Error("Please select a consumer to chat with.");
+        }
+        if (!companyOwnerId) {
           throw new Error("Unable to determine supplier ID. Please refresh the page.");
         }
-        url = `${API_BASE}/chat/${currentUserId}/send/`;
+        url = `${API_BASE}/chat/${companyOwnerId}/send/`;
         body = { text: newMessage.trim(), consumer_id: selectedSupplierId };
       }
 
@@ -322,7 +332,7 @@ export default function ChatPage() {
             text: sentMessage.text,
             senderName: sentMessage.sender_name || "You",
             timestamp: sentMessage.timestamp || new Date().toISOString(),
-            senderId: currentUserId,
+            senderId: userId,
             isOwn: true,
           },
         ]);
@@ -369,7 +379,7 @@ export default function ChatPage() {
   const selectedChat = chats.find(
     (chat) =>
       (role === "consumer" && chat.supplierId === selectedSupplierId) ||
-      (role === "supplier" && chat.consumerId === selectedSupplierId)
+      (is_supplier_side(role) && chat.consumerId === selectedSupplierId)
   );
 
   const getAvatarUrl = (name) => {

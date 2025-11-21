@@ -16,13 +16,14 @@ const STATUS_CONFIG = {
 
 export default function ConsumerOrders() {
   const navigate = useNavigate();
-  const { token, logout } = useAuth();
+  const { token, logout, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [selectedOrderId, setSelectedOrderId] = useState(null);
 
   const fetchOrders = async () => {
+    if (authLoading) return;
     if (!token) {
       logout();
       navigate("/login");
@@ -59,8 +60,9 @@ export default function ConsumerOrders() {
   };
 
   useEffect(() => {
+    if (authLoading) return;
     fetchOrders();
-  }, [token]);
+  }, [token, authLoading]);
 
   const stats = useMemo(() => {
     return orders.reduce(

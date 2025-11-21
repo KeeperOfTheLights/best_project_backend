@@ -13,11 +13,14 @@ import SupplierCatalog from "./pages/Supplier/SupplierCatalog";
 import ConsumerOrders from "./pages/Consumer/ConsumerOrders";
 import SupplierOrders from "./pages/Supplier/SupplierOrders";
 import SupplierProducts from "./pages/Supplier/SupplierProducts";
+import CompanyManagement from "./pages/Supplier/CompanyManagement";
 import Chat from "./pages/Shared/Chat";
 import Search from "./pages/Shared/Search";
 import ConsumerSupplierProducts from "./pages/Consumer/ConsumerSupplierProducts";
 import CComplaints from "./pages/Consumer/ConsumerComplaints";
 import SComplaints from "./pages/Supplier/SupplierComplaints";
+
+import { is_supplier_side } from "./utils/roleUtils";
 
 function RoleRoute({ role, children }) {
   const { isLoggedIn, role: userRole, loading } = useAuth();
@@ -25,7 +28,12 @@ function RoleRoute({ role, children }) {
   if (loading) return <p>Loading...</p>;
 
   if (!isLoggedIn) return <Navigate to="/login" replace />;
-  if (role && userRole !== role) return <Navigate to="/" replace />;
+  
+  if (role === "supplier") {
+    if (!is_supplier_side(userRole)) return <Navigate to="/" replace />;
+  } else if (role && userRole !== role) {
+    return <Navigate to="/" replace />;
+  }
 
   return children;
 }
@@ -82,6 +90,14 @@ export default function App() {
             element={
               <RoleRoute role="supplier">
                 <SComplaints />
+              </RoleRoute>
+            }
+          />
+          <Route
+            path="/supplier/company"
+            element={
+              <RoleRoute role="supplier">
+                <CompanyManagement />
               </RoleRoute>
             }
           />

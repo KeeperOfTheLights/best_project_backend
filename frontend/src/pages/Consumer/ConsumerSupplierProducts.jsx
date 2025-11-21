@@ -39,6 +39,7 @@ export default function ConsumerSupplierProducts() {
   };
 
   const ensureAuth = () => {
+    if (authLoading) return false;
     if (!token) {
       logout();
       navigate("/login");

@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
+import { is_catalog_manager, is_owner, is_sales } from "../../utils/roleUtils";
 import "./SupplierDashboard.css";
 
 const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
 export default function SupplierDashboard() {
   const navigate = useNavigate();
-  const { token, logout } = useAuth();
+  const { token, logout, role, loading: authLoading } = useAuth();
   const [stats, setStats] = useState({
     active_orders: 0,
     completed_orders: 0,
@@ -18,8 +19,14 @@ export default function SupplierDashboard() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    fetchStats();
-  }, [token]);
+    if (authLoading) return;
+    
+    if (!is_sales(role)) {
+      fetchStats();
+    } else {
+      setLoading(false);
+    }
+  }, [token, role, authLoading]);
 
   const fetchStats = async () => {
     if (!token) {
@@ -63,11 +70,23 @@ export default function SupplierDashboard() {
     }
   };
 
+  const getGreeting = () => {
+    if (role === "owner") return "Hello, Owner!";
+    if (role === "manager") return "Hello, Manager!";
+    if (role === "sales") return "Hello, Sales Representative!";
+    return "Welcome Back!";
+  };
+
+  const getSubtitle = () => {
+    if (is_sales(role)) return "Manage your communications and handle customer inquiries.";
+    return "Here's an overview of your performance and current activity.";
+  };
+
   return (
     <div className="supplier-dashboard-container">
       <header className="dashboard-header">
-        <h2>Welcome Back!</h2>
-        <p>Here’s an overview of your performance and current activity.</p>
+        <h2>{getGreeting()}</h2>
+        <p>{getSubtitle()}</p>
       </header>
 
       {error && (
@@ -79,27 +98,31 @@ export default function SupplierDashboard() {
         </div>
       )}
 
-      {loading ? (
-        <div className="loading-state">Loading statistics...</div>
-      ) : (
-        <section className="dashboard-stats">
-          <div className="stat-card active">
-            <h3>{stats.active_orders}</h3>
-            <p>Active Orders</p>
-          </div>
-          <div className="stat-card completed">
-            <h3>{stats.completed_orders}</h3>
-            <p>Completed Orders</p>
-          </div>
-          <div className="stat-card pending">
-            <h3>{stats.pending_deliveries}</h3>
-            <p>Pending Deliveries</p>
-          </div>
-          <div className="stat-card revenue">
-            <h3>{Number(stats.total_revenue || 0).toLocaleString()} ₸</h3>
-            <p>Total Revenue</p>
-          </div>
-        </section>
+      {!is_sales(role) && (
+        <>
+          {loading ? (
+            <div className="loading-state">Loading statistics...</div>
+          ) : (
+            <section className="dashboard-stats">
+              <div className="stat-card active">
+                <h3>{stats.active_orders}</h3>
+                <p>Active Orders</p>
+              </div>
+              <div className="stat-card completed">
+                <h3>{stats.completed_orders}</h3>
+                <p>Completed Orders</p>
+              </div>
+              <div className="stat-card pending">
+                <h3>{stats.pending_deliveries}</h3>
+                <p>Pending Deliveries</p>
+              </div>
+              <div className="stat-card revenue">
+                <h3>{Number(stats.total_revenue || 0).toLocaleString()} ₸</h3>
+                <p>Total Revenue</p>
+              </div>
+            </section>
+          )}
+        </>
       )}
 
       <section className="quick-actions">
@@ -111,9 +134,21 @@ export default function SupplierDashboard() {
           <Link to="/supplier/complaints" className="action-btn complaints-btn">
             Manage Complaints
           </Link>
-          <Link to="/SupplierCatalog" className="action-btn catalog-btn">
-            Edit Catalog
-          </Link>
+          {is_catalog_manager(role) && (
+            <Link to="/SupplierCatalog" className="action-btn catalog-btn">
+              Manage Links
+            </Link>
+          )}
+          {is_catalog_manager(role) && (
+            <Link to="/supplier/products" className="action-btn catalog-btn">
+              Edit Catalog
+            </Link>
+          )}
+          {is_owner(role) && (
+            <Link to="/supplier/company" className="action-btn company-btn">
+              Manage Company
+            </Link>
+          )}
           <Link to="/Chat" className="action-btn support-btn">
             Open Chat
           </Link>

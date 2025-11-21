@@ -20,6 +20,8 @@ export default function Search() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (authLoading) return;
+    
     if (!token) {
       logout();
       navigate("/login");
@@ -39,7 +41,7 @@ export default function Search() {
     } else {
       setResults({ suppliers: [], categories: [], products: [] });
     }
-  }, [searchParams, token, role]);
+  }, [searchParams, token, role, authLoading]);
 
   const performSearch = async (searchQuery) => {
     if (!searchQuery.trim()) {

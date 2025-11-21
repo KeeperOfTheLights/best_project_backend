@@ -8,7 +8,7 @@ const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
 export default function ConsumerDashboard() {
   const navigate = useNavigate();
-  const { token, logout } = useAuth();
+  const { token, logout, loading: authLoading } = useAuth();
   const [stats, setStats] = useState({
     completed_orders: 0,
     in_progress_orders: 0,
@@ -19,8 +19,9 @@ export default function ConsumerDashboard() {
   const [error, setError] = useState("");
 
   useEffect(() => {
+    if (authLoading) return;
     fetchStats();
-  }, [token]);
+  }, [token, authLoading]);
 
   const fetchStats = async () => {
     if (!token) {

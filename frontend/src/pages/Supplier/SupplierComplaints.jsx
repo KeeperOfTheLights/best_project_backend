@@ -1,13 +1,14 @@
 import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
+import { is_sales } from "../../utils/roleUtils";
 import "./SupplierComplaints.css";
 
 const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
 export default function SupplierComplaints() {
   const navigate = useNavigate();
-  const { token, logout } = useAuth();
+  const { token, logout, role, loading: authLoading } = useAuth();
   const [complaints, setComplaints] = useState([]);
   const [filterStatus, setFilterStatus] = useState("all");
   const [loading, setLoading] = useState(true);
@@ -15,6 +16,7 @@ export default function SupplierComplaints() {
   const [actionLoading, setActionLoading] = useState(null);
 
   const fetchComplaints = async () => {
+    if (authLoading) return;
     if (!token) {
       logout();
       navigate("/login");
@@ -53,10 +55,12 @@ export default function SupplierComplaints() {
   };
 
   useEffect(() => {
+    if (authLoading) return;
     fetchComplaints();
-  }, [token]);
+  }, [token, authLoading]);
 
   const handleResolve = async (complaintId) => {
+    if (authLoading) return;
     if (!token) {
       logout();
       navigate("/login");
@@ -95,6 +99,7 @@ export default function SupplierComplaints() {
   };
 
   const handleReject = async (complaintId) => {
+    if (authLoading) return;
     if (!token) {
       logout();
       navigate("/login");
@@ -133,6 +138,7 @@ export default function SupplierComplaints() {
   };
 
   const handleEscalate = async (complaintId) => {
+    if (authLoading) return;
     if (!token) {
       logout();
       navigate("/login");
@@ -204,6 +210,13 @@ export default function SupplierComplaints() {
     escalated: complaints.filter((c) => c.status?.toLowerCase() === "escalated").length,
   };
 
+  const getComplaintDescription = () => {
+    if (is_sales(role)) {
+      return "Handle customer complaints and escalate when manager review is needed.";
+    }
+    return "Review escalated complaints and manage order-related issues.";
+  };
+
   if (loading) {
     return (
       <div className="complaints-container">
@@ -215,7 +228,12 @@ export default function SupplierComplaints() {
   return (
     <div className="complaints-container">
       <div className="complaints-header-card">
-        <h2>Complaints Management</h2>
+        <div>
+          <h2>Complaints Management</h2>
+          <p style={{ color: "#666", marginTop: "0.5rem", fontSize: "0.9rem" }}>
+            {getComplaintDescription()}
+          </p>
+        </div>
         <button className="refresh-btn" onClick={fetchComplaints} disabled={loading}>
           {loading ? "Refreshing..." : "Refresh"}
         </button>
@@ -231,67 +249,85 @@ export default function SupplierComplaints() {
       )}
 
       <div className="complaints-stats">
-        <div className="stat-card">
-          <div className="stat-icon pending-icon">⏳</div>
-          <div className="stat-info">
-            <h3>{counts.pending}</h3>
-            <p>Pending</p>
+        {is_sales(role) ? (
+          <>
+            <div className="stat-card">
+              <div className="stat-icon pending-icon">⏳</div>
+              <div className="stat-info">
+                <h3>{counts.pending}</h3>
+                <p>Pending</p>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon resolved-icon">✓</div>
+              <div className="stat-info">
+                <h3>{counts.resolved}</h3>
+                <p>Resolved</p>
+              </div>
+            </div>
+            <div className="stat-card">
+              <div className="stat-icon rejected-icon">✕</div>
+              <div className="stat-info">
+                <h3>{counts.rejected}</h3>
+                <p>Rejected</p>
+              </div>
+            </div>
+          </>
+        ) : (
+          <div className="stat-card">
+            <div className="stat-icon escalated-icon">⚠️</div>
+            <div className="stat-info">
+              <h3>{counts.escalated}</h3>
+              <p>Escalated</p>
+            </div>
           </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon resolved-icon">✓</div>
-          <div className="stat-info">
-            <h3>{counts.resolved}</h3>
-            <p>Resolved</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon rejected-icon">✕</div>
-          <div className="stat-info">
-            <h3>{counts.rejected}</h3>
-            <p>Rejected</p>
-          </div>
-        </div>
-        <div className="stat-card">
-          <div className="stat-icon escalated-icon">⚠️</div>
-          <div className="stat-info">
-            <h3>{counts.escalated}</h3>
-            <p>Escalated</p>
-          </div>
-        </div>
+        )}
       </div>
 
       <div className="complaints-filters">
-        <button
-          className={filterStatus === "all" ? "active" : ""}
-          onClick={() => handleFilterChange("all")}
-        >
-          All ({counts.all})
-        </button>
-        <button
-          className={filterStatus === "pending" ? "active" : ""}
-          onClick={() => handleFilterChange("pending")}
-        >
-          Pending ({counts.pending})
-        </button>
-        <button
-          className={filterStatus === "resolved" ? "active" : ""}
-          onClick={() => handleFilterChange("resolved")}
-        >
-          Resolved ({counts.resolved})
-        </button>
-        <button
-          className={filterStatus === "rejected" ? "active" : ""}
-          onClick={() => handleFilterChange("rejected")}
-        >
-          Rejected ({counts.rejected})
-        </button>
-        <button
-          className={filterStatus === "escalated" ? "active" : ""}
-          onClick={() => handleFilterChange("escalated")}
-        >
-          Escalated ({counts.escalated})
-        </button>
+        {is_sales(role) ? (
+          <>
+            <button
+              className={filterStatus === "all" ? "active" : ""}
+              onClick={() => handleFilterChange("all")}
+            >
+              All ({counts.all})
+            </button>
+            <button
+              className={filterStatus === "pending" ? "active" : ""}
+              onClick={() => handleFilterChange("pending")}
+            >
+              Pending ({counts.pending})
+            </button>
+            <button
+              className={filterStatus === "resolved" ? "active" : ""}
+              onClick={() => handleFilterChange("resolved")}
+            >
+              Resolved ({counts.resolved})
+            </button>
+            <button
+              className={filterStatus === "rejected" ? "active" : ""}
+              onClick={() => handleFilterChange("rejected")}
+            >
+              Rejected ({counts.rejected})
+            </button>
+          </>
+        ) : (
+          <>
+            <button
+              className={filterStatus === "all" ? "active" : ""}
+              onClick={() => handleFilterChange("all")}
+            >
+              All ({counts.all})
+            </button>
+            <button
+              className={filterStatus === "escalated" ? "active" : ""}
+              onClick={() => handleFilterChange("escalated")}
+            >
+              Escalated ({counts.escalated})
+            </button>
+          </>
+        )}
       </div>
 
       <div className="complaints-list">
@@ -337,6 +373,52 @@ export default function SupplierComplaints() {
                 </button>
                 {c.status?.toLowerCase() === "pending" && (
                   <div className="action-btns">
+                    {is_sales(role) ? (
+                      <>
+                        <button
+                          className="resolve-btn"
+                          onClick={() => handleResolve(c.id)}
+                          disabled={actionLoading === c.id}
+                        >
+                          {actionLoading === c.id ? "Processing..." : "Resolve"}
+                        </button>
+                        <button
+                          className="reject-btn"
+                          onClick={() => handleReject(c.id)}
+                          disabled={actionLoading === c.id}
+                        >
+                          {actionLoading === c.id ? "Processing..." : "Reject"}
+                        </button>
+                        <button
+                          className="escalate-btn"
+                          onClick={() => handleEscalate(c.id)}
+                          disabled={actionLoading === c.id}
+                        >
+                          {actionLoading === c.id ? "Processing..." : "Escalate"}
+                        </button>
+                      </>
+                    ) : (
+                      <>
+                        <button
+                          className="resolve-btn"
+                          onClick={() => handleResolve(c.id)}
+                          disabled={actionLoading === c.id}
+                        >
+                          {actionLoading === c.id ? "Processing..." : "Resolve"}
+                        </button>
+                        <button
+                          className="reject-btn"
+                          onClick={() => handleReject(c.id)}
+                          disabled={actionLoading === c.id}
+                        >
+                          {actionLoading === c.id ? "Processing..." : "Reject"}
+                        </button>
+                      </>
+                    )}
+                  </div>
+                )}
+                {c.status?.toLowerCase() === "escalated" && !is_sales(role) && (
+                  <div className="action-btns">
                     <button
                       className="resolve-btn"
                       onClick={() => handleResolve(c.id)}
@@ -350,13 +432,6 @@ export default function SupplierComplaints() {
                       disabled={actionLoading === c.id}
                     >
                       {actionLoading === c.id ? "Processing..." : "Reject"}
-                    </button>
-                    <button
-                      className="escalate-btn"
-                      onClick={() => handleEscalate(c.id)}
-                      disabled={actionLoading === c.id}
-                    >
-                      {actionLoading === c.id ? "Processing..." : "Escalate"}
                     </button>
                   </div>
                 )}

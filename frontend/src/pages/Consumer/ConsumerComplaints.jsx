@@ -23,6 +23,7 @@ export default function ConsumerComplaints() {
   });
 
   const fetchComplaints = async () => {
+    if (authLoading) return;
     if (!token) {
       logout();
       navigate("/login");
@@ -56,6 +57,7 @@ export default function ConsumerComplaints() {
   };
 
   const fetchOrders = async () => {
+    if (authLoading) return;
     if (!token) {
       logout();
       navigate("/login");
@@ -94,9 +96,10 @@ export default function ConsumerComplaints() {
   };
 
   useEffect(() => {
+    if (authLoading) return;
     fetchOrders();
     fetchComplaints();
-  }, [token]);
+  }, [token, authLoading]);
 
   useEffect(() => {
     if (location.state?.orderId) {
@@ -117,6 +120,8 @@ export default function ConsumerComplaints() {
 
   const handleSubmitComplaint = async (e) => {
     e.preventDefault();
+    
+    if (authLoading) return;
     
     if (!selectedOrderId) {
       setError("Please select an order");
