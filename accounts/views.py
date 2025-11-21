@@ -478,7 +478,9 @@ class CheckoutView(APIView):
 
         total_price = 0
         for item in cart_items:
-            total_price += item.product.price * item.quantity
+            product = item.product
+            item_price = product.discounted_price if hasattr(product, 'discounted_price') else product.price
+            total_price += item_price * item.quantity
 
         for item in cart_items:
             if item.product.stock < item.quantity:
@@ -501,7 +503,7 @@ class CheckoutView(APIView):
                 order=order,
                 product=item.product,
                 quantity=item.quantity,
-                price=item.product.price,
+                price=item.product.discounted_price if hasattr(item.product, 'discounted_price') else item.product.price,
             )
             for item in cart_items
         ]

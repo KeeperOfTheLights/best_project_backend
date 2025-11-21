@@ -70,15 +70,15 @@ class UserSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     supplier_name = serializers.CharField(source='supplier.full_name', read_only=True)
+    discounted_price = serializers.DecimalField(max_digits=10, decimal_places=2, read_only=True)
 
     class Meta:
         model = Product
         fields = [
-            'id', 'name', 'category', 'price', 'unit', 'stock', 'minOrder',
-            'image', 'description', 'status', 'created_at', 'supplier_name'
+            'id', 'name', 'category', 'price', 'discount', 'discounted_price', 'unit', 'stock', 'minOrder',
+            'image', 'description', 'status', 'delivery_option', 'lead_time_days', 'created_at', 'supplier_name'
         ]
-        # УБРАЛИ 'status' из read_only_fields!
-        read_only_fields = ['supplier', 'created_at', 'supplier_name']
+        read_only_fields = ['supplier', 'created_at', 'supplier_name', 'discounted_price']
 
     def create(self, validated_data):
         user = self.context['request'].user
@@ -140,6 +140,13 @@ class CartItemSerializer(serializers.ModelSerializer):
         source="product.supplier_id",
         read_only=True,
     )
+    product_discounted_price = serializers.SerializerMethodField()
+    product_discount = serializers.DecimalField(
+        source="product.discount",
+        read_only=True,
+        max_digits=5,
+        decimal_places=2,
+    )
     line_total = serializers.SerializerMethodField()
 
     class Meta:
@@ -149,6 +156,8 @@ class CartItemSerializer(serializers.ModelSerializer):
             "product",
             "product_name",
             "product_price",
+            "product_discounted_price",
+            "product_discount",
             "product_image",
             "product_unit",
             "product_min_order",
@@ -159,8 +168,16 @@ class CartItemSerializer(serializers.ModelSerializer):
             "line_total",
         ]
 
+    def get_product_discounted_price(self, obj):
+        product = obj.product
+        if hasattr(product, 'discounted_price'):
+            return product.discounted_price
+        return product.price
+
     def get_line_total(self, obj):
-        return obj.product.price * obj.quantity
+        product = obj.product
+        item_price = product.discounted_price if hasattr(product, 'discounted_price') else product.price
+        return item_price * obj.quantity
 
 
 class OrderItemSerializer(serializers.ModelSerializer):

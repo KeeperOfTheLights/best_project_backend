@@ -84,18 +84,33 @@ class Product(models.Model):
         ('inactive', 'Inactive'),
     ]
 
+    DELIVERY_CHOICES = [
+        ('delivery', 'Delivery'),
+        ('pickup', 'Pickup'),
+        ('both', 'Both'),
+    ]
+
     supplier = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='products')
     name = models.CharField(max_length=120)
     category = models.CharField(max_length=100, default='Uncategorized')
     price = models.DecimalField(max_digits=10, decimal_places=2)
+    discount = models.DecimalField(max_digits=5, decimal_places=2, default=0, help_text="Discount percentage (0-100)")
     unit = models.CharField(max_length=10, choices=UNIT_CHOICES, default='kg')
     stock = models.PositiveIntegerField(default=0)
     minOrder = models.PositiveIntegerField(default=1)
     image = models.URLField(blank=True, null=True)
     description = models.TextField(blank=True)
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='active')
+    delivery_option = models.CharField(max_length=10, choices=DELIVERY_CHOICES, default='both')
+    lead_time_days = models.PositiveIntegerField(default=0, help_text="Number of days for order fulfillment")
 
     created_at = models.DateTimeField(auto_now_add=True)
+
+    @property
+    def discounted_price(self):
+        if self.discount > 0:
+            return self.price * (1 - self.discount / 100)
+        return self.price
 
     def __str__(self):
         return f"{self.name} - {self.supplier.full_name}"
