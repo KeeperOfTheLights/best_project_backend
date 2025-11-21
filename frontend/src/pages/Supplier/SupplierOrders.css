@@ -27,8 +27,8 @@
 
 .refresh-button {
   padding: 0.75rem 1.5rem;
-  background-color: #111827;
-  color: white;
+  background-color: #111827 !important;
+  color: white !important;
   border: none;
   border-radius: 8px;
   font-weight: 600;
@@ -37,7 +37,7 @@
 }
 
 .refresh-button:hover:not(:disabled) {
-  background-color: #0f172a;
+  background-color: #0f172a !important;
   transform: translateY(-1px);
 }
 
@@ -406,56 +406,56 @@
 }
 
 .accept-btn {
-  background-color: #4caf50;
-  color: white;
+  background-color: #4caf50 !important;
+  color: white !important;
 }
 
 .accept-btn:hover {
-  background-color: #388e3c;
+  background-color: #388e3c !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
 .reject-btn {
-  background-color: #f44336;
-  color: white;
+  background-color: #f44336 !important;
+  color: white !important;
 }
 
 .reject-btn:hover {
-  background-color: #d32f2f;
+  background-color: #d32f2f !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
 }
 
 .complete-btn {
-  background-color: #2196f3;
-  color: white;
+  background-color: #2196f3 !important;
+  color: white !important;
 }
 
 .complete-btn:hover {
-  background-color: #1976d2;
+  background-color: #1976d2 !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
 }
 
 .invoice-btn {
-  background-color: #9c27b0;
-  color: white;
+  background-color: #9c27b0 !important;
+  color: white !important;
 }
 
 .invoice-btn:hover {
-  background-color: #7b1fa2;
+  background-color: #7b1fa2 !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
 }
 
 .details-btn {
-  background-color: #61dafb;
-  color: #20232a;
+  background-color: #61dafb !important;
+  color: #20232a !important;
 }
 
 .details-btn:hover {
-  background-color: #4fcbe4;
+  background-color: #4fcbe4 !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(97, 218, 251, 0.3);
 }

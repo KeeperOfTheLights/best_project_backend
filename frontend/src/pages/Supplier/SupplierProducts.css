@@ -26,8 +26,8 @@
 }
 
 .add-product-btn {
-  background-color: #61dafb;
-  color: #20232a;
+  background-color: #61dafb !important;
+  color: #20232a !important;
   border: none;
   padding: 1.5rem 3.5rem;
   border-radius: 8px;
@@ -37,7 +37,7 @@
   font-size: 1.2rem;
 }
 .add-product-btn:hover {
-  background-color: #4fcbe4;
+  background-color: #4fcbe4 !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(97, 218, 251, 0.3);
 }
@@ -204,32 +204,32 @@
 }
 
 .edit-btn {
-  background-color: #61dafb;
-  color: #20232a;
+  background-color: #61dafb !important;
+  color: #20232a !important;
 }
 
 .edit-btn:hover {
-  background-color: #4fcbe4;
+  background-color: #4fcbe4 !important;
   transform: translateY(-2px);
 }
 
 .toggle-btn {
-  background-color: #ff9800;
-  color: white;
+  background-color: #ff9800 !important;
+  color: white !important;
 }
 
 .toggle-btn:hover {
-  background-color: #f57c00;
+  background-color: #f57c00 !important;
   transform: translateY(-2px);
 }
 
 .delete-btn {
-  background-color: #f44336;
-  color: white;
+  background-color: #f44336 !important;
+  color: white !important;
 }
 
 .delete-btn:hover {
-  background-color: #d32f2f;
+  background-color: #d32f2f !important;
   transform: translateY(-2px);
 }
 
@@ -357,21 +357,21 @@
 }
 
 .cancel-btn {
-  background-color: #f0f0f0;
-  color: #666;
+  background-color: #f0f0f0 !important;
+  color: #666 !important;
 }
 
 .cancel-btn:hover {
-  background-color: #e0e0e0;
+  background-color: #e0e0e0 !important;
 }
 
 .save-btn {
-  background-color: #61dafb;
-  color: #20232a;
+  background-color: #61dafb !important;
+  color: #20232a !important;
 }
 
 .save-btn:hover {
-  background-color: #4fcbe4;
+  background-color: #4fcbe4 !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(97, 218, 251, 0.3);
 }
@@ -476,21 +476,21 @@
 }
 
 .modal-btn.confirm {
-  background-color: #4caf50;
-  color: #fff;
+  background-color: #4caf50 !important;
+  color: #fff !important;
 }
 
 .modal-btn.confirm:hover {
-  background-color: #45a049;
+  background-color: #45a049 !important;
 }
 
 .modal-btn.cancel {
-  background-color: #f44336;
-  color: #fff;
+  background-color: #f44336 !important;
+  color: #fff !important;
 }
 
 .modal-btn.cancel:hover {
-  background-color: #da190b;
+  background-color: #da190b !important;
 }
 
 .error-modal {
@@ -502,11 +502,11 @@
 }
 
 .error-modal .modal-btn.confirm {
-  background-color: #f44336;
-  color: #fff;
+  background-color: #f44336 !important;
+  color: #fff !important;
   width: 100%;
 }
 
 .error-modal .modal-btn.confirm:hover {
-  background-color: #da190b;
+  background-color: #da190b !important;
 }

@@ -7,10 +7,10 @@ export default function About() {
       <div className="about-container">
         <h2>About our project</h2>
         <p>
-          This simple idea, SaaS, B2B project is developed by 3 intusiasive students with pure passion.
+          This simple idea B2B project is developed by 3 intusiasive students with pure passion using the requirenments and details provided by the Instructors.
         </p>
         <p>
-          We hope that with this software businesmanss will get more wealth, while poor will lose more money!
+          We hope that this application will help you in finding simple solutions for connecting with different buisenesses such as Suppliers of products or Consumers like hotels and cafes!
         </p>
       </div>
     </div>

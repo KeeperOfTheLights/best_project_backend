@@ -218,8 +218,8 @@
 
 .complaint-form button[type="submit"] {
   width: 100%;
-  background-color: #61dafb;
-  color: #20232a;
+  background-color: #61dafb !important;
+  color: #20232a !important;
   border: none;
   padding: 1rem;
   border-radius: 8px;
@@ -230,7 +230,7 @@
 }
 
 .complaint-form button[type="submit"]:hover {
-  background-color: #4fcbe4;
+  background-color: #4fcbe4 !important;
   transform: translateY(-2px);
 }
 
@@ -251,27 +251,27 @@
 }
 
 .complaint-card .action-btns .resolve-btn {
-  background-color: #10b981;
+  background-color: #10b981 !important;
 }
 
 .complaint-card .action-btns .resolve-btn:hover {
-  background-color: #0f7a63;
+  background-color: #0f7a63 !important;
 }
 
 .complaint-card .action-btns .reject-btn {
-  background-color: #ef4444;
+  background-color: #ef4444 !important;
 }
 
 .complaint-card .action-btns .reject-btn:hover {
-  background-color: #b91c1c;
+  background-color: #b91c1c !important;
 }
 
 .complaint-card .action-btns .escalate-btn {
-  background-color: #f59e0b;
+  background-color: #f59e0b !important;
 }
 
 .complaint-card .action-btns .escalate-btn:hover {
-  background-color: #d97706;
+  background-color: #d97706 !important;
 }
 
 .complaint-card.escalated {
@@ -345,8 +345,8 @@
 }
 
 .refresh-btn {
-  background-color: #61dafb;
-  color: #20232a;
+  background-color: #61dafb !important;
+  color: #20232a !important;
   border: none;
   padding: 0.8rem 1.5rem;
   border-radius: 8px;
@@ -357,7 +357,7 @@
 }
 
 .refresh-btn:hover:not(:disabled) {
-  background-color: #4fcbe4;
+  background-color: #4fcbe4 !important;
   transform: translateY(-2px);
 }
 

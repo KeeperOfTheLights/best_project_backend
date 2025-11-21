@@ -358,7 +358,21 @@ export default function ConsumerSupplierProducts() {
                 <p className="product-description">{product.description || "No description"}</p>
                 <div className="product-details">
                   <div className="product-price">
-                    {formatCurrency(product.price)} / {product.unit}
+                    {product.discounted_price && product.discount > 0 ? (
+                      <>
+                        <span style={{ textDecoration: "line-through", color: "#999", marginRight: "8px" }}>
+                          {formatCurrency(product.price)}
+                        </span>
+                        <span style={{ color: "#e74c3c", fontWeight: "bold" }}>
+                          {formatCurrency(product.discounted_price)}
+                        </span>
+                        <span style={{ color: "#e74c3c", marginLeft: "8px", fontSize: "0.9rem" }}>
+                          ({product.discount}% off)
+                        </span>
+                      </>
+                    ) : (
+                      formatCurrency(product.price)
+                    )} / {product.unit}
                   </div>
                   <div className="product-stock">
                     Stock: {product.stock} {product.unit}
@@ -367,6 +381,18 @@ export default function ConsumerSupplierProducts() {
                 <div className="product-min-order">
                   Min. Order: {product.minOrder} {product.unit}
                 </div>
+                {product.delivery_option && (
+                  <div className="product-delivery">
+                    {product.delivery_option === "delivery" && "🚚 Delivery"}
+                    {product.delivery_option === "pickup" && "📦 Pickup"}
+                    {product.delivery_option === "both" && "🚚📦 Delivery & Pickup"}
+                  </div>
+                )}
+                {product.lead_time_days > 0 && (
+                  <div className="product-lead-time">
+                    ⏱️ Lead Time: {product.lead_time_days} {product.lead_time_days === 1 ? "day" : "days"}
+                  </div>
+                )}
                 <div className="product-actions">
                   <div className="quantity-control">
                     <button
@@ -453,7 +479,20 @@ export default function ConsumerSupplierProducts() {
                   )}
                   <div className="cart-item-info">
                     <h4>{item.product_name}</h4>
-                    <p>{formatCurrency(item.product_price)}</p>
+                    <p>
+                      {item.product_discounted_price && item.product_discount > 0 ? (
+                        <>
+                          <span style={{ textDecoration: "line-through", color: "#999", marginRight: "8px", fontSize: "0.9rem" }}>
+                            {formatCurrency(item.product_price)}
+                          </span>
+                          <span style={{ color: "#e74c3c", fontWeight: "bold" }}>
+                            {formatCurrency(item.product_discounted_price)}
+                          </span>
+                        </>
+                      ) : (
+                        formatCurrency(item.product_price)
+                      )}
+                    </p>
                   </div>
                   <div className="cart-item-quantity">
                     <button

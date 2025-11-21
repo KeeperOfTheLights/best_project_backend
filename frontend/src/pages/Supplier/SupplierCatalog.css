@@ -269,72 +269,72 @@
 }
 
 .accept-btn {
-  background-color: #4caf50;
-  color: white;
+  background-color: #4caf50 !important;
+  color: white !important;
 }
 
 .accept-btn:hover {
-  background-color: #388e3c;
+  background-color: #388e3c !important;
   transform: translateY(-2px);
 }
 
 .reject-btn {
-  background-color: #f44336;
-  color: white;
+  background-color: #f44336 !important;
+  color: white !important;
 }
 
 .reject-btn:hover {
-  background-color: #d32f2f;
+  background-color: #d32f2f !important;
   transform: translateY(-2px);
 }
 
 .block-btn {
-  background-color: #9e9e9e;
-  color: white;
+  background-color: #9e9e9e !important;
+  color: white !important;
 }
 
 .block-btn:hover {
-  background-color: #757575;
+  background-color: #757575 !important;
   transform: translateY(-2px);
 }
 
 .view-orders-btn {
-  background-color: #61dafb;
-  color: #20232a;
+  background-color: #61dafb !important;
+  color: #20232a !important;
 }
 
 .view-orders-btn:hover {
-  background-color: #4fcbe4;
+  background-color: #4fcbe4 !important;
   transform: translateY(-2px);
 }
 
 .message-btn {
-  background-color: #2196f3;
-  color: white;
+  background-color: #2196f3 !important;
+  color: white !important;
 }
 
 .message-btn:hover {
-  background-color: #1976d2;
+  background-color: #1976d2 !important;
   transform: translateY(-2px);
 }
 
 .unlink-btn {
-  background-color: #ff9800;
-  color: white;
+  background-color: #ff9800 !important;
+  color: white !important;
 }
 
 .unlink-btn:hover {
-  background-color: #f57c00;
+  background-color: #f57c00 !important;
   transform: translateY(-2px);
 }
 
 .unblock-btn {
-  background-color: #4caf50;
-  color: white;
+  background-color: #4caf50 !important;
+  color: white !important;
 }
 
 .unblock-btn:hover {
-  background-color: #388e3c;
+  background-color: #388e3c !important;
   transform: translateY(-2px);
 }
 

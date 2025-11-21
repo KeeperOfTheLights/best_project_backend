@@ -549,8 +549,34 @@ export default function ConsumerLinkManagement() {
                 <div className="catalog-card-meta">
                   <span>📊 Stock: {item.stock} {item.unit}</span>
                   <span>📦 Min Order: {item.minOrder} {item.unit}</span>
+                  {item.delivery_option && (
+                    <span>
+                      {item.delivery_option === "delivery" && "🚚 Delivery"}
+                      {item.delivery_option === "pickup" && "📦 Pickup"}
+                      {item.delivery_option === "both" && "🚚📦 Both"}
+                    </span>
+                  )}
+                  {item.lead_time_days > 0 && (
+                    <span>⏱️ {item.lead_time_days} {item.lead_time_days === 1 ? "day" : "days"}</span>
+                  )}
                 </div>
-                <div className="catalog-card-price">{formatCurrency(item.price)}</div>
+                <div className="catalog-card-price">
+                  {item.discounted_price && item.discount > 0 ? (
+                    <>
+                      <span style={{ textDecoration: "line-through", color: "#999", marginRight: "8px", fontSize: "0.9rem" }}>
+                        {formatCurrency(item.price)}
+                      </span>
+                      <span style={{ color: "#e74c3c", fontWeight: "bold" }}>
+                        {formatCurrency(item.discounted_price)}
+                      </span>
+                      <span style={{ color: "#e74c3c", marginLeft: "4px", fontSize: "0.85rem" }}>
+                        ({item.discount}% off)
+                      </span>
+                    </>
+                  ) : (
+                    formatCurrency(item.price)
+                  )}
+                </div>
                 <div className="catalog-card-actions">
                   <div className="catalog-quantity-control">
                     <button
@@ -655,7 +681,20 @@ export default function ConsumerLinkManagement() {
 
                   <div className="cart-panel-info">
                     <h4>{item.product_name}</h4>
-                    <p>{formatCurrency(item.product_price)}</p>
+                    <p>
+                      {item.product_discounted_price && item.product_discount > 0 ? (
+                        <>
+                          <span style={{ textDecoration: "line-through", color: "#999", marginRight: "8px", fontSize: "0.9rem" }}>
+                            {formatCurrency(item.product_price)}
+                          </span>
+                          <span style={{ color: "#e74c3c", fontWeight: "bold" }}>
+                            {formatCurrency(item.product_discounted_price)}
+                          </span>
+                        </>
+                      ) : (
+                        formatCurrency(item.product_price)
+                      )}
+                    </p>
                   </div>
 
                   <div className="cart-panel-quantity">

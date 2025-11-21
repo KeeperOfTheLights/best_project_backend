@@ -17,12 +17,15 @@ export default function SupplierProducts() {
     name: "",
     category: "",
     price: "",
+    discount: "0",
     unit: "kg",
     stock: "",
     minOrder: "",
     image: "",
     description: "",
     status: "active",
+    delivery_option: "both",
+    lead_time_days: "0",
   });
 
   const [actionModal, setActionModal] = useState({
@@ -67,12 +70,15 @@ export default function SupplierProducts() {
       name: "",
       category: "",
       price: "",
+      discount: "0",
       unit: "kg",
       stock: "",
       minOrder: "",
       image: "",
       description: "",
       status: "active",
+      delivery_option: "both",
+      lead_time_days: "0",
     });
     setErrorModal({ visible: false, message: "" });
     setShowModal(true);
@@ -259,7 +265,21 @@ export default function SupplierProducts() {
               <h3 className="product-name">{product.name}</h3>
               <p className="product-category">{product.category}</p>
               <p className="product-price">
-                {product.price} ₸ / {product.unit}
+                {product.discounted_price && product.discount > 0 ? (
+                  <>
+                    <span style={{ textDecoration: "line-through", color: "#999", marginRight: "8px" }}>
+                      {product.price} ₸
+                    </span>
+                    <span style={{ color: "#e74c3c", fontWeight: "bold" }}>
+                      {product.discounted_price} ₸
+                    </span>
+                    <span style={{ color: "#e74c3c", marginLeft: "8px" }}>
+                      ({product.discount}% off)
+                    </span>
+                  </>
+                ) : (
+                  `${product.price} ₸`
+                )} / {product.unit}
               </p>
               <p className="product-description">{product.description}</p>
               <div className="product-actions">
@@ -314,11 +334,28 @@ export default function SupplierProducts() {
                 <label>Price</label>
                 <input
                   type="number"
+                  step="0.01"
                   name="price"
                   value={formData.price}
                   onChange={handleInputChange}
                   required
                 />
+              </div>
+              <div className="form-group">
+                <label>Discount (%)</label>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  name="discount"
+                  value={formData.discount}
+                  onChange={handleInputChange}
+                  placeholder="0"
+                />
+                <small style={{ color: "#666", fontSize: "0.85rem" }}>
+                  Enter discount percentage (0-100). Example: 10 for 10% off
+                </small>
               </div>
               <div className="form-group">
                 <label>Unit</label>
@@ -344,6 +381,25 @@ export default function SupplierProducts() {
               <div className="form-group">
                 <label>Description</label>
                 <textarea name="description" value={formData.description} onChange={handleInputChange} />
+              </div>
+              <div className="form-group">
+                <label>Delivery Option</label>
+                <select name="delivery_option" value={formData.delivery_option} onChange={handleInputChange}>
+                  <option value="delivery">Delivery Only</option>
+                  <option value="pickup">Pickup Only</option>
+                  <option value="both">Both</option>
+                </select>
+              </div>
+              <div className="form-group">
+                <label>Lead Time (days)</label>
+                <input
+                  type="number"
+                  min="0"
+                  name="lead_time_days"
+                  value={formData.lead_time_days}
+                  onChange={handleInputChange}
+                  placeholder="0"
+                />
               </div>
               <div className="form-group">
                 <label>Status</label>
