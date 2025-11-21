@@ -8,21 +8,33 @@ from accounts.models import *
 User = get_user_model()
 
 class RegisterSerializer(serializers.ModelSerializer):
-    password = serializers.CharField(write_only=True, validators=[validate_password])
+    password = serializers.CharField(write_only=True)
     password2 = serializers.CharField(write_only=True)
 
     class Meta:
         model = User
-        fields = ('full_name', 'username', 'email', 'role', 'password', 'password2')
+        fields = ("full_name", "email", "role", "password", "password2")
 
     def validate(self, attrs):
-        if attrs['password'] != attrs['password2']:
-            raise serializers.ValidationError({"password": "Passwords do not match"})
+        if attrs["password"] != attrs["password2"]:
+            raise serializers.ValidationError("Passwords do not match")
         return attrs
 
     def create(self, validated_data):
-        validated_data.pop('password2')
+        validated_data.pop("password2")
+        role = validated_data.get("role")
+
         user = User.objects.create_user(**validated_data)
+
+        # Auto create company ONLY for owners
+        if role == "owner":
+            company = Company.objects.create(
+                name=f"{user.full_name} Company",
+                owner=user
+            )
+            user.company = company
+            user.save()
+
         return user
 
 
@@ -31,29 +43,30 @@ class LoginSerializer(serializers.Serializer):
     password = serializers.CharField(write_only=True)
 
     def validate(self, data):
-        email = data.get('email')
-        password = data.get('password')
+        email = data.get("email")
+        password = data.get("password")
 
-        try:
-            user = User.objects.get(email=email)
-        except User.DoesNotExist:
-            raise serializers.ValidationError("Invalid email or password")
-
-        user = authenticate(username=user.username, password=password)
+        # authenticate using email (USERNAME_FIELD)
+        user = authenticate(email=email, password=password)
         if not user:
             raise serializers.ValidationError("Invalid email or password")
 
         refresh = RefreshToken.for_user(user)
 
         return {
-            'refresh': str(refresh),
-            'access': str(refresh.access_token),
-            'username': user.username,
-            'full_name': user.full_name,
-            'role': user.role,
-            'email': user.email,
+            "refresh": str(refresh),
+            "access": str(refresh.access_token),
+            "id": user.id,
+            "full_name": user.full_name,
+            "role": user.role,
+            "email": user.email,
         }
 
+
+class UserSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = User
+        fields = ["id", "full_name", "email", "role", "company"]
 
 class ProductSerializer(serializers.ModelSerializer):
     supplier_name = serializers.CharField(source='supplier.full_name', read_only=True)
@@ -70,8 +83,8 @@ class ProductSerializer(serializers.ModelSerializer):
     def create(self, validated_data):
         user = self.context['request'].user
 
-        if user.role != "supplier":
-            raise serializers.ValidationError("Only suppliers can create products")
+        if user.role not in ["owner", "manager"]:
+            raise serializers.ValidationError("Only Owner and Manager can create products")
 
         validated_data['supplier'] = user
         return super().create(validated_data)
@@ -94,7 +107,7 @@ class LinkRequestSerializer(serializers.ModelSerializer):
         read_only_fields = ['status', 'created_at', 'consumer', 'supplier']
 
 class SupplierSerializer(serializers.ModelSerializer):
-    supplier_company = serializers.CharField(source="supplier_profile.company_name", read_only=True)
+    supplier_company = serializers.CharField(source="company.name", read_only=True)
 
     class Meta:
         model = User

@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import *
-
+from rest_framework_simplejwt.views import TokenRefreshView
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
@@ -38,5 +38,10 @@ urlpatterns = [
     path("orders/<int:order_id>/deliver/", SupplierDeliverOrderView.as_view(), name="order-deliver"),
     path("complaints/my/", ConsumerComplaintListView.as_view(), name="complaints-my"),
     path("search/", GlobalSearchView.as_view(), name="global-search"),
-
+    path("company/unassigned/", UnassignedUsersView.as_view()),
+    path("company/employees/", CompanyEmployeesView.as_view()),
+    path("company/assign/", AssignEmployeeView.as_view()),
+    path("company/remove/", RemoveEmployeeView.as_view()),
+    path("account/delete/", DeleteOwnerAccountView.as_view()),
+    path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
 ]

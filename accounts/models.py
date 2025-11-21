@@ -1,40 +1,74 @@
 from django.conf import settings
 from django.db import models
 from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import BaseUserManager
 
+
+class Company(models.Model):
+    name = models.CharField(max_length=255)
+    owner = models.OneToOneField(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.CASCADE,
+        related_name="owned_company"
+    )
+
+    def __str__(self):
+        return self.name
+
+class UserManager(BaseUserManager):
+    use_in_migrations = True
+
+    def _create_user(self, email, password, **extra_fields):
+        if not email:
+            raise ValueError("Email is required")
+
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+
+    def create_user(self, email, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", False)
+        extra_fields.setdefault("is_superuser", False)
+        return self._create_user(email, password, **extra_fields)
+
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault("is_staff", True)
+        extra_fields.setdefault("is_superuser", True)
+
+        if extra_fields.get("is_staff") is not True:
+            raise ValueError("Superuser must have is_staff=True")
+        if extra_fields.get("is_superuser") is not True:
+            raise ValueError("Superuser must have is_superuser=True")
+
+        return self._create_user(email, password, **extra_fields)
 
 class User(AbstractUser):
     ROLE_CHOICES = [
-        ('supplier', 'Supplier'),
-        ('consumer', 'Consumer'),
+        ("consumer", "Consumer"),
+        ("owner", "Owner"),
+        ("manager", "Manager"),
+        ("sales", "Sales Representative"),
     ]
 
-    role = models.CharField(max_length=10, choices=ROLE_CHOICES)
-    full_name = models.CharField(max_length=120)
-    email = models.EmailField(max_length=120, unique=True)
+    email = models.EmailField(unique=True)
+    username = None
+    full_name = models.CharField(max_length=255)
+    role = models.CharField(max_length=20, choices=ROLE_CHOICES)
 
-    def __str__(self):
-        return f"{self.username} - {self.role}"
+    company = models.ForeignKey(
+        Company,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+        related_name="employees"
+    )
 
+    USERNAME_FIELD = "email"
+    REQUIRED_FIELDS = []
+    objects = UserManager()
 
-class SupplierProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="supplier_profile")
-    company_name = models.CharField(max_length=120)
-    address = models.CharField(max_length=120, blank=True)
-    phone_number = models.CharField(max_length=20, blank=True)
-
-    def __str__(self):
-        return f"Supplier Profile: {self.user.username}"
-
-
-class ConsumerProfile(models.Model):
-    user = models.OneToOneField(User, on_delete=models.CASCADE, related_name="consumer_profile")
-    organization_name = models.CharField(max_length=120)
-    address = models.CharField(max_length=120, blank=True)
-    phone_number = models.CharField(max_length=20, blank=True)
-
-    def __str__(self):
-        return f"Consumer Profile: {self.user.username}"
 
 
 class Product(models.Model):
@@ -64,7 +98,7 @@ class Product(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"{self.name} - {self.supplier.username}"
+        return f"{self.name} - {self.supplier.full_name}"
 
 class LinkRequest(models.Model):
     STATUS_CHOICES = [
@@ -83,7 +117,7 @@ class LinkRequest(models.Model):
         unique_together = (("supplier", "consumer"),)
 
     def __str__(self):
-        return f"{self.consumer.username} → {self.supplier.username} [{self.status}]"
+        return f"{self.consumer.full_name} → {self.supplier.full_name} [{self.status}]"
 
   #need to check in postman
 class CartItem(models.Model):
@@ -104,7 +138,7 @@ class CartItem(models.Model):
         unique_together = ("consumer", "product")
 
     def __str__(self):
-        return f"{self.consumer.username} – {self.product.name} x{self.quantity}"
+        return f"{self.consumer.full_name} – {self.product.name} x{self.quantity}"
 
 
 class Order(models.Model):
@@ -122,7 +156,8 @@ class Order(models.Model):
     )
     supplier = models.ForeignKey(
         settings.AUTH_USER_MODEL,
-        on_delete=models.CASCADE,
+        on_delete=models.SET_NULL,
+        null=True,
         related_name="supplier_orders",
     )
     created_at = models.DateTimeField(auto_now_add=True)
@@ -130,7 +165,8 @@ class Order(models.Model):
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default="pending")
 
     def __str__(self):
-        return f"Order #{self.id} {self.consumer.username} -> {self.supplier.username}"
+        supplier_name = self.supplier.full_name if self.supplier else "Deleted Supplier"
+        return f"Order #{self.id} {self.consumer.full_name} -> {supplier_name}"
 
 
 class OrderItem(models.Model):
@@ -163,7 +199,8 @@ class ChatRoom(models.Model):
         unique_together = ("consumer", "supplier")
 
     def __str__(self):
-        return f"Chat {self.consumer.username} <-> {self.supplier.username}"
+        return f"Chat {self.consumer.full_name} <-> {self.supplier.full_name}"
+
 
 
 class Message(models.Model):
@@ -181,7 +218,7 @@ class Message(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
 
     def __str__(self):
-        return f"[{self.timestamp}] {self.sender.username}: {self.text[:30]}"
+        return f"[{self.timestamp}] {self.sender.full_name}: {self.text[:30]}"
 
 class Complaint(models.Model):
     STATUS_CHOICES = [
