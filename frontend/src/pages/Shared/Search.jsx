@@ -39,7 +39,6 @@ export default function Search() {
     } else {
       setResults({ suppliers: [], categories: [], products: [] });
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams, token, role]);
 
   const performSearch = async (searchQuery) => {

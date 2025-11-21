@@ -12,7 +12,6 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 
-  /* Navbar height - fixed to prevent zoom issues */
   --navbar-height: 80px;
   --navbar-height-mobile: 70px;
 }

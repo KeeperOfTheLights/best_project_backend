@@ -125,7 +125,6 @@ export default function ChatPage() {
     };
 
     fetchChats();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token, role, location.state]);
 
   useEffect(() => {
@@ -138,17 +137,16 @@ export default function ChatPage() {
     const checkIfAtBottom = () => {
       if (!messagesContainerRef.current) return true;
       const container = messagesContainerRef.current;
-      const threshold = 100; // pixels from bottom
+      const threshold = 100;
       return container.scrollHeight - container.scrollTop - container.clientHeight < threshold;
     };
 
     const fetchMessages = async (isInitialLoad = false) => {
-      // Check if user is at bottom before fetching (only for polling, not initial load)
       if (!isInitialLoad) {
         shouldAutoScrollRef.current = checkIfAtBottom();
       } else {
-        shouldAutoScrollRef.current = true; // Always scroll on initial load
-        lastMessageIdsRef.current = new Set(); // Reset IDs when switching chats
+        shouldAutoScrollRef.current = true;
+        lastMessageIdsRef.current = new Set();
       }
       
       setError("");
@@ -189,24 +187,18 @@ export default function ChatPage() {
           };
         });
 
-        // Check if new messages arrived by comparing message IDs
         if (!isInitialLoad) {
           const currentMessageIds = new Set(formattedMessages.map(m => m.id));
           const hadNewMessages = formattedMessages.some(msg => !lastMessageIdsRef.current.has(msg.id));
           hasNewMessagesRef.current = hadNewMessages;
           
-          // Only enable auto-scroll if new messages arrived AND user was at bottom
           if (hadNewMessages) {
-            // New messages arrived - only scroll if user was at bottom
-            // Keep the current shouldAutoScrollRef state (set by scroll listener)
           } else {
-            // No new messages - explicitly disable auto-scroll to prevent unwanted scrolling
             shouldAutoScrollRef.current = false;
           }
           
           lastMessageIdsRef.current = currentMessageIds;
         } else {
-          // Initial load - set IDs and always scroll
           lastMessageIdsRef.current = new Set(formattedMessages.map(m => m.id));
           shouldAutoScrollRef.current = true;
           hasNewMessagesRef.current = true;
@@ -215,25 +207,19 @@ export default function ChatPage() {
         setMessages(formattedMessages);
       } catch (err) {
         setError(err.message || "Failed to load messages");
-        // Don't clear messages on error, keep existing ones
       }
     };
 
-    // Initial load
     setMessagesLoading(true);
     fetchMessages(true).finally(() => setMessagesLoading(false));
 
-    // Set up polling interval
     const interval = setInterval(() => fetchMessages(false), 3000);
     return () => clearInterval(interval);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedSupplierId, role, token, currentUserId, currentConsumerId]);
 
-  // Track scroll position to determine if user scrolled up
   useEffect(() => {
     const container = messagesContainerRef.current;
     if (!container) {
-      // Retry after a short delay if container isn't ready
       const timeout = setTimeout(() => {
         const retryContainer = messagesContainerRef.current;
         if (retryContainer) {
@@ -256,7 +242,7 @@ export default function ChatPage() {
 
     container.addEventListener("scroll", handleScroll);
     return () => container.removeEventListener("scroll", handleScroll);
-  }, [messages]); // Re-attach when messages change (container might be re-rendered)
+  }, [messages]);
 
   useEffect(() => {
     // Only auto-scroll if:
@@ -264,14 +250,12 @@ export default function ChatPage() {
     // 2. AND there are new messages OR it's an initial load
     // This prevents scrolling when messages are re-fetched but unchanged
     if (shouldAutoScrollRef.current && messagesEndRef.current && hasNewMessagesRef.current) {
-      // Use setTimeout to ensure DOM is updated
       setTimeout(() => {
         if (messagesEndRef.current && shouldAutoScrollRef.current) {
           messagesEndRef.current.scrollIntoView({ behavior: "smooth" });
         }
       }, 50);
     }
-    // Reset the flag after scroll attempt
     hasNewMessagesRef.current = false;
   }, [messages]);
 
@@ -347,7 +331,7 @@ export default function ChatPage() {
       setNewMessage("");
       // Auto-scroll after sending - force scroll to bottom
       shouldAutoScrollRef.current = true;
-      hasNewMessagesRef.current = true; // Mark that we have new messages (the one we just sent)
+      hasNewMessagesRef.current = true;
       setTimeout(() => {
         if (messagesEndRef.current) {
           messagesEndRef.current.scrollIntoView({ behavior: "smooth" });

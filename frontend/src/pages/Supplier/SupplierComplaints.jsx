@@ -54,7 +54,6 @@ export default function SupplierComplaints() {
 
   useEffect(() => {
     fetchComplaints();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const handleResolve = async (complaintId) => {

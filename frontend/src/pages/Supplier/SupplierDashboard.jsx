@@ -19,7 +19,6 @@ export default function SupplierDashboard() {
 
   useEffect(() => {
     fetchStats();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [token]);
 
   const fetchStats = async () => {

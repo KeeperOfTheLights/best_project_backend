@@ -91,7 +91,6 @@ export default function SupplierLinkRequests() {
     closeModal();
   };
 
-  // Backend actions
   const performReject = async (linkId) => {
     const token = localStorage.getItem("token");
     setActionLoading(linkId);
