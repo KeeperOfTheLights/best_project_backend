@@ -5,14 +5,17 @@ import '../providers/cart_provider.dart';
 import '../models/catalog_item.dart';
 
 // ConsumerCatalogScreen - allows consumers to browse supplier catalog
+// Also used by suppliers for view-only mode
 class ConsumerCatalogScreen extends StatefulWidget {
   final String supplierId;
   final String supplierName;
+  final bool isSupplierView; // If true, view-only mode (no add to cart)
 
   const ConsumerCatalogScreen({
     super.key,
     required this.supplierId,
     required this.supplierName,
+    this.isSupplierView = false,
   });
 
   @override
@@ -223,23 +226,25 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                                           color: Colors.grey,
                                         ),
                                       ),
-                                      const SizedBox(height: 4),
-                                      SizedBox(
-                                        height: 32,
-                                        child: ElevatedButton.icon(
-                                          onPressed: item.isActive && item.stockQuantity > 0
-                                              ? () => _addToCart(item)
-                                              : null,
-                                          icon: const Icon(Icons.add_shopping_cart, size: 14),
-                                          label: const Text('Add', style: TextStyle(fontSize: 12)),
-                                          style: ElevatedButton.styleFrom(
-                                            padding: const EdgeInsets.symmetric(
-                                              horizontal: 8,
-                                              vertical: 4,
+                                      if (!widget.isSupplierView) ...[
+                                        const SizedBox(height: 4),
+                                        SizedBox(
+                                          height: 32,
+                                          child: ElevatedButton.icon(
+                                            onPressed: item.isActive && item.stockQuantity > 0
+                                                ? () => _addToCart(item)
+                                                : null,
+                                            icon: const Icon(Icons.add_shopping_cart, size: 14),
+                                            label: const Text('Add', style: TextStyle(fontSize: 12)),
+                                            style: ElevatedButton.styleFrom(
+                                              padding: const EdgeInsets.symmetric(
+                                                horizontal: 8,
+                                                vertical: 4,
+                                              ),
                                             ),
                                           ),
                                         ),
-                                      ),
+                                      ],
                                     ],
                                   ),
                                 ],

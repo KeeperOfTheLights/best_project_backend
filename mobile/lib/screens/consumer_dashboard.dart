@@ -7,6 +7,7 @@ import '../providers/chat_provider.dart';
 import 'search_suppliers_screen.dart';
 import 'manage_links_screen.dart';
 import 'consumer_catalog_screen.dart';
+import 'consumer_catalog_main_screen.dart';
 import 'cart_screen.dart';
 import 'orders_screen.dart';
 import 'chat_room_screen.dart';
@@ -122,6 +123,46 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                     ),
                   ),
                   const SizedBox(height: 12),
+                  // Shopping & Catalog Section
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildActionCard(
+                          context,
+                          icon: Icons.inventory_2,
+                          title: 'Catalog',
+                          color: Colors.purple,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ConsumerCatalogMainScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildActionCard(
+                          context,
+                          icon: Icons.shopping_cart,
+                          title: 'My Orders',
+                          color: Colors.orange,
+                          onTap: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const OrdersScreen(isConsumer: true),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  // Supplier Connections Section
                   Row(
                     children: [
                       Expanded(
@@ -161,31 +202,15 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                     ],
                   ),
                   const SizedBox(height: 12),
+                  // Communication & Support Section
                   Row(
                     children: [
                       Expanded(
                         child: _buildActionCard(
                           context,
-                          icon: Icons.shopping_cart,
-                          title: 'My Orders',
-                          color: Colors.orange,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const OrdersScreen(isConsumer: true),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildActionCard(
-                          context,
                           icon: Icons.chat,
                           title: 'Chats',
-                          color: Colors.purple,
+                          color: Colors.indigo,
                           onTap: () {
                             Navigator.push(
                               context,
@@ -196,11 +221,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                           },
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
+                      const SizedBox(width: 12),
                       Expanded(
                         child: _buildActionCard(
                           context,
@@ -216,10 +237,6 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                             );
                           },
                         ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Container(), // Empty space for alignment
                       ),
                     ],
                   ),

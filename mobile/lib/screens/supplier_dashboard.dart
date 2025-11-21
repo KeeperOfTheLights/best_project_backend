@@ -11,6 +11,7 @@ import 'chat_list_screen.dart';
 import 'staff_management_screen.dart';
 import 'sales_management_screen.dart';
 import 'complaints_management_screen.dart';
+import 'supplier_catalog_main_screen.dart';
 
 // SupplierDashboard - the main screen for suppliers after login
 class SupplierDashboard extends StatefulWidget {
@@ -173,22 +174,6 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                       Expanded(
                         child: _buildActionCard(
                           context,
-                          icon: Icons.inventory,
-                          title: 'Catalog',
-                          color: Colors.blue,
-                          onTap: () {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(
-                                content: Text('Catalog management coming soon'),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildActionCard(
-                          context,
                           icon: Icons.shopping_cart,
                           title: 'Orders',
                           color: Colors.orange,
@@ -202,11 +187,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                           },
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
+                      const SizedBox(width: 12),
                       Expanded(
                         child: _buildActionCard(
                           context,
@@ -224,7 +205,11 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                           },
                         ),
                       ),
-                      const SizedBox(width: 12),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
                       Expanded(
                         child: _buildActionCard(
                           context,
@@ -241,11 +226,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                           },
                         ),
                       ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
+                      const SizedBox(width: 12),
                       Expanded(
                         child: _buildActionCard(
                           context,
@@ -263,17 +244,38 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                           },
                         ),
                       ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: Container(), // Empty space for alignment
-                      ),
                     ],
                   ),
-                   // Sales Management (Owners and Managers only)
+                   // Management Section (Owners and Managers only)
                    if (userRole == UserRole.owner || userRole == UserRole.manager) ...[
+                     const SizedBox(height: 24),
+                     const Text(
+                       'Management',
+                       style: TextStyle(
+                         fontSize: 20,
+                         fontWeight: FontWeight.bold,
+                       ),
+                     ),
                      const SizedBox(height: 12),
                      Row(
                        children: [
+                         Expanded(
+                           child: _buildActionCard(
+                             context,
+                             icon: Icons.inventory_2,
+                             title: 'Catalog',
+                             color: Colors.purple,
+                             onTap: () {
+                               Navigator.push(
+                                 context,
+                                 MaterialPageRoute(
+                                   builder: (context) => const SupplierCatalogMainScreen(),
+                                 ),
+                               );
+                             },
+                           ),
+                         ),
+                         const SizedBox(width: 12),
                          Expanded(
                            child: _buildActionCard(
                              context,
@@ -290,40 +292,36 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                              },
                            ),
                          ),
-                         const SizedBox(width: 12),
-                         Expanded(
-                           child: Container(), // Empty space for alignment
-                         ),
                        ],
                      ),
-                   ],
-                   // Staff Management (Owners only)
-                   if (userRole == UserRole.owner) ...[
-                     const SizedBox(height: 12),
-                     Row(
-                       children: [
-                         Expanded(
-                           child: _buildActionCard(
-                             context,
-                             icon: Icons.people,
-                             title: 'Staff Management',
-                             color: Colors.indigo,
-                             onTap: () {
-                               Navigator.push(
-                                 context,
-                                 MaterialPageRoute(
-                                   builder: (context) => const StaffManagementScreen(),
-                                 ),
-                               );
-                             },
+                     // Staff Management (Owners only)
+                     if (userRole == UserRole.owner) ...[
+                       const SizedBox(height: 12),
+                       Row(
+                         children: [
+                           Expanded(
+                             child: _buildActionCard(
+                               context,
+                               icon: Icons.people,
+                               title: 'Staff Management',
+                               color: Colors.indigo,
+                               onTap: () {
+                                 Navigator.push(
+                                   context,
+                                   MaterialPageRoute(
+                                     builder: (context) => const StaffManagementScreen(),
+                                   ),
+                                 );
+                               },
+                             ),
                            ),
-                         ),
-                         const SizedBox(width: 12),
-                         Expanded(
-                           child: Container(), // Empty space for alignment
-                         ),
-                       ],
-                     ),
+                           const SizedBox(width: 12),
+                           Expanded(
+                             child: Container(), // Empty space for alignment
+                           ),
+                         ],
+                       ),
+                     ],
                    ],
                   const SizedBox(height: 24),
 
