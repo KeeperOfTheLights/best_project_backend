@@ -45,13 +45,41 @@ class StaffProvider with ChangeNotifier {
     }
   }
 
-  // Add new staff member - creates a full login account
+  // Get unassigned users (available to be assigned as staff)
+  // Note: This should be stored in a separate list or handled by the screen
+  Future<List<StaffMember>> loadUnassignedUsers() async {
+    if (useMockApi) return [];  // Mock API doesn't have this
+    
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final users = await StaffService.getUnassignedUsers();
+      _isLoading = false;
+      notifyListeners();
+      return users;  // Return the list for the screen to use
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return [];
+    }
+  }
+
+  // Add new staff member
+  // For mock API: creates a full login account with email/name/password
+  // For real backend: assigns existing user to company with userId and role
   Future<bool> addStaff({
-    required String email,
-    required String name,
-    required String role,
-    required String password,
+    // For real backend
+    String? userId,
+    // For mock API
+    String? email,
+    String? name,
+    String? password,
     String? phone,
+    // Common
+    required String role,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -60,48 +88,19 @@ class StaffProvider with ChangeNotifier {
     try {
       final newStaff = useMockApi
           ? await MockStaffService.addStaff(
-              email: email,
-              name: name,
+              email: email ?? '',
+              name: name ?? '',
               role: role,
-              password: password,
+              password: password ?? '',
               phone: phone,
             )
           : await StaffService.addStaff(
-              email: email,
-              name: name,
+              userId: userId ?? '',
               role: role,
-              password: password,
-              phone: phone,
             );
 
       _staff.add(newStaff);
-      _isLoading = false;
-      notifyListeners();
-      return true;
-    } catch (e) {
-      _errorMessage = e.toString();
-      _isLoading = false;
-      notifyListeners();
-      return false;
-    }
-  }
-
-  // Update staff member
-  Future<bool> updateStaff(StaffMember staff) async {
-    _isLoading = true;
-    _errorMessage = null;
-    notifyListeners();
-
-    try {
-      final updatedStaff = useMockApi
-          ? await MockStaffService.updateStaff(staff)
-          : await StaffService.updateStaff(staff);
-
-      final index = _staff.indexWhere((s) => s.id == staff.id);
-      if (index != -1) {
-        _staff[index] = updatedStaff;
-      }
-
+      await loadStaff();  // Reload to get full staff list
       _isLoading = false;
       notifyListeners();
       return true;

@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import '../providers/chat_provider.dart';
 import '../providers/auth_provider.dart';
 import '../services/storage_service.dart';
+import '../utils/constants.dart';
 
 // ChatRoomScreen - shows conversation messages
 class ChatRoomScreen extends StatefulWidget {
@@ -55,9 +56,23 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     }
 
     final chatProvider = Provider.of<ChatProvider>(context, listen: false);
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final userRole = authProvider.user?.role ?? '';
+    
+    // Backend expects supplierId and optional consumerId
+    // chatRoomId is the partner ID
+    final supplierId = userRole == UserRole.consumer 
+        ? widget.chatRoomId  // Consumer sends to supplier
+        : null;  // Supplier needs to specify consumerId
+    
+    final consumerId = userRole != UserRole.consumer 
+        ? widget.chatRoomId  // Supplier sends to consumer
+        : null;
+    
     final success = await chatProvider.sendMessage(
-      chatRoomId: widget.chatRoomId,
+      supplierId: supplierId ?? widget.chatRoomId,  // Fallback to chatRoomId
       message: _messageController.text.trim(),
+      consumerId: consumerId,
     );
 
     if (success && mounted) {

@@ -23,11 +23,12 @@ class User {
   });
 
   // Convert JSON from backend to User object
+  // Backend uses 'full_name' but we use 'name' in the app
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id']?.toString() ?? '',
       email: json['email'] ?? '',
-      name: json['name'] ?? '',
+      name: json['name'] ?? json['full_name'] ?? '',  // Handle both formats
       role: json['role'] ?? '',
       businessName: json['business_name'],
       companyName: json['company_name'],

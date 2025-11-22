@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import '../models/complaint.dart';
 import '../services/complaint_service.dart';
 import '../services/mock_complaint_service.dart';
+import '../services/storage_service.dart';
 import '../utils/constants.dart';
 
 // ComplaintProvider - manages complaint state
@@ -46,9 +47,10 @@ class ComplaintProvider with ChangeNotifier {
     notifyListeners();
 
     try {
+      final userRole = StorageService.getUserRole() ?? '';
       final complaintsList = useMockApi
           ? await MockComplaintService.getComplaints()
-          : await ComplaintService.getComplaints();
+          : await ComplaintService.getComplaints(userRole: userRole);
 
       _complaints = complaintsList;
       _isLoading = false;
@@ -107,12 +109,8 @@ class ComplaintProvider with ChangeNotifier {
     }
   }
 
-  // Update complaint status (Supplier)
-  Future<bool> updateComplaintStatus({
-    required String complaintId,
-    required String status,
-    String? resolutionNote,
-  }) async {
+  // Resolve complaint (Supplier)
+  Future<bool> resolveComplaint(String complaintId) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -121,14 +119,9 @@ class ComplaintProvider with ChangeNotifier {
       final updatedComplaint = useMockApi
           ? await MockComplaintService.updateComplaintStatus(
               complaintId: complaintId,
-              status: status,
-              resolutionNote: resolutionNote,
+              status: 'resolved',
             )
-          : await ComplaintService.updateComplaintStatus(
-              complaintId: complaintId,
-              status: status,
-              resolutionNote: resolutionNote,
-            );
+          : await ComplaintService.resolveComplaint(complaintId);
 
       final index = _complaints.indexWhere((c) => c.id == complaintId);
       if (index != -1) {
@@ -146,33 +139,63 @@ class ComplaintProvider with ChangeNotifier {
     }
   }
 
-  // Get complaint details
-  Future<Complaint?> getComplaintDetails(String complaintId) async {
+  // Reject complaint (Supplier)
+  Future<bool> rejectComplaint(String complaintId) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final complaint = useMockApi
-          ? await MockComplaintService.getComplaintDetails(complaintId)
-          : await ComplaintService.getComplaintDetails(complaintId);
+      final updatedComplaint = useMockApi
+          ? await MockComplaintService.updateComplaintStatus(
+              complaintId: complaintId,
+              status: 'rejected',
+            )
+          : await ComplaintService.rejectComplaint(complaintId);
 
-      // Update in list if exists
       final index = _complaints.indexWhere((c) => c.id == complaintId);
       if (index != -1) {
-        _complaints[index] = complaint;
-      } else {
-        _complaints.add(complaint);
+        _complaints[index] = updatedComplaint;
       }
 
       _isLoading = false;
       notifyListeners();
-      return complaint;
+      return true;
     } catch (e) {
       _errorMessage = e.toString();
       _isLoading = false;
       notifyListeners();
-      return null;
+      return false;
+    }
+  }
+
+  // Escalate complaint (Supplier Sales -> Manager)
+  Future<bool> escalateComplaint(String complaintId) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final updatedComplaint = useMockApi
+          ? await MockComplaintService.updateComplaintStatus(
+              complaintId: complaintId,
+              status: 'escalated',
+            )
+          : await ComplaintService.escalateComplaint(complaintId);
+
+      final index = _complaints.indexWhere((c) => c.id == complaintId);
+      if (index != -1) {
+        _complaints[index] = updatedComplaint;
+      }
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
     }
   }
 

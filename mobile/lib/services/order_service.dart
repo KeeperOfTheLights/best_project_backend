@@ -19,7 +19,9 @@ class OrderService {
     return headers;
   }
 
-  // Create order from cart items
+  // Create order from cart items (checkout)
+  // Backend: POST /orders/checkout/ - uses cart items, doesn't take items in body
+  // Note: Backend automatically creates order from cart items, so we just call checkout
   static Future<Order> createOrder({
     required String supplierId,
     required List<CartItem> items,
@@ -28,18 +30,12 @@ class OrderService {
     String? comment,
   }) async {
     try {
-      final body = {
-        'supplier_id': supplierId,
-        'items': items.map((item) => item.toJson()).toList(),
-        'delivery_type': deliveryType,
-        'delivery_address': deliveryAddress,
-        'comment': comment,
-      };
-
+      // Backend checkout endpoint uses cart items from database, not from request body
+      // So we just call checkout without sending items
       final response = await http.post(
-        Uri.parse('$baseUrl${ApiEndpoints.createOrder}'),
+        Uri.parse('$baseUrl${ApiEndpoints.checkout}'),
         headers: _getHeaders(),
-        body: jsonEncode(body),
+        // Backend doesn't expect any body for checkout - it uses cart items from DB
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -47,7 +43,7 @@ class OrderService {
         return Order.fromJson(data);
       } else {
         final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Failed to create order');
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to create order');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
@@ -55,19 +51,25 @@ class OrderService {
   }
 
   // Get all orders for current user
-  static Future<List<Order>> getOrders() async {
+  // Backend: GET /orders/my/ (consumer) or GET /orders/supplier/ (supplier)
+  static Future<List<Order>> getOrders({required String userRole}) async {
     try {
+      final endpoint = userRole == UserRole.consumer 
+          ? ApiEndpoints.getMyOrders 
+          : ApiEndpoints.getSupplierOrders;
       final response = await http.get(
-        Uri.parse('$baseUrl${ApiEndpoints.getOrders}'),
+        Uri.parse('$baseUrl$endpoint'),
         headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final List<dynamic> ordersJson = data['orders'] ?? data;
+        // Backend returns array directly
+        final List<dynamic> ordersJson = data is List ? data : (data['orders'] ?? data['results'] ?? []);
         return ordersJson.map((json) => Order.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to get orders');
+        final error = jsonDecode(response.body);
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to get orders');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
@@ -75,10 +77,11 @@ class OrderService {
   }
 
   // Get order details
+  // Backend: GET /orders/{id}/
   static Future<Order> getOrderDetails(String orderId) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl${ApiEndpoints.getOrderDetails}/$orderId'),
+        Uri.parse('$baseUrl${ApiEndpoints.getOrderDetails}/$orderId/'),
         headers: _getHeaders(),
       );
 
@@ -86,7 +89,8 @@ class OrderService {
         final data = jsonDecode(response.body);
         return Order.fromJson(data);
       } else {
-        throw Exception('Failed to get order details');
+        final error = jsonDecode(response.body);
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to get order details');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
@@ -94,10 +98,11 @@ class OrderService {
   }
 
   // Accept order (Supplier only)
+  // Backend: POST /orders/{id}/accept/
   static Future<Order> acceptOrder(String orderId) async {
     try {
-      final response = await http.put(
-        Uri.parse('$baseUrl${ApiEndpoints.acceptOrder}/$orderId/accept'),
+      final response = await http.post(
+        Uri.parse('$baseUrl${ApiEndpoints.acceptOrder}/$orderId/accept/'),
         headers: _getHeaders(),
       );
 
@@ -106,7 +111,7 @@ class OrderService {
         return Order.fromJson(data);
       } else {
         final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Failed to accept order');
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to accept order');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
@@ -114,12 +119,13 @@ class OrderService {
   }
 
   // Reject order (Supplier only)
+  // Backend: POST /orders/{id}/reject/
   static Future<Order> rejectOrder(String orderId, {String? reason}) async {
     try {
-      final response = await http.put(
-        Uri.parse('$baseUrl${ApiEndpoints.rejectOrder}/$orderId/reject'),
+      final response = await http.post(
+        Uri.parse('$baseUrl${ApiEndpoints.rejectOrder}/$orderId/reject/'),
         headers: _getHeaders(),
-        body: jsonEncode({'rejection_reason': reason}),
+        body: reason != null ? jsonEncode({'rejection_reason': reason}) : null,
       );
 
       if (response.statusCode == 200) {
@@ -127,20 +133,20 @@ class OrderService {
         return Order.fromJson(data);
       } else {
         final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Failed to reject order');
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to reject order');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
     }
   }
 
-  // Update order status (Supplier only)
-  static Future<Order> updateOrderStatus(String orderId, String status) async {
+  // Deliver order (Supplier only) - update status to delivered
+  // Backend: POST /orders/{id}/deliver/
+  static Future<Order> deliverOrder(String orderId) async {
     try {
-      final response = await http.put(
-        Uri.parse('$baseUrl${ApiEndpoints.updateOrderStatus}/$orderId/status'),
+      final response = await http.post(
+        Uri.parse('$baseUrl${ApiEndpoints.deliverOrder}/$orderId/deliver/'),
         headers: _getHeaders(),
-        body: jsonEncode({'status': status}),
       );
 
       if (response.statusCode == 200) {
@@ -148,12 +154,15 @@ class OrderService {
         return Order.fromJson(data);
       } else {
         final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Failed to update order status');
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to deliver order');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
     }
   }
+
+  // Note: Backend doesn't have a generic updateOrderStatus endpoint
+  // Use deliverOrder() instead for changing status to delivered
 }
 
 

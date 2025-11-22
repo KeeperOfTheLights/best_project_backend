@@ -154,6 +154,24 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
 
                 final staffProvider =
                     Provider.of<StaffProvider>(context, listen: false);
+                
+                // For real backend, we need userId (user must register first)
+                // Show message and return early
+                if (!useMockApi) {
+                  if (mounted) {
+                    Navigator.pop(context);
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(
+                        content: Text('To add staff: User must register first, then select them from "Unassigned Users" to assign to your company. Use the "Load Unassigned Users" button to see available users.'),
+                        backgroundColor: Colors.orange,
+                        duration: Duration(seconds: 6),
+                      ),
+                    );
+                  }
+                  return;
+                }
+                
+                // Mock API: create staff with email/name/password
                 final success = await staffProvider.addStaff(
                   email: emailController.text.trim(),
                   name: nameController.text.trim(),

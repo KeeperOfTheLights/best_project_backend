@@ -461,9 +461,40 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
     String orderId,
     String status,
   ) async {
-    final success = await provider.updateOrderStatus(orderId, status);
+    bool success = false;
+    
+    // Backend only has deliverOrder endpoint for marking as delivered/completed
+    if (status == OrderStatus.completed) {
+      success = await provider.deliverOrder(orderId);
+    } else if (status == OrderStatus.inDelivery) {
+      // Backend doesn't have a specific "inDelivery" status endpoint
+      // For now, we'll use deliverOrder or show a message
+      // You might need to add this endpoint to backend or handle differently
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Marking as in delivery is not yet supported. Use "Mark as Completed" instead.'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    } else {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('This status update is not supported'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
+    
     if (mounted) {
       if (success) {
+        // Reload orders to get updated status
+        await provider.loadOrders();
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Order status updated'),

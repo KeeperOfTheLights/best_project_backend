@@ -20,19 +20,26 @@ class LinkRequestService {
   }
 
   // Search suppliers by name
+  // Backend: GET /suppliers/ - returns all suppliers (no search query param, need to filter client-side or use /search/)
   static Future<List<Supplier>> searchSuppliers(String query) async {
     try {
+      // Backend has /search/ endpoint - use that if query provided, otherwise use /suppliers/
+      final endpoint = query.isNotEmpty 
+          ? '${ApiEndpoints.globalSearch}?q=$query'  // Backend: /search/
+          : ApiEndpoints.searchSuppliers;  // Backend: /suppliers/
       final response = await http.get(
-        Uri.parse('$baseUrl${ApiEndpoints.searchSuppliers}?q=$query'),
+        Uri.parse('$baseUrl$endpoint'),
         headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final List<dynamic> suppliersJson = data['suppliers'] ?? data;
+        // Backend returns array directly or wrapped in 'suppliers'
+        final List<dynamic> suppliersJson = data is List ? data : (data['suppliers'] ?? data['results'] ?? []);
         return suppliersJson.map((json) => Supplier.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to search suppliers');
+        final error = jsonDecode(response.body);
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to search suppliers');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
@@ -40,6 +47,7 @@ class LinkRequestService {
   }
 
   // Send link request to a supplier
+  // Backend: POST /link/send/ with {"supplier_id": ...}
   static Future<LinkRequest> sendLinkRequest(String supplierId) async {
     try {
       final response = await http.post(
@@ -52,10 +60,11 @@ class LinkRequestService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
+        // Backend returns minimal data, might need to fetch full request
         return LinkRequest.fromJson(data);
       } else {
         final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Failed to send link request');
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to send link request');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
@@ -63,19 +72,26 @@ class LinkRequestService {
   }
 
   // Get all link requests for current user (Consumer or Supplier)
-  static Future<List<LinkRequest>> getLinkRequests() async {
+  // Backend: GET /consumer/links/ (for consumer) or GET /links/ (for supplier)
+  static Future<List<LinkRequest>> getLinkRequests({required String userRole}) async {
     try {
+      // Use different endpoint based on role
+      final endpoint = userRole == UserRole.consumer 
+          ? ApiEndpoints.getConsumerLinkRequests 
+          : ApiEndpoints.getSupplierLinkRequests;
       final response = await http.get(
-        Uri.parse('$baseUrl${ApiEndpoints.getLinkRequests}'),
+        Uri.parse('$baseUrl$endpoint'),
         headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final List<dynamic> requestsJson = data['link_requests'] ?? data;
+        // Backend returns array directly
+        final List<dynamic> requestsJson = data is List ? data : (data['link_requests'] ?? data['results'] ?? []);
         return requestsJson.map((json) => LinkRequest.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to get link requests');
+        final error = jsonDecode(response.body);
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to get link requests');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
@@ -83,10 +99,11 @@ class LinkRequestService {
   }
 
   // Approve a link request (Supplier only)
+  // Backend: PUT /link/{id}/accept/
   static Future<LinkRequest> approveLinkRequest(String requestId) async {
     try {
       final response = await http.put(
-        Uri.parse('$baseUrl${ApiEndpoints.approveLinkRequest}/$requestId/approve'),
+        Uri.parse('$baseUrl${ApiEndpoints.acceptLinkRequest}/$requestId/accept/'),
         headers: _getHeaders(),
       );
 
@@ -95,7 +112,7 @@ class LinkRequestService {
         return LinkRequest.fromJson(data);
       } else {
         final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Failed to approve link request');
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to approve link request');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
@@ -103,14 +120,15 @@ class LinkRequestService {
   }
 
   // Reject a link request (Supplier only)
+  // Backend: PUT /link/{id}/reject/
   static Future<LinkRequest> rejectLinkRequest(String requestId, {String? reason}) async {
     try {
       final response = await http.put(
-        Uri.parse('$baseUrl${ApiEndpoints.rejectLinkRequest}/$requestId/reject'),
+        Uri.parse('$baseUrl${ApiEndpoints.rejectLinkRequest}/$requestId/reject/'),
         headers: _getHeaders(),
-        body: jsonEncode({
+        body: reason != null ? jsonEncode({
           'rejection_reason': reason,
-        }),
+        }) : null,
       );
 
       if (response.statusCode == 200) {
@@ -118,7 +136,7 @@ class LinkRequestService {
         return LinkRequest.fromJson(data);
       } else {
         final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Failed to reject link request');
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to reject link request');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');

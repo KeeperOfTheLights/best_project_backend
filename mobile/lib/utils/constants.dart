@@ -3,58 +3,71 @@
 // ============================================
 // MOCK MODE - Set to true to test without backend
 // ============================================
-const bool useMockApi = true; // Change to false when you have real backend
+const bool useMockApi = false; // Changed to false to use real backend
 
 // Base URL for your backend API
-// TODO: Replace with your actual backend URL when useMockApi is false
-const String baseUrl = 'http://your-backend-url.com/api';
+// Backend is mounted at /api/accounts/ in main urls.py
+// For local development, use: http://localhost:8000/api/accounts
+// For network testing, use your computer's IP: http://192.168.1.XXX:8000/api/accounts
+// For Android emulator, use: http://10.0.2.2:8000/api/accounts
+const String baseUrl = 'http://127.0.0.1:8000/api/accounts';
 
-// API endpoints
+// API endpoints - mapped to actual backend endpoints
 class ApiEndpoints {
   // Auth
-  static const String login = '/auth/login';
-  static const String signup = '/auth/signup';
-  static const String logout = '/auth/logout';
+  static const String login = '/login/';  // Backend: /api/accounts/login/
+  static const String signup = '/register/';  // Backend: /api/accounts/register/
   
   // Link Requests
-  static const String searchSuppliers = '/suppliers/search';
-  static const String sendLinkRequest = '/link-requests';
-  static const String getLinkRequests = '/link-requests';
-  static const String approveLinkRequest = '/link-requests';
-  static const String rejectLinkRequest = '/link-requests';
+  static const String searchSuppliers = '/suppliers/';  // GET - All suppliers for consumer
+  static const String globalSearch = '/search/';  // GET - Global search endpoint
+  static const String sendLinkRequest = '/link/send/';  // POST - Send link request
+  static const String getSupplierLinkRequests = '/links/';  // GET - Supplier's link requests
+  static const String getConsumerLinkRequests = '/consumer/links/';  // GET - Consumer's link requests
+  static const String acceptLinkRequest = '/link';  // PUT /link/{id}/accept/
+  static const String rejectLinkRequest = '/link';  // PUT /link/{id}/reject/
+  static const String unlink = '/link';  // DELETE /link/{id}/
   
-  // Catalog
-  static const String getCatalog = '/catalog';
-  static const String getCatalogBySupplier = '/catalog/supplier';
-  static const String createCatalogItem = '/catalog';
-  static const String updateCatalogItem = '/catalog';
-  static const String deleteCatalogItem = '/catalog';
+  // Catalog (Products)
+  static const String getMyProducts = '/products/';  // GET - Supplier's own products
+  static const String createProduct = '/products/';  // POST - Create product
+  static const String updateProduct = '/products';  // PUT /products/{id}/
+  static const String deleteProduct = '/products';  // DELETE /products/{id}/
+  static const String getCatalogBySupplier = '/supplier';  // GET /supplier/{id}/catalog/
+  static const String toggleProductStatus = '/products';  // PATCH /products/{id}/status/
+  
+  // Cart
+  static const String addToCart = '/cart/add/';  // POST
+  static const String getCart = '/cart/';  // GET
+  static const String updateCartItem = '/cart';  // PUT /cart/{id}/
+  static const String deleteCartItem = '/cart';  // DELETE /cart/{id}/
   
   // Orders
-  static const String createOrder = '/orders';
-  static const String getOrders = '/orders';
-  static const String getOrderDetails = '/orders';
-  static const String acceptOrder = '/orders';
-  static const String rejectOrder = '/orders';
-  static const String updateOrderStatus = '/orders';
+  static const String checkout = '/orders/checkout/';  // POST - Create order from cart
+  static const String getMyOrders = '/orders/my/';  // GET - Consumer's orders
+  static const String getSupplierOrders = '/orders/supplier/';  // GET - Supplier's orders
+  static const String getOrderDetails = '/orders';  // GET /orders/{id}/
+  static const String acceptOrder = '/orders';  // POST /orders/{id}/accept/
+  static const String rejectOrder = '/orders';  // POST /orders/{id}/reject/
+  static const String deliverOrder = '/orders';  // POST /orders/{id}/deliver/
   
   // Chat
-  static const String getChatRooms = '/chat/rooms';
-  static const String getChatMessages = '/chat/messages';
-  static const String sendMessage = '/chat/messages';
-  static const String createChatRoom = '/chat/rooms';
+  static const String getChatHistory = '/chat';  // GET /chat/{partner_id}/
+  static const String sendMessage = '/chat';  // POST /chat/{supplier_id}/send/
   
   // Staff Management
-  static const String getStaff = '/staff';
-  static const String addStaff = '/staff';
-  static const String updateStaff = '/staff';
-  static const String removeStaff = '/staff';
+  static const String getCompanyEmployees = '/company/employees/';  // GET
+  static const String getUnassignedUsers = '/company/unassigned/';  // GET
+  static const String assignEmployee = '/company/assign/';  // POST
+  static const String removeEmployee = '/company/remove/';  // POST
   
   // Complaints
-  static const String createComplaint = '/complaints';
-  static const String getComplaints = '/complaints';
-  static const String getComplaintDetails = '/complaints';
-  static const String updateComplaintStatus = '/complaints';
+  static const String createComplaint = '/complaints';  // POST /complaints/{order_id}/create/
+  static const String getMyComplaints = '/complaints/my/';  // GET - Consumer complaints
+  static const String getSupplierComplaints = '/complaints/supplier/';  // GET - Supplier complaints
+  static const String resolveComplaint = '/complaints';  // POST /complaints/{id}/resolve/
+  static const String rejectComplaint = '/complaints';  // POST /complaints/{id}/reject/
+  static const String escalateComplaint = '/complaints';  // POST /complaints/{id}/escalate/
 }
 
 // Storage keys - keys used to save data in local storage

@@ -165,14 +165,33 @@ class _ComplaintsManagementScreenState
     final complaintProvider =
         Provider.of<ComplaintProvider>(context, listen: false);
 
-    final success = await complaintProvider.updateComplaintStatus(
-      complaintId: complaintId,
-      status: status,
-      resolutionNote: resolutionNote,
-    );
+    bool success = false;
+    
+    // Use appropriate method based on status
+    if (status == ComplaintStatus.resolved) {
+      success = await complaintProvider.resolveComplaint(complaintId);
+    } else if (status == ComplaintStatus.rejected) {
+      success = await complaintProvider.rejectComplaint(complaintId);
+    } else if (status == ComplaintStatus.escalated) {
+      success = await complaintProvider.escalateComplaint(complaintId);
+    } else {
+      // For inProgress or other statuses, we might not have backend support
+      // For now, just show error
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('This status update is not supported'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      }
+      return;
+    }
 
     if (mounted) {
       if (success) {
+        // Reload complaints to get updated status
+        await complaintProvider.loadComplaints();
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text('Complaint status updated to ${_formatStatus(status)}'),
