@@ -106,7 +106,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Colors.grey[800],
                       child: Text(
                         otherPartyName[0].toUpperCase(),
                         style: const TextStyle(color: Colors.white),

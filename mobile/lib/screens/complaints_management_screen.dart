@@ -84,7 +84,7 @@ class _ComplaintsManagementScreenState
                   ComplaintStatus.inProgress,
                 );
               },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+              style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[800]),
               child: const Text('Mark In Progress'),
             ),
           if (canResolve)
@@ -418,7 +418,7 @@ class _ComplaintsManagementScreenState
                     }
                   },
                   tooltip: 'Message Consumer',
-                  color: Colors.blue,
+                  color: Colors.grey[700],
                 ),
                 IconButton(
                   icon: const Icon(Icons.visibility),
@@ -452,7 +452,7 @@ class _ComplaintsManagementScreenState
       case ComplaintStatus.pending:
         return Colors.orange;
       case ComplaintStatus.inProgress:
-        return Colors.blue;
+        return Colors.grey[700]!;
       case ComplaintStatus.resolved:
         return Colors.green;
       case ComplaintStatus.escalated:

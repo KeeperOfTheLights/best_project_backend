@@ -165,7 +165,7 @@ class _SupplierCatalogMainScreenState
                               });
                             },
                             tooltip: 'Edit Products',
-                            color: Colors.blue,
+                            color: Colors.grey[700],
                           ),
                         IconButton(
                           icon: const Icon(Icons.visibility),

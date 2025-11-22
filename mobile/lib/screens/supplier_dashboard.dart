@@ -5,6 +5,7 @@ import '../providers/link_request_provider.dart';
 import '../providers/complaint_provider.dart';
 import '../models/complaint.dart';
 import '../utils/constants.dart';
+import '../widgets/dv_logo.dart';
 import 'manage_link_requests_screen.dart';
 import 'orders_screen.dart';
 import 'chat_list_screen.dart';
@@ -41,7 +42,14 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Supplier Dashboard'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const DVLogo(size: 32),
+            const SizedBox(width: 8),
+            const Text('Supplier Dashboard'),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -95,7 +103,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                                   userRole.toUpperCase(),
                                   style: const TextStyle(fontSize: 12),
                                 ),
-                                backgroundColor: Colors.blue.shade100,
+                                backgroundColor: Colors.grey[200],
                               ),
                             ),
                         ],
@@ -120,7 +128,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                         child: _buildStatCard(
                           'New Orders',
                           '0', // TODO: Get from orders provider
-                          Colors.blue,
+                          Colors.grey[700]!,
                           Icons.shopping_cart,
                         ),
                       ),
@@ -139,10 +147,10 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                                     c.status == ComplaintStatus.inProgress)
                                 .length;
                             return _buildStatCard(
-                              'Open Complaints',
+                          'Open Complaints',
                               openComplaints.toString(),
-                              Colors.red,
-                              Icons.report_problem,
+                          Colors.red,
+                          Icons.report_problem,
                             );
                           },
                         ),
@@ -210,22 +218,22 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                   const SizedBox(height: 12),
                   Row(
                     children: [
-                      Expanded(
-                        child: _buildActionCard(
-                          context,
-                          icon: Icons.chat,
-                          title: 'Chats',
-                          color: Colors.purple,
-                          onTap: () {
-                            Navigator.push(
+                          Expanded(
+                            child: _buildActionCard(
                               context,
-                              MaterialPageRoute(
-                                builder: (context) => const ChatListScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
+                              icon: Icons.chat,
+                              title: 'Chats',
+                              color: Colors.purple,
+                              onTap: () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const ChatListScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
                       const SizedBox(width: 12),
                       Expanded(
                         child: _buildActionCard(

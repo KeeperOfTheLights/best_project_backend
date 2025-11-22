@@ -129,7 +129,7 @@ class MockApiService {
     );
 
     final emailKey = email.toLowerCase();
-    
+
     // Save user to mock database
     _mockUsers[emailKey] = newUser;
     

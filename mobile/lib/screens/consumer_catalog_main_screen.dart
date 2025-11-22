@@ -101,7 +101,7 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Colors.grey[800],
                       child: Text(
                         link.supplier?.companyName[0].toUpperCase() ?? 'S',
                         style: const TextStyle(color: Colors.white),

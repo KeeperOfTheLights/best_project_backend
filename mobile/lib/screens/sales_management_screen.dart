@@ -289,8 +289,8 @@ class _SalesManagementScreenState extends State<SalesManagementScreen> {
                 return Card(
                   margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                   child: ListTile(
-                    leading: const CircleAvatar(
-                      backgroundColor: Colors.blue,
+                    leading: CircleAvatar(
+                      backgroundColor: Colors.grey[800],
                       child: Icon(Icons.business, color: Colors.white),
                     ),
                     title: Text(
@@ -342,4 +342,5 @@ class _SalesManagementScreenState extends State<SalesManagementScreen> {
     );
   }
 }
+
 

@@ -4,6 +4,7 @@ import '../providers/auth_provider.dart';
 import '../providers/link_request_provider.dart';
 import '../providers/cart_provider.dart';
 import '../providers/chat_provider.dart';
+import '../widgets/dv_logo.dart';
 import 'search_suppliers_screen.dart';
 import 'manage_links_screen.dart';
 import 'consumer_catalog_screen.dart';
@@ -39,7 +40,14 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Consumer Dashboard'),
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            const DVLogo(size: 32),
+            const SizedBox(width: 8),
+            const Text('Consumer Dashboard'),
+          ],
+        ),
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
@@ -170,7 +178,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                           context,
                           icon: Icons.search,
                           title: 'Search Suppliers',
-                          color: Colors.blue,
+                          color: Colors.grey[700]!,
                           onTap: () {
                             Navigator.push(
                               context,
@@ -271,12 +279,12 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                   // Show message if no approved suppliers
                   if (approvedLinks.isEmpty && pendingLinks.isEmpty)
                     Card(
-                      color: Colors.blue.shade50,
+                      color: Colors.grey[100],
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
                         child: Row(
                           children: [
-                            const Icon(Icons.info_outline, color: Colors.blue),
+                            Icon(Icons.info_outline, color: Colors.grey[700]),
                             const SizedBox(width: 12),
                             Expanded(
                               child: Column(

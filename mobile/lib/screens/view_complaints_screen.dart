@@ -163,7 +163,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
       case ComplaintStatus.pending:
         return Colors.orange;
       case ComplaintStatus.inProgress:
-        return Colors.blue;
+        return Colors.grey[700]!;
       case ComplaintStatus.resolved:
         return Colors.green;
       case ComplaintStatus.escalated:

@@ -254,8 +254,8 @@ class MockStaffService {
           throw Exception('Staff member not found');
         }
       } else {
-        throw Exception('Staff member not found');
-      }
+      throw Exception('Staff member not found');
+    }
     }
     
     // Delete the login account so they can't login anymore

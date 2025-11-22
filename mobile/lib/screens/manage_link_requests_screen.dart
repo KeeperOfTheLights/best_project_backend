@@ -211,9 +211,9 @@ class _ManageLinkRequestsScreenState extends State<ManageLinkRequestsScreen> {
                                   if (request.consumer?.businessName != null)
                                     Text(
                                       request.consumer!.businessName!,
-                                      style: const TextStyle(
+                                      style: TextStyle(
                                         fontSize: 14,
-                                        color: Colors.blue,
+                                        color: Colors.grey[700],
                                         fontWeight: FontWeight.w500,
                                       ),
                                     ),

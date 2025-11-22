@@ -137,7 +137,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                           vertical: 8,
                         ),
                         decoration: BoxDecoration(
-                          color: isMe ? Colors.blue : Colors.grey[300],
+                          color: isMe ? Colors.grey[700]! : Colors.grey[300]!,
                           borderRadius: BorderRadius.circular(16),
                         ),
                         constraints: BoxConstraints(
@@ -207,7 +207,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                 IconButton(
                   icon: const Icon(Icons.send),
                   onPressed: _sendMessage,
-                  color: Colors.blue,
+                  color: Colors.grey[800],
                 ),
               ],
             ),

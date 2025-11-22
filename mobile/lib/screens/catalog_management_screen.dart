@@ -513,7 +513,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: const Icon(Icons.edit, color: Colors.blue),
+                          icon: Icon(Icons.edit, color: Colors.grey[700]),
                           onPressed: () => _showEditProductDialog(item),
                           tooltip: 'Edit',
                         ),

@@ -113,7 +113,7 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                 children: [
                   // Order info card
                   Card(
-                    color: Colors.blue.shade50,
+                    color: Colors.grey[100],
                     child: Padding(
                       padding: const EdgeInsets.all(16),
                       child: Column(
@@ -333,7 +333,7 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                                 icon: const Icon(Icons.image),
                                 label: const Text('Add Photo'),
                                 style: ElevatedButton.styleFrom(
-                                  backgroundColor: Colors.blue,
+                                  backgroundColor: Colors.grey[800],
                                   foregroundColor: Colors.white,
                                 ),
                               ),

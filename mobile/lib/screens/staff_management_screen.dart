@@ -64,20 +64,20 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
           title: const Text('Add Staff Member'),
           content: SingleChildScrollView(
             child: Column(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextField(
-                  controller: nameController,
-                  decoration: const InputDecoration(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
                     labelText: 'Full Name *',
-                    border: OutlineInputBorder(),
-                  ),
+                  border: OutlineInputBorder(),
                 ),
-                const SizedBox(height: 16),
-                TextField(
-                  controller: emailController,
-                  keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
+              ),
+              const SizedBox(height: 16),
+              TextField(
+                controller: emailController,
+                keyboardType: TextInputType.emailAddress,
+                decoration: const InputDecoration(
                     labelText: 'Email *',
                     border: OutlineInputBorder(),
                   ),
@@ -98,29 +98,29 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
                   keyboardType: TextInputType.phone,
                   decoration: const InputDecoration(
                     labelText: 'Phone Number',
-                    border: OutlineInputBorder(),
-                  ),
+                  border: OutlineInputBorder(),
                 ),
-                const SizedBox(height: 16),
-                DropdownButtonFormField<String>(
-                  value: selectedRole,
-                  decoration: const InputDecoration(
+              ),
+              const SizedBox(height: 16),
+              DropdownButtonFormField<String>(
+                value: selectedRole,
+                decoration: const InputDecoration(
                     labelText: 'Role *',
-                    border: OutlineInputBorder(),
-                  ),
-                  items: availableRoles.map((role) {
-                    return DropdownMenuItem(
-                      value: role,
-                      child: Text(role.toUpperCase()),
-                    );
-                  }).toList(),
-                  onChanged: (value) {
-                    setDialogState(() {
-                      selectedRole = value!;
-                    });
-                  },
+                  border: OutlineInputBorder(),
                 ),
-              ],
+                items: availableRoles.map((role) {
+                  return DropdownMenuItem(
+                    value: role,
+                    child: Text(role.toUpperCase()),
+                  );
+                }).toList(),
+                onChanged: (value) {
+                  setDialogState(() {
+                    selectedRole = value!;
+                  });
+                },
+              ),
+            ],
             ),
           ),
           actions: [
@@ -391,7 +391,7 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
       case UserRole.owner:
         return Colors.purple;
       case UserRole.manager:
-        return Colors.blue;
+        return Colors.grey[700]!;
       case UserRole.sales:
         return Colors.green;
       default:

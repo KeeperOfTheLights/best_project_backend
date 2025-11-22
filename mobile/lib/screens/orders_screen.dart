@@ -131,7 +131,7 @@ class OrdersScreen extends StatelessWidget {
         icon = Icons.pending;
         break;
       case OrderStatus.accepted:
-        color = Colors.blue;
+        color = Colors.grey[700]!;
         icon = Icons.check_circle;
         break;
       case OrderStatus.rejected:

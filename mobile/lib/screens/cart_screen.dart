@@ -71,7 +71,7 @@ class CartScreen extends StatelessWidget {
                             padding: const EdgeInsets.all(16),
                             child: Row(
                               children: [
-                                const Icon(Icons.business, color: Colors.blue),
+                                Icon(Icons.business, color: Colors.grey[700]),
                                 const SizedBox(width: 8),
                                 Expanded(
                                   child: Text(

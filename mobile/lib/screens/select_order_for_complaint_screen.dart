@@ -98,7 +98,7 @@ class _SelectOrderForComplaintScreenState
                   margin: const EdgeInsets.only(bottom: 12),
                   child: ListTile(
                     leading: CircleAvatar(
-                      backgroundColor: Colors.blue,
+                      backgroundColor: Colors.grey[800],
                       child: Text(
                         '${index + 1}',
                         style: const TextStyle(color: Colors.white),

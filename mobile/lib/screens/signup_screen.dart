@@ -416,7 +416,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           authProvider.isLoading ? null : _handleSignUp,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Colors.blue,
+                        backgroundColor: Colors.grey[800],
                         foregroundColor: Colors.white,
                       ),
                       child: authProvider.isLoading

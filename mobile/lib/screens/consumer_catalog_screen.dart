@@ -227,23 +227,23 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                                         ),
                                       ),
                                       if (!widget.isSupplierView) ...[
-                                        const SizedBox(height: 4),
-                                        SizedBox(
-                                          height: 32,
-                                          child: ElevatedButton.icon(
-                                            onPressed: item.isActive && item.stockQuantity > 0
-                                                ? () => _addToCart(item)
-                                                : null,
-                                            icon: const Icon(Icons.add_shopping_cart, size: 14),
-                                            label: const Text('Add', style: TextStyle(fontSize: 12)),
-                                            style: ElevatedButton.styleFrom(
-                                              padding: const EdgeInsets.symmetric(
-                                                horizontal: 8,
-                                                vertical: 4,
-                                              ),
+                                      const SizedBox(height: 4),
+                                      SizedBox(
+                                        height: 32,
+                                        child: ElevatedButton.icon(
+                                          onPressed: item.isActive && item.stockQuantity > 0
+                                              ? () => _addToCart(item)
+                                              : null,
+                                          icon: const Icon(Icons.add_shopping_cart, size: 14),
+                                          label: const Text('Add', style: TextStyle(fontSize: 12)),
+                                          style: ElevatedButton.styleFrom(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 8,
+                                              vertical: 4,
                                             ),
                                           ),
                                         ),
+                                      ),
                                       ],
                                     ],
                                   ),

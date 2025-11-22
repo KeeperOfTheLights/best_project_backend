@@ -71,10 +71,10 @@ class MyApp extends StatelessWidget {
                 ),
               ],
       child: MaterialApp(
-        title: 'Supplier-Consumer Platform',
+        title: 'DV',
         debugShowCheckedModeBanner: false,
         theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+          colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
           useMaterial3: true,
         ),
         // Home is determined by AuthWrapper which checks if user is logged in

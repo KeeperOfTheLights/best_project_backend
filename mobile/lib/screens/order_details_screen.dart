@@ -325,7 +325,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
       case OrderStatus.pending:
         return Colors.orange;
       case OrderStatus.accepted:
-        return Colors.blue;
+        return Colors.grey[700]!;
       case OrderStatus.rejected:
         return Colors.red;
       case OrderStatus.inDelivery:

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../widgets/dv_logo.dart';
 import 'signup_screen.dart';
 
 // LoginScreen - the screen where users enter email and password to login
@@ -55,6 +56,11 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Calculate adaptive logo size based on screen width
+    final screenWidth = MediaQuery.of(context).size.width;
+    final logoSize = screenWidth * 0.25; // 25% of screen width, max 80px, min 60px
+    final adaptiveLogoSize = logoSize.clamp(60.0, 80.0);
+    
     return Scaffold(
       body: SafeArea(
         child: Center(
@@ -67,17 +73,14 @@ class _LoginScreenState extends State<LoginScreen> {
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
                   // App Logo/Title
-                  const Icon(
-                    Icons.shopping_cart,
-                    size: 80,
-                    color: Colors.blue,
-                  ),
+                  DVLogo(size: adaptiveLogoSize),
                   const SizedBox(height: 16),
                   const Text(
-                    'Supplier-Consumer Platform',
+                    'Supplier Consumer Platform',
                     style: TextStyle(
                       fontSize: 24,
                       fontWeight: FontWeight.bold,
+                      color: Colors.grey,
                     ),
                     textAlign: TextAlign.center,
                   ),
@@ -143,7 +146,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         onPressed: authProvider.isLoading ? null : _handleLogin,
                         style: ElevatedButton.styleFrom(
                           padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Colors.blue,
+                          backgroundColor: Colors.grey[800],
                           foregroundColor: Colors.white,
                         ),
                         child: authProvider.isLoading
