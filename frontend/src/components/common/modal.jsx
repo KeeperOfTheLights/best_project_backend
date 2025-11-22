@@ -10,7 +10,7 @@ export default function Modal({ show, title, text, onConfirm, onCancel, children
         <div className="modal-header">
           <h2 className="modal-title">{title}</h2>
           <button className="modal-close-btn" onClick={onCancel}>
-            ×
+            x
           </button>
         </div>
 

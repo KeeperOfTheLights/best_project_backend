@@ -6,7 +6,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #fbe5e5;
+  background-color: #f6dede;
   color: rgb(0, 0, 0);
   padding: 0.75rem 1rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
@@ -56,7 +56,7 @@
 
 .inter-btn:hover,
 .inter-btn:focus {
-  color: rgb(154, 152, 152);
+  color: rgb(153, 151, 151);
 }
 
 .nav-btn {
@@ -76,16 +76,16 @@
 
 .login-btn:hover {
   background-color: white;
-  color: #20232a;
+  color: #242730;
 }
 
 .signup-btn {
-  background-color: #61dafb;
-  color: #20232a;
+  background-color: #5fd5f5;
+  color: #242830;
 }
 
 .signup-btn:hover {
-  background-color: #4fcbe4;
+  background-color: #52cfe8;
 }
 
 .search-input {
@@ -93,7 +93,7 @@
   max-width: 300px;
   padding: 0.5rem 1rem;
   border-radius: 8px;
-  border: 1px solid #555;
+  border: 1px solid #5c5a5a;
   background-color: #b9b9b9;
   color: rgb(0, 0, 0);
   font-size: 1rem;
@@ -102,8 +102,8 @@
 }
 
 .search-input:focus {
-  border-color: #61dafb;
-  background-color: #bfc0c0;
+  border-color: #5ed3f3;
+  background-color: #c2c4c4;
 }
 
 .dropdown {
@@ -123,12 +123,12 @@
 }
 
 .dropdown-toggle:hover {
-  color: rgb(154, 152, 152);
+  color: rgb(155, 152, 152);
 }
 
 .dropdown-menu {
   position: absolute;
-  background-color: #2c2f36;
+  background-color: #32353d;
   min-width: 180px;
   box-shadow: 0px 4px 8px rgba(0, 0, 0, 0.3);
   border-radius: 8px;
@@ -164,7 +164,7 @@
 }
 
 .dropdown-menu a:hover {
-  background-color: #3a3f48;
+  background-color: #3b414b;
 }
 
 @media (max-width: 768px) {

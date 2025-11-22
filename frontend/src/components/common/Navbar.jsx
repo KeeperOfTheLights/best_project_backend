@@ -65,7 +65,7 @@ export default function Navbar() {
               >
                 <input
                   type="text"
-                  placeholder="Companies, cafes, products..."
+                  placeholder="Suppliers, managers, sr?..."
                   className="search-input"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
