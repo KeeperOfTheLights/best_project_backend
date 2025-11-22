@@ -27,7 +27,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 1.5rem 2rem;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid #e1e3e8;
   position: sticky;
   top: 0;
   background: white;
@@ -36,7 +36,7 @@
 
 .order-detail-modal-header h2 {
   margin: 0;
-  color: #20232a;
+  color: #23262d;
   font-size: 1.5rem;
   font-weight: 700;
 }
@@ -45,7 +45,7 @@
   background: none;
   border: none;
   font-size: 2rem;
-  color: #666;
+  color: #6b6969;
   cursor: pointer;
   padding: 0;
   width: 32px;
@@ -58,8 +58,8 @@
 }
 
 .order-detail-modal-close:hover {
-  background-color: #f3f4f6;
-  color: #20232a;
+  background-color: #f4f5f6;
+  color: #262931;
 }
 
 .order-detail-modal-content {
@@ -70,18 +70,18 @@
 .order-detail-error {
   text-align: center;
   padding: 3rem;
-  color: #666;
+  color: #696868;
 }
 
 .order-detail-error {
-  color: #dc2626;
+  color: #de2727;
 }
 
 .order-detail-error button {
   margin-top: 1rem;
   padding: 0.5rem 1rem;
-  background-color: #61dafb;
-  color: #20232a;
+  background-color: #5dd4f5;
+  color: #252830;
   border: none;
   border-radius: 6px;
   cursor: pointer;
@@ -89,7 +89,7 @@
 }
 
 .order-detail-error button:hover {
-  background-color: #4fcbe4;
+  background-color: #4bc4dc;
 }
 
 .order-detail-section {
@@ -102,11 +102,11 @@
 
 .order-detail-section-title {
   margin: 0 0 1rem 0;
-  color: #20232a;
+  color: #22252d;
   font-size: 1.2rem;
   font-weight: 600;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid #e5e7eb;
+  border-bottom: 2px solid #dee1e5;
 }
 
 .order-detail-row {
@@ -114,7 +114,7 @@
   justify-content: space-between;
   align-items: center;
   padding: 0.75rem 0;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid #edeff2;
 }
 
 .order-detail-row:last-child {
@@ -123,11 +123,11 @@
 
 .order-detail-label {
   font-weight: 600;
-  color: #4b5563;
+  color: #4e5867;
 }
 
 .order-detail-value {
-  color: #20232a;
+  color: #23262e;
 }
 
 .order-detail-status {
@@ -138,28 +138,28 @@
 }
 
 .order-detail-status.status-pending {
-  background-color: #fff3cd;
-  color: #856404;
+  background-color: #fcf1cc;
+  color: #836304;
 }
 
 .order-detail-status.status-approved {
-  background-color: #d1e7dd;
-  color: #0f5132;
+  background-color: #c8e0d5;
+  color: #115435;
 }
 
 .order-detail-status.status-transit {
-  background-color: #cfe2ff;
-  color: #084298;
+  background-color: #cbdef9;
+  color: #09449e;
 }
 
 .order-detail-status.status-delivered {
-  background-color: #d1e7dd;
-  color: #0f5132;
+  background-color: #cee4da;
+  color: #0f5434;
 }
 
 .order-detail-status.status-cancelled {
-  background-color: #f8d7da;
-  color: #842029;
+  background-color: #f3d4d6;
+  color: #861f27;
 }
 
 .order-detail-items {
@@ -171,10 +171,10 @@
   grid-template-columns: 2fr 1fr 1fr 1fr;
   gap: 1rem;
   padding: 0.75rem 1rem;
-  background-color: #f9fafb;
+  background-color: #ffffff;
   border-radius: 8px;
   font-weight: 600;
-  color: #4b5563;
+  color: #4f5a69;
   margin-bottom: 0.5rem;
 }
 
@@ -183,7 +183,7 @@
   grid-template-columns: 2fr 1fr 1fr 1fr;
   gap: 1rem;
   padding: 1rem;
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid #f0f2f5;
   align-items: center;
 }
 
@@ -193,35 +193,35 @@
 
 .order-detail-item-name {
   font-weight: 500;
-  color: #20232a;
+  color: #23272f;
 }
 
 .order-detail-item-qty {
   text-align: center;
-  color: #4b5563;
+  color: #505c6c;
 }
 
 .order-detail-item-price {
   text-align: right;
-  color: #4b5563;
+  color: #4a5563;
 }
 
 .order-detail-item-subtotal {
   text-align: right;
   font-weight: 600;
-  color: #20232a;
+  color: #272b34;
 }
 
 .order-detail-no-items {
   padding: 2rem;
   text-align: center;
-  color: #9ca3af;
+  color: #9ba2af;
 }
 
 .order-detail-total-section {
   margin-top: 2rem;
   padding-top: 1.5rem;
-  border-top: 2px solid #e5e7eb;
+  border-top: 2px solid #e9ebee;
 }
 
 .order-detail-total-row {
@@ -229,20 +229,20 @@
   justify-content: space-between;
   align-items: center;
   padding: 1rem;
-  background-color: #f9fafb;
+  background-color: #ffffff;
   border-radius: 8px;
 }
 
 .order-detail-total-label {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #20232a;
+  color: #272b34;
 }
 
 .order-detail-total-value {
   font-size: 1.5rem;
   font-weight: 700;
-  color: #61dafb;
+  color: #5cd6f7;
 }
 
 @media (max-width: 768px) {

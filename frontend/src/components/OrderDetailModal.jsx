@@ -84,7 +84,7 @@ export default function OrderDetailModal({ show, orderId, onClose }) {
         <div className="order-detail-modal-header">
           <h2>Order Details</h2>
           <button className="order-detail-modal-close" onClick={onClose}>
-            ×
+            x
           </button>
         </div>
 
