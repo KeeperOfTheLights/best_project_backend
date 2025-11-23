@@ -5,7 +5,7 @@
   padding: 2rem;
   padding-top: calc(var(--navbar-height) + 2rem);
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: #ffffff;
   box-sizing: border-box;
 }
 
@@ -20,15 +20,15 @@
 
 .orders-page-header h1 {
   margin: 0;
-  color: #20232a;
+  color: #23262f;
   font-size: 2rem;
   font-weight: 700;
 }
 
 .refresh-button {
   padding: 0.75rem 1.5rem;
-  background-color: #111827;
-  color: white;
+  background-color: #131b2d;
+  color: rgb(255, 255, 255);
   border: none;
   border-radius: 8px;
   font-weight: 600;
@@ -37,18 +37,18 @@
 }
 
 .refresh-button:hover:not(:disabled) {
-  background-color: #0f172a;
+  background-color: #111b32;
   transform: translateY(-1px);
 }
 
 .refresh-button:disabled {
-  background-color: #9ca3af;
+  background-color: #9aa2b0;
   cursor: not-allowed;
 }
 
 .error-banner {
-  background-color: #fdecea;
-  color: #b42318;
+  background-color: #f5e2e0;
+  color: #ae2218;
   padding: 1rem 1.25rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -63,7 +63,7 @@
 }
 
 .stat-box {
-  background: white;
+  background: rgb(255, 255, 255);
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -90,19 +90,19 @@
 }
 
 .stat-icon-pending {
-  background-color: #fff3cd;
+  background-color: #f6ebc5;
 }
 
 .stat-icon-transit {
-  background-color: #cfe2ff;
+  background-color: #c0d2ee;
 }
 
 .stat-icon-delivered {
-  background-color: #d1e7dd;
+  background-color: #c8e1d6;
 }
 
 .stat-icon-total {
-  background-color: #e2e3e5;
+  background-color: #e1e3e7;
 }
 
 .stat-content {
@@ -112,13 +112,13 @@
 .stat-number {
   font-size: 2rem;
   font-weight: 700;
-  color: #20232a;
+  color: #262a33;
   margin: 0;
 }
 
 .stat-label {
   font-size: 0.95rem;
-  color: #666;
+  color: #6c6a6a;
   margin: 0;
 }
 
@@ -126,9 +126,9 @@
 .empty-state {
   text-align: center;
   padding: 3rem 2rem;
-  color: #6b7280;
+  color: #676f7e;
   font-size: 1.1rem;
-  background: white;
+  background: rgb(255, 255, 255);
   border-radius: 12px;
   margin-bottom: 2rem;
 }
@@ -140,7 +140,7 @@
 }
 
 .order-box {
-  background: white;
+  background: rgb(255, 255, 255);
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -160,7 +160,7 @@
   align-items: flex-start;
   margin-bottom: 1rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid #e9e7e7;
   gap: 1rem;
 }
 
@@ -173,7 +173,7 @@
 
 .order-number {
   margin: 0;
-  color: #20232a;
+  color: #272c36;
   font-size: 1.3rem;
   font-weight: 600;
 }
@@ -188,23 +188,23 @@
 }
 
 .status-pending {
-  background-color: #fff3cd;
-  color: #856404;
+  background-color: #ede2bc;
+  color: #7a5d05;
 }
 
 .status-transit {
-  background-color: #cfe2ff;
-  color: #084298;
+  background-color: #bcd0ed;
+  color: #093d8a;
 }
 
 .status-delivered {
-  background-color: #d1e7dd;
-  color: #0f5132;
+  background-color: #c7e2d5;
+  color: #104d30;
 }
 
 .status-cancelled {
-  background-color: #f8d7da;
-  color: #842029;
+  background-color: #e8c4c7;
+  color: #791f26;
 }
 
 .supplier-info {
@@ -215,12 +215,12 @@
 }
 
 .supplier-text {
-  color: #666;
+  color: #676464;
   font-size: 0.85rem;
 }
 
 .supplier-name {
-  color: #20232a;
+  color: #252933;
   font-weight: 600;
   font-size: 1rem;
 }
@@ -239,17 +239,17 @@
 }
 
 .date-label {
-  color: #666;
+  color: #6e6b6b;
   font-size: 0.85rem;
 }
 
 .date-value {
-  color: #20232a;
+  color: #2c313b;
   font-weight: 600;
 }
 
 .order-items-section {
-  background-color: #f8f9fa;
+  background-color: #f2f3f5;
   padding: 1.2rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -258,7 +258,7 @@
 
 .items-heading {
   margin: 0 0 1rem 0;
-  color: #20232a;
+  color: #252831;
   font-size: 1rem;
   font-weight: 600;
 }
@@ -274,24 +274,24 @@
   grid-template-columns: 2fr 1fr 1fr;
   gap: 1rem;
   padding: 0.6rem;
-  background-color: white;
+  background-color: rgb(255, 255, 255);
   border-radius: 6px;
   align-items: center;
 }
 
 .item-name-text {
-  color: #20232a;
+  color: #242831;
   font-weight: 500;
   word-break: break-word;
 }
 
 .item-qty {
-  color: #666;
+  color: #6b6666;
   text-align: center;
 }
 
 .item-price-text {
-  color: #61dafb;
+  color: #58caea;
   font-weight: 600;
   text-align: right;
 }
@@ -301,7 +301,7 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 1rem;
-  border-top: 2px solid #f0f0f0;
+  border-top: 2px solid #eae6e6;
   gap: 1rem;
   flex-wrap: wrap;
 }
@@ -313,12 +313,12 @@
 }
 
 .total-label-text {
-  color: #666;
+  color: #6b6868;
   font-size: 0.9rem;
 }
 
 .total-value {
-  color: #20232a;
+  color: #1f222a;
   font-size: 1.5rem;
   font-weight: 700;
 }
@@ -341,8 +341,8 @@
 }
 
 .btn-disabled {
-  background-color: #e5e7eb;
-  color: #6b7280;
+  background-color: #d7dadf;
+  color: #616775;
   cursor: not-allowed;
 }
 
@@ -422,8 +422,8 @@
 }
 
 .complaint-btn {
-  background-color: #f44336;
-  color: white;
+  background-color: #e93e32;
+  color: rgb(255, 255, 255);
   border: none;
   padding: 0.7rem 1.2rem;
   border-radius: 8px;
@@ -434,13 +434,13 @@
 }
 
 .complaint-btn:hover {
-  background-color: #d32f2f;
+  background-color: #ca2d2d;
   transform: translateY(-2px);
 }
 
 .details-btn {
-  background-color: #61dafb;
-  color: #20232a;
+  background-color: #56c7e6;
+  color: #282c35;
   border: none;
   padding: 0.7rem 1.2rem;
   border-radius: 8px;
@@ -451,7 +451,7 @@
 }
 
 .details-btn:hover {
-  background-color: #4fcbe4;
+  background-color: #48bcd3;
   transform: translateY(-2px);
 }
 

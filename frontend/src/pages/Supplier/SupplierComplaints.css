@@ -5,13 +5,13 @@
   padding-top: calc(var(--navbar-height) + 2rem);
   padding-bottom: 2rem;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: #eee9e9;
   position: relative;
   box-sizing: border-box;
 }
 
 .complaints-header-card {
-  background: white;
+  background: rgb(255, 255, 255);
   border-radius: 12px;
   padding: 2rem;
   margin-bottom: 2rem;
@@ -25,14 +25,14 @@
 
 .complaints-header-card h2 {
   margin: 0;
-  color: #20232a !important;
+  color: #22262d !important;
   font-size: 2rem;
   font-weight: 700;
 }
 
 .reset-data-btn {
-  background-color: #666;
-  color: white;
+  background-color: #676464;
+  color: rgb(255, 255, 255);
   border: none;
   padding: 0.8rem 1.5rem;
   border-radius: 8px;
@@ -43,7 +43,7 @@
 }
 
 .reset-data-btn:hover {
-  background-color: #555;
+  background-color: #555353;
   transform: translateY(-2px);
 }
 
@@ -56,25 +56,25 @@
 
 .complaints-filters button {
   padding: 0.8rem 1.5rem;
-  border: 1px solid #ddd;
+  border: 1px solid #dbd5d5;
   border-radius: 8px;
   font-size: 1rem;
   font-weight: 500;
   cursor: pointer;
-  background-color: white;
-  color: #20232a;
+  background-color: rgb(255, 255, 255);
+  color: #262a34;
   transition: all 0.3s;
 }
 
 .complaints-filters button:hover {
-  border-color: #61dafb;
-  background-color: #f0f9ff;
+  border-color: #5bcceb;
+  background-color: #e3ebf0;
 }
 
 .complaints-filters button.active {
-  background-color: #61dafb;
-  color: #20232a;
-  border-color: #61dafb;
+  background-color: #5bceee;
+  color: #282d37;
+  border-color: #5bcbeb;
   font-weight: 600;
 }
 
@@ -86,7 +86,7 @@
 }
 
 .complaint-card {
-  background: white;
+  background: rgb(255, 255, 255);
   border-radius: 12px;
   padding: 1.5rem;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -100,40 +100,39 @@
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
 }
 
-/* === Status Colors === */
 .complaint-card.pending {
-  border-left-color: #f59e0b;
+  border-left-color: #eb990c;
 }
 
 .complaint-card.resolved {
-  border-left-color: #10b981;
+  border-left-color: #11b17c;
 }
 
 .complaint-card.rejected {
-  border-left-color: #ef4444;
+  border-left-color: #e64141;
 }
 
 .complaint-card h4 {
   margin: 0 0 0.8rem 0;
-  color: #20232a;
+  color: #292e39;
   font-size: 1.2rem;
   font-weight: 600;
 }
 
 .complaint-card p {
   margin: 0.5rem 0;
-  color: #666;
+  color: #646161;
   font-size: 0.95rem;
   line-height: 1.5;
 }
 
 .complaint-card p strong {
-  color: #20232a;
+  color: #22262f;
   font-weight: 600;
 }
 
 .complaint-card small {
-  color: #999;
+  color: #999393;
   font-size: 0.85rem;
 }
 
@@ -148,36 +147,36 @@
 }
 
 .status-badge.pending {
-  background-color: #fff3cd;
-  color: #856404;
+  background-color: #efe3bc;
+  color: #7c5f07;
 }
 
 .status-badge.resolved {
-  background-color: #d1e7dd;
-  color: #0f5132;
+  background-color: #c1d8ce;
+  color: #135e3b;
 }
 
 .status-badge.rejected {
-  background-color: #f8d7da;
-  color: #842029;
+  background-color: #e2bec1;
+  color: #90232c;
 }
 
 .no-complaints {
   text-align: center;
   padding: 3rem;
-  background: white;
+  background: rgb(255, 255, 255);
   border-radius: 12px;
   grid-column: 1 / -1;
 }
 
 .no-complaints p {
-  color: #666;
+  color: #666363;
   font-size: 1.1rem;
   margin: 0;
 }
 
 .complaint-form {
-  background: white;
+  background: rgb(255, 255, 255);
   border-radius: 12px;
   padding: 2rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -187,7 +186,7 @@
 
 .complaint-form h3 {
   margin: 0 0 1.5rem 0;
-  color: #20232a;
+  color: #262a34;
   font-size: 1.5rem;
   font-weight: 600;
 }
@@ -197,7 +196,7 @@
   width: 100%;
   padding: 0.9rem 1.2rem;
   margin-bottom: 1rem;
-  border: 1px solid #ddd;
+  border: 1px solid #dbd4d4;
   border-radius: 8px;
   font-size: 1rem;
   font-family: inherit;
@@ -208,7 +207,7 @@
 
 .complaint-form input:focus,
 .complaint-form textarea:focus {
-  border-color: #61dafb;
+  border-color: #57c7e6;
 }
 
 .complaint-form textarea {
@@ -218,8 +217,8 @@
 
 .complaint-form button[type="submit"] {
   width: 100%;
-  background-color: #61dafb !important;
-  color: #20232a !important;
+  background-color: #59caea !important;
+  color: #2b303b !important;
   border: none;
   padding: 1rem;
   border-radius: 8px;
@@ -230,7 +229,7 @@
 }
 
 .complaint-form button[type="submit"]:hover {
-  background-color: #4fcbe4 !important;
+  background-color: #47bdd4 !important;
   transform: translateY(-2px);
 }
 
@@ -246,41 +245,41 @@
   border: none;
   cursor: pointer;
   font-weight: 500;
-  color: #fff;
+  color: #f8f8f8;
   transition: all 0.2s;
 }
 
 .complaint-card .action-btns .resolve-btn {
-  background-color: #10b981 !important;
+  background-color: #15a575 !important;
 }
 
 .complaint-card .action-btns .resolve-btn:hover {
-  background-color: #0f7a63 !important;
+  background-color: #107b64 !important;
 }
 
 .complaint-card .action-btns .reject-btn {
-  background-color: #ef4444 !important;
+  background-color: #e74242 !important;
 }
 
 .complaint-card .action-btns .reject-btn:hover {
-  background-color: #b91c1c !important;
+  background-color: #ab1a1a !important;
 }
 
 .complaint-card .action-btns .escalate-btn {
-  background-color: #f59e0b !important;
+  background-color: #f19d0d !important;
 }
 
 .complaint-card .action-btns .escalate-btn:hover {
-  background-color: #d97706 !important;
+  background-color: #ce720a !important;
 }
 
 .complaint-card.escalated {
-  border-left-color: #f59e0b;
+  border-left-color: #eb990d;
 }
 
 .status-badge.escalated {
-  background-color: #fef3c7;
-  color: #92400e;
+  background-color: #ece2ba;
+  color: #8d4010;
 }
 
 .complaints-stats {
@@ -291,7 +290,7 @@
 }
 
 .stat-card {
-  background: white;
+  background: rgb(255, 255, 255);
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -317,36 +316,36 @@
 }
 
 .pending-icon {
-  background-color: #fff3cd;
+  background-color: #ebe0bc;
 }
 
 .resolved-icon {
-  background-color: #d1e7dd;
+  background-color: #caded5;
 }
 
 .rejected-icon {
-  background-color: #f8d7da;
+  background-color: #eeced1;
 }
 
 .escalated-icon {
-  background-color: #fef3c7;
+  background-color: #e8deb5;
 }
 
 .stat-info h3 {
   margin: 0;
   font-size: 2rem;
-  color: #20232a;
+  color: #262a34;
 }
 
 .stat-info p {
   margin: 0.5rem 0 0 0;
-  color: #666;
+  color: #676363;
   font-size: 0.9rem;
 }
 
 .refresh-btn {
-  background-color: #61dafb !important;
-  color: #20232a !important;
+  background-color: #5cd0f0 !important;
+  color: #252931 !important;
   border: none;
   padding: 0.8rem 1.5rem;
   border-radius: 8px;
@@ -357,7 +356,7 @@
 }
 
 .refresh-btn:hover:not(:disabled) {
-  background-color: #4fcbe4 !important;
+  background-color: #4bc2da !important;
   transform: translateY(-2px);
 }
 
@@ -386,7 +385,7 @@
 .complaint-description {
   margin: 0.75rem 0 !important;
   padding: 0.75rem;
-  background-color: #f9fafb;
+  background-color: #ffffff;
   border-radius: 6px;
   white-space: pre-wrap;
 }
@@ -394,7 +393,7 @@
 .complaint-dates {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #dadce2;
 }
 
 .complaint-dates p {
@@ -404,15 +403,15 @@
 .complaint-actions-row {
   margin-top: 1rem;
   padding-top: 1rem;
-  border-top: 1px solid #e5e7eb;
+  border-top: 1px solid #d7dae1;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
 }
 
 .open-chat-btn {
-  background-color: #61dafb;
-  color: #20232a;
+  background-color: #5acbea;
+  color: #262a33;
   border: none;
   padding: 0.6rem 1.2rem;
   border-radius: 8px;
@@ -424,13 +423,13 @@
 }
 
 .open-chat-btn:hover {
-  background-color: #4fcbe4;
+  background-color: #4bc5de;
   transform: translateY(-2px);
 }
 
 .error-message {
-  background-color: #fdecea;
-  color: #b42318;
+  background-color: #f0e0de;
+  color: #a92218;
   padding: 1rem 1.25rem;
   border-radius: 10px;
   margin-bottom: 1.5rem;
@@ -444,7 +443,7 @@
 .close-btn {
   background: none;
   border: none;
-  color: #b42318;
+  color: #9c1f17;
   cursor: pointer;
   font-size: 1.2rem;
   padding: 0;
@@ -461,7 +460,6 @@
   background-color: rgba(180, 35, 24, 0.1);
 }
 
-/* === Responsive === */
 @media (max-width: 768px) {
   .complaints-container {
     padding: 1rem;

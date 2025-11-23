@@ -324,10 +324,9 @@ export default function ChatPage() {
   }, [messages]);
 
   useEffect(() => {
-    // Only auto-scroll if:
+    // Auto-scroll if:
     // 1. User is at bottom (shouldAutoScrollRef.current is true)
     // 2. AND there are new messages OR it's an initial load
-    // This prevents scrolling when messages are re-fetched but unchanged
     if (shouldAutoScrollRef.current && messagesContainerRef.current && hasNewMessagesRef.current) {
       setTimeout(() => {
         if (messagesContainerRef.current && shouldAutoScrollRef.current) {
@@ -624,7 +623,7 @@ export default function ChatPage() {
                     onClick={() => setSelectedFile(null)}
                     className="remove-file-btn"
                   >
-                    ×
+                    x
                   </button>
                 </span>
               )}
@@ -648,7 +647,7 @@ export default function ChatPage() {
                       className="action-btn"
                       title="Canned Replies"
                     >
-                      💬
+                      👋
                     </button>
                     <button
                       type="button"

@@ -90,8 +90,10 @@ export default function SupplierOrders() {
         acc.total += 1;
         if (order.status === "pending") acc.pending += 1;
         if (order.status === "approved") acc.processing += 1;
-        if (order.status === "delivered") acc.completed += 1;
-        acc.revenue += Number(order.total_price || 0);
+        if (order.status === "delivered") {
+          acc.completed += 1;
+          acc.revenue += Number(order.total_price || 0);
+        }
         return acc;
       },
       { pending: 0, processing: 0, completed: 0, total: 0, revenue: 0 }
@@ -103,7 +105,7 @@ export default function SupplierOrders() {
   };
 
   const formatDate = (value) => {
-    if (!value) return "—";
+    if (!value) return "-";
     try {
       return new Date(value).toLocaleDateString();
     } catch {
@@ -237,7 +239,7 @@ export default function SupplierOrders() {
             <button
               className="refresh-button"
               onClick={() => setFilterConsumerId(null)}
-              style={{ backgroundColor: "#ff9800" }}
+              style={{ backgroundColor: "#f69606ff" }}
             >
               Show All Orders
             </button>
@@ -252,7 +254,7 @@ export default function SupplierOrders() {
 
       <div className="orders-stats">
         <div className="stat-card">
-          <div className="stat-icon pending-icon">📋</div>
+          <div className="stat-icon pending-icon">🗋</div>
           <div className="stat-info">
             <h3>{stats.pending}</h3>
             <p>Pending Orders</p>
@@ -266,14 +268,14 @@ export default function SupplierOrders() {
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon completed-icon">✓</div>
+          <div className="stat-icon completed-icon">✔️</div>
           <div className="stat-info">
             <h3>{stats.completed}</h3>
             <p>Completed</p>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon revenue-icon">💰</div>
+          <div className="stat-icon revenue-icon">🤑</div>
           <div className="stat-info">
             <h3>{formatCurrency(stats.revenue)}</h3>
             <p>Total Revenue</p>

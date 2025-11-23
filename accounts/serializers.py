@@ -1,6 +1,5 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from django.contrib.auth.password_validation import validate_password
 from django.contrib.auth import authenticate
 from rest_framework_simplejwt.tokens import RefreshToken
 from accounts.models import *
@@ -26,7 +25,6 @@ class RegisterSerializer(serializers.ModelSerializer):
 
         user = User.objects.create_user(**validated_data)
 
-        # Auto create company ONLY for owners
         if role == "owner":
             company = Company.objects.create(
                 name=f"{user.full_name} Company",

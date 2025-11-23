@@ -29,12 +29,12 @@ export default function Login() {
         login({ token: data.access, refreshToken: data.refresh, role: data.role, id: data.id });
         navigate(is_supplier_side(data.role) ? "/SupplierDashboard" : "/ConsumerDashboard");
       } else {
-        let message = data?.non_field_errors?.[0] || "Invalid email or password";
+        let message = data?.non_field_errors?.[0] || "Invalid email or password :)";
         setErrorMsg(message);
       }
     } catch (error) {
-      console.error("Network error:", error);
-      setErrorMsg("Could not connect to server");
+      console.error("Network error :(", error);
+      setErrorMsg("Could not connect to server :(");
     }
   };
 

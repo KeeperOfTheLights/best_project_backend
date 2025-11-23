@@ -6,7 +6,7 @@
   padding-top: calc(var(--navbar-height) + 2rem);
   padding-bottom: 2rem;
   min-height: 100vh;
-  background-color: #f5f5f5;
+  background-color: #f1eaea;
   box-sizing: border-box;
 }
 
@@ -20,14 +20,14 @@
 }
 
 .orders-header h2 {
-  color: #20232a;
+  color: #272b34;
   font-size: 2rem;
   margin: 0;
 }
 
 .refresh-button {
   padding: 0.75rem 1.5rem;
-  background-color: #111827 !important;
+  background-color: #141c2e !important;
   color: white !important;
   border: none;
   border-radius: 8px;
@@ -37,18 +37,18 @@
 }
 
 .refresh-button:hover:not(:disabled) {
-  background-color: #0f172a !important;
+  background-color: #121c32 !important;
   transform: translateY(-1px);
 }
 
 .refresh-button:disabled {
-  background-color: #9ca3af;
+  background-color: #969daa;
   cursor: not-allowed;
 }
 
 .error-banner {
-  background-color: #fdecea;
-  color: #b42318;
+  background-color: #e7d6d4;
+  color: #aa2319;
   padding: 1rem 1.25rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -58,10 +58,10 @@
 .filter-message {
   padding: 1rem;
   margin-bottom: 1rem;
-  background-color: #e3f2fd;
-  color: #084298;
+  background-color: #d6e4ee;
+  color: #0a4090;
   border-radius: 8px;
-  border: 1px solid #2196f3;
+  border: 1px solid #208be3;
   font-weight: 500;
 }
 
@@ -84,7 +84,7 @@
 
 .filter-select {
   padding: 0.8rem 1.2rem;
-  border: 1px solid #ddd;
+  border: 1px solid #dfd9d9;
   border-radius: 8px;
   font-size: 1rem;
   background-color: white;
@@ -94,14 +94,14 @@
 }
 
 .filter-select:focus {
-  border-color: #61dafb;
+  border-color: #58c7e6;
 }
 
 .search-input {
   flex: 1;
   min-width: 300px;
   padding: 0.8rem 1.2rem;
-  border: 1px solid #ddd;
+  border: 1px solid #d4cdcd;
   border-radius: 8px;
   font-size: 1rem;
   outline: none;
@@ -109,7 +109,7 @@
 }
 
 .search-input:focus {
-  border-color: #61dafb;
+  border-color: #58c9e8;
 }
 
 .orders-stats {
@@ -146,30 +146,30 @@
 }
 
 .pending-icon {
-  background-color: #fff3cd;
+  background-color: #ece1bc;
 }
 
 .processing-icon {
-  background-color: #cfe2ff;
+  background-color: #c2d3ed;
 }
 
 .completed-icon {
-  background-color: #d1e7dd;
+  background-color: #c7dfd4;
 }
 
 .revenue-icon {
-  background-color: #d1ecf1;
+  background-color: #c5dee2;
 }
 
 .stat-info h3 {
   margin: 0;
   font-size: 2rem;
-  color: #20232a;
+  color: #252932;
 }
 
 .stat-info p {
   margin: 0;
-  color: #666;
+  color: #6a6767;
   font-size: 0.95rem;
 }
 
@@ -185,7 +185,7 @@
   padding: 1.5rem;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
   transition: all 0.3s;
-  border-left: 4px solid #61dafb;
+  border-left: 4px solid #58cbeb;
 }
 
 .supplier-order-card:hover {
@@ -199,7 +199,7 @@
   align-items: flex-start;
   margin-bottom: 1.5rem;
   padding-bottom: 1rem;
-  border-bottom: 2px solid #f0f0f0;
+  border-bottom: 2px solid #f1eeee;
 }
 
 .order-main-info {
@@ -210,7 +210,7 @@
 
 .order-id {
   margin: 0;
-  color: #20232a;
+  color: #252932;
   font-size: 1.4rem;
 }
 
@@ -223,23 +223,23 @@
 }
 
 .status-completed {
-  background-color: #d1e7dd;
-  color: #0f5132;
+  background-color: #c6dfd4;
+  color: #0f4a2e;
 }
 
 .status-processing {
-  background-color: #cfe2ff;
-  color: #084298;
+  background-color: #bfd1ed;
+  color: #0a4090;
 }
 
 .status-pending {
-  background-color: #fff3cd;
-  color: #856404;
+  background-color: #efe4c0;
+  color: #7e6007;
 }
 
 .status-cancelled {
-  background-color: #f8d7da;
-  color: #842029;
+  background-color: #e8cbce;
+  color: #7a2028;
 }
 
 .order-customer {
@@ -250,7 +250,7 @@
 }
 
 .customer-name {
-  color: #20232a;
+  color: #242832;
   font-weight: 600;
   font-size: 1.1rem;
 }
@@ -303,7 +303,7 @@
 }
 
 .order-items {
-  background-color: #f8f9fa;
+  background-color: #e8ebed;
   padding: 1.2rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -326,10 +326,10 @@
   grid-template-columns: 2fr 1fr 1fr;
   gap: 1rem;
   padding: 0.8rem;
-  background-color: #e2e3e5;
+  background-color: #dfe2e8;
   border-radius: 6px;
   font-weight: 700;
-  color: #20232a;
+  color: #2b2f3a;
   font-size: 0.9rem;
 }
 
@@ -344,21 +344,21 @@
 }
 
 .table-row:hover {
-  background-color: #e3f2fd;
+  background-color: #ccdce7;
 }
 
 .item-name {
-  color: #20232a;
+  color: #2f343f;
   font-weight: 500;
 }
 
 .item-quantity {
-  color: #666;
+  color: #636060;
   text-align: center;
 }
 
 .item-price {
-  color: #61dafb;
+  color: #5acbea;
   font-weight: 600;
   text-align: right;
 }
@@ -368,7 +368,7 @@
   justify-content: space-between;
   align-items: center;
   padding-top: 1.5rem;
-  border-top: 2px solid #f0f0f0;
+  border-top: 2px solid #e9e4e4;
 }
 
 .order-total {
@@ -406,34 +406,34 @@
 }
 
 .accept-btn {
-  background-color: #4caf50 !important;
+  background-color: #45a348 !important;
   color: white !important;
 }
 
 .accept-btn:hover {
-  background-color: #388e3c !important;
+  background-color: #378b3b !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
 }
 
 .reject-btn {
-  background-color: #f44336 !important;
+  background-color: #e43e33 !important;
   color: white !important;
 }
 
 .reject-btn:hover {
-  background-color: #d32f2f !important;
+  background-color: #ca2e2e !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(244, 67, 54, 0.3);
 }
 
 .complete-btn {
-  background-color: #2196f3 !important;
+  background-color: #1e8ee9 !important;
   color: white !important;
 }
 
 .complete-btn:hover {
-  background-color: #1976d2 !important;
+  background-color: #1973cd !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(33, 150, 243, 0.3);
 }
@@ -444,18 +444,18 @@
 }
 
 .invoice-btn:hover {
-  background-color: #7b1fa2 !important;
+  background-color: #751e9a !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(156, 39, 176, 0.3);
 }
 
 .details-btn {
-  background-color: #61dafb !important;
-  color: #20232a !important;
+  background-color: #58ccec !important;
+  color: #282c36 !important;
 }
 
 .details-btn:hover {
-  background-color: #4fcbe4 !important;
+  background-color: #4dc4dc !important;
   transform: translateY(-2px);
   box-shadow: 0 4px 12px rgba(97, 218, 251, 0.3);
 }

@@ -3,22 +3,22 @@
   margin: 100px auto 50px;
   padding: 20px 25px;
   font-family: "Poppins", sans-serif;
-  background-color: #cdcccc;
+  background-color: #cec9c9;
   border-radius: 10px;
-  color: #111;
+  color: #0f0e0e;
   box-sizing: border-box;
 }
 
 .dashboard-header h2 {
   font-size: 2rem;
   margin-bottom: 10px;
-  color: #000;
+  color: #000000;
   text-align: center;
 }
 
 .dashboard-header p {
   font-size: 1rem;
-  color: #111;
+  color: #171717;
   margin-bottom: 40px;
   text-align: center;
 }
@@ -32,7 +32,7 @@
 }
 
 .stat-card {
-  background: #d6d6d6;
+  background: #d4d1d1;
   border-radius: 15px;
   padding: 25px 40px;
   flex: 1 1 200px;
@@ -50,22 +50,22 @@
   font-size: 1.8rem;
   font-weight: 600;
   margin-bottom: 10px;
-  color: #111;
+  color: #1b1a1a;
 }
 
 .stat-card p {
   font-size: 1.1rem;
-  color: #000;
+  color: #000000;
 }
 
-.stat-card.completed h3 { color: #4caf50; }
-.stat-card.in-progress h3 { color: #61dafb; }
-.stat-card.cancelled h3 { color: #f44336; }
-.stat-card.total h3 { color: #ffa726; }
+.stat-card.completed h3 { color: #4aad4d; }
+.stat-card.in-progress h3 { color: #5cd2f3; }
+.stat-card.cancelled h3 { color: #eb4033; }
+.stat-card.total h3 { color: #f6a326; }
 
 .quick-actions {
   margin-top: 50px;
-  background-color: #dcdcdc;
+  background-color: #dedada;
   border-radius: 10px;
   padding: 20px 25px;
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
@@ -87,25 +87,25 @@
 
 .action-btn {
   flex: 1 1 180px;
-  background-color: #61dafb;
+  background-color: #5dd1f1;
   padding: 12px 20px;
   border-radius: 10px;
   text-align: center;
   font-weight: 600;
   border: none;
-  color: #20232a;
+  color: #242830;
   text-decoration: none;
   transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 .action-btn:hover {
-  background-color: #4fcbe4;
+  background-color: #4cc6de;
   transform: translateY(-3px);
 }
 
 .error-banner {
-  background-color: #fdecea;
-  color: #b42318;
+  background-color: #f1e1df;
+  color: #ac2016;
   padding: 1rem 1.25rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -116,8 +116,8 @@
 }
 
 .error-banner button {
-  background-color: #61dafb;
-  color: #20232a;
+  background-color: #5cd2f2;
+  color: #242831;
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 6px;
@@ -126,13 +126,13 @@
 }
 
 .error-banner button:hover {
-  background-color: #4fcbe4;
+  background-color: #49c5dd;
 }
 
 .loading-state {
   text-align: center;
   padding: 3rem 2rem;
-  color: #6b7280;
+  color: #697181;
   font-size: 1.1rem;
 }
 

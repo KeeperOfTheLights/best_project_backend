@@ -4,7 +4,7 @@
   padding: 2rem;
   padding-top: 6rem;
   min-height: calc(100vh - 80px);
-  background-color: #f5f5f5;
+  background-color: #eeeaea;
 }
 
 .requests-header {
@@ -13,13 +13,13 @@
 }
 
 .requests-header h2 {
-  color: #20232a;
+  color: #262a34;
   font-size: 2rem;
   margin: 0 0 0.5rem 0;
 }
 
 .requests-subtitle {
-  color: #666;
+  color: #696767;
   font-size: 1rem;
   margin: 0;
 }
@@ -32,7 +32,7 @@
 }
 
 .stat-card {
-  background: white;
+  background: rgb(255, 255, 255);
   padding: 1.5rem;
   border-radius: 12px;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
@@ -58,30 +58,30 @@
 }
 
 .pending-icon {
-  background-color: #fff3cd;
+  background-color: #e8ddb9;
 }
 
 .approved-icon {
-  background-color: #d1e7dd;
+  background-color: #bbd6c9;
 }
 
 .rejected-icon {
-  background-color: #f8d7da;
+  background-color: #eeced1;
 }
 
 .blocked-icon {
-  background-color: #e2e3e5;
+  background-color: #d2d6dc;
 }
 
 .stat-info h3 {
   margin: 0;
   font-size: 2rem;
-  color: #20232a;
+  color: #292e39;
 }
 
 .stat-info p {
   margin: 0.5rem 0 0 0;
-  color: #666;
+  color: #696666;
   font-size: 0.9rem;
 }
 
@@ -94,24 +94,24 @@
 
 .filter-btn {
   padding: 0.8rem 1.5rem;
-  border: 2px solid #ddd;
-  background-color: white;
+  border: 2px solid #dbd5d5;
+  background-color: rgb(255, 255, 255);
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
-  color: #666;
+  color: #696767;
 }
 
 .filter-btn:hover {
-  border-color: #61dafb;
-  color: #61dafb;
+  border-color: #58cbeb;
+  color: #5accec;
 }
 
 .filter-btn.active {
-  background-color: #61dafb;
-  border-color: #61dafb;
-  color: #20232a;
+  background-color: #5accec;
+  border-color: #5bcfee;
+  color: #252932;
 }
 
 .requests-list {
@@ -121,7 +121,7 @@
 }
 
 .request-card {
-  background: white;
+  background: rgb(255, 255, 255);
   border-radius: 12px;
   overflow: hidden;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
@@ -162,23 +162,23 @@
 }
 
 .request-status-badge.pending {
-  background-color: #ff9800;
-  color: white;
+  background-color: #f69504;
+  color: rgb(255, 255, 255);
 }
 
 .request-status-badge.approved {
-  background-color: #4caf50;
-  color: white;
+  background-color: #46a949;
+  color: rgb(255, 255, 255);
 }
 
 .request-status-badge.rejected {
-  background-color: #f44336;
-  color: white;
+  background-color: #e83e32;
+  color: rgb(255, 255, 255);
 }
 
 .request-status-badge.blocked {
-  background-color: #9e9e9e;
-  color: white;
+  background-color: #9c9999;
+  color: rgb(255, 255, 255);
 }
 
 .request-content {
@@ -195,14 +195,14 @@
 
 .consumer-name {
   margin: 0;
-  color: #20232a;
+  color: #262a34;
   font-size: 1.3rem;
   flex: 1;
 }
 
 .consumer-type-badge {
-  background-color: #e3f2fd;
-  color: #1976d2;
+  background-color: #d6e5f1;
+  color: #1971c9;
   padding: 0.3rem 0.7rem;
   border-radius: 12px;
   font-size: 0.85rem;
@@ -211,7 +211,7 @@
 }
 
 .request-details {
-  background-color: #f8f9fa;
+  background-color: #eceeef;
   padding: 1rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -230,7 +230,7 @@
 }
 
 .detail-row.highlight {
-  background-color: white;
+  background-color: rgb(255, 255, 255);
   padding: 0.6rem;
   border-radius: 6px;
   margin-top: 0.5rem;
@@ -243,11 +243,11 @@
 }
 
 .detail-text {
-  color: #666;
+  color: #646161;
 }
 
 .detail-row.highlight .detail-text {
-  color: #20232a;
+  color: #242730;
 }
 
 .request-actions {
@@ -269,72 +269,72 @@
 }
 
 .accept-btn {
-  background-color: #4caf50 !important;
-  color: white !important;
+  background-color: #48ab4b !important;
+  color: rgb(255, 255, 255) !important;
 }
 
 .accept-btn:hover {
-  background-color: #388e3c !important;
+  background-color: #348a39 !important;
   transform: translateY(-2px);
 }
 
 .reject-btn {
-  background-color: #f44336 !important;
-  color: white !important;
+  background-color: #e63e32 !important;
+  color: rgb(255, 255, 255) !important;
 }
 
 .reject-btn:hover {
-  background-color: #d32f2f !important;
+  background-color: #c42d2d !important;
   transform: translateY(-2px);
 }
 
 .block-btn {
-  background-color: #9e9e9e !important;
-  color: white !important;
+  background-color: #9e9999 !important;
+  color: rgb(255, 255, 255) !important;
 }
 
 .block-btn:hover {
-  background-color: #757575 !important;
+  background-color: #777575 !important;
   transform: translateY(-2px);
 }
 
 .view-orders-btn {
-  background-color: #61dafb !important;
-  color: #20232a !important;
+  background-color: #5cd1f2 !important;
+  color: #282c37 !important;
 }
 
 .view-orders-btn:hover {
-  background-color: #4fcbe4 !important;
+  background-color: #4bc2da !important;
   transform: translateY(-2px);
 }
 
 .message-btn {
-  background-color: #2196f3 !important;
-  color: white !important;
+  background-color: #1f8be3 !important;
+  color: rgb(255, 255, 255) !important;
 }
 
 .message-btn:hover {
-  background-color: #1976d2 !important;
+  background-color: #1a72ca !important;
   transform: translateY(-2px);
 }
 
 .unlink-btn {
-  background-color: #ff9800 !important;
-  color: white !important;
+  background-color: #f69503 !important;
+  color: rgb(255, 255, 255) !important;
 }
 
 .unlink-btn:hover {
-  background-color: #f57c00 !important;
+  background-color: #ec7703 !important;
   transform: translateY(-2px);
 }
 
 .unblock-btn {
-  background-color: #4caf50 !important;
-  color: white !important;
+  background-color: #48a94c !important;
+  color: rgb(255, 255, 255) !important;
 }
 
 .unblock-btn:hover {
-  background-color: #388e3c !important;
+  background-color: #318035 !important;
   transform: translateY(-2px);
 }
 
@@ -342,28 +342,28 @@
   flex: 1 1 100%;
   text-align: center;
   padding: 0.8rem;
-  background-color: #f8d7da;
-  color: #842029;
+  background-color: #eed2d4;
+  color: #7d1f26;
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
 }
 
 .status-message.blocked {
-  background-color: #e2e3e5;
-  color: #41464b;
+  background-color: #d8dbdf;
+  color: #40464c;
 }
 
 .empty-state {
   text-align: center;
   padding: 3rem;
-  background: white;
+  background: rgb(255, 255, 255);
   border-radius: 12px;
   margin-top: 2rem;
 }
 
 .empty-state p {
-  color: #666;
+  color: #696666;
   font-size: 1.1rem;
   margin: 0;
 }
@@ -395,7 +395,6 @@
   }
 }
 
-/* ===== MODAL ===== */
 .modal-overlay {
   position: fixed;
   inset: 0;
@@ -426,7 +425,7 @@
 .modal-message {
   font-size: 1rem;
   margin-bottom: 25px;
-  color: #444;
+  color: #424040;
 }
 
 .modal-buttons {
@@ -445,20 +444,20 @@
 }
 
 .modal-btn.cancel {
-  background: #ddd;
+  background: #dfdbdb;
 }
 
 .modal-btn.cancel:hover {
-  background: #ccc;
+  background: #cdc9c9;
 }
 
 .modal-btn.confirm {
-  background: #d9534f;
-  color: white;
+  background: #d04f4a;
+  color: rgb(255, 255, 255);
 }
 
 .modal-btn.confirm:hover {
-  background: #c7423e;
+  background: #bc3f3a;
 }
 
 @keyframes fadeIn {

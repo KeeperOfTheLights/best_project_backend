@@ -309,7 +309,7 @@ export default function ConsumerSupplierProducts() {
         <div className="supplier-header-info">
           <h1>{supplier?.full_name || "Supplier"}</h1>
           <p className="supplier-category">{supplier?.supplier_company || "Private Supplier"}</p>
-          <p className="supplier-location">📧 {supplier?.email}</p>
+          <p className="supplier-location">📨 {supplier?.email}</p>
           <p className="supplier-description">
             Products available for wholesale ordering. Linked suppliers only.
           </p>
@@ -360,13 +360,13 @@ export default function ConsumerSupplierProducts() {
                   <div className="product-price">
                     {product.discounted_price && product.discount > 0 ? (
                       <>
-                        <span style={{ textDecoration: "line-through", color: "#999", marginRight: "8px" }}>
+                        <span style={{ textDecoration: "line-through", color: "#9c9797ff", marginRight: "8px" }}>
                           {formatCurrency(product.price)}
                         </span>
-                        <span style={{ color: "#e74c3c", fontWeight: "bold" }}>
+                        <span style={{ color: "#de4736ff", fontWeight: "bold" }}>
                           {formatCurrency(product.discounted_price)}
                         </span>
-                        <span style={{ color: "#e74c3c", marginLeft: "8px", fontSize: "0.9rem" }}>
+                        <span style={{ color: "#e34b3aff", marginLeft: "8px", fontSize: "0.9rem" }}>
                           ({product.discount}% off)
                         </span>
                       </>
@@ -383,14 +383,14 @@ export default function ConsumerSupplierProducts() {
                 </div>
                 {product.delivery_option && (
                   <div className="product-delivery">
-                    {product.delivery_option === "delivery" && "🚚 Delivery"}
-                    {product.delivery_option === "pickup" && "📦 Pickup"}
-                    {product.delivery_option === "both" && "🚚📦 Delivery & Pickup"}
+                    {product.delivery_option === "delivery" && "🏎️ Delivery"}
+                    {product.delivery_option === "pickup" && "🍱 Pickup"}
+                    {product.delivery_option === "both" && "🏎️🍱 Delivery & Pickup"}
                   </div>
                 )}
                 {product.lead_time_days > 0 && (
                   <div className="product-lead-time">
-                    ⏱️ Lead Time: {product.lead_time_days} {product.lead_time_days === 1 ? "day" : "days"}
+                    🕠 Lead Time: {product.lead_time_days} {product.lead_time_days === 1 ? "day" : "days"}
                   </div>
                 )}
                 <div className="product-actions">
@@ -399,7 +399,7 @@ export default function ConsumerSupplierProducts() {
                       onClick={() => handleQuantityChange(product.id, currentQty - 1, product.minOrder, product.stock)}
                       disabled={currentQty <= (product.minOrder || 1)}
                     >
-                      −
+                      -
                     </button>
                     <input
                       type="number"
@@ -443,7 +443,7 @@ export default function ConsumerSupplierProducts() {
                 </div>
                 {inCart && (
                   <div className="in-cart-indicator">
-                    ✓ In Cart: {inCart.quantity} {product.unit}
+                    ✔️ In Cart: {inCart.quantity} {product.unit}
                   </div>
                 )}
               </div>
@@ -482,10 +482,10 @@ export default function ConsumerSupplierProducts() {
                     <p>
                       {item.product_discounted_price && item.product_discount > 0 ? (
                         <>
-                          <span style={{ textDecoration: "line-through", color: "#999", marginRight: "8px", fontSize: "0.9rem" }}>
+                          <span style={{ textDecoration: "line-through", color: "#9e9595ff", marginRight: "8px", fontSize: "0.9rem" }}>
                             {formatCurrency(item.product_price)}
                           </span>
-                          <span style={{ color: "#e74c3c", fontWeight: "bold" }}>
+                          <span style={{ color: "#dc4838ff", fontWeight: "bold" }}>
                             {formatCurrency(item.product_discounted_price)}
                           </span>
                         </>
@@ -502,7 +502,7 @@ export default function ConsumerSupplierProducts() {
                         item.quantity <= (item.product_min_order || 1)
                       }
                     >
-                      −
+                      -
                     </button>
                     <span>{item.quantity}</span>
                     <button
@@ -521,7 +521,7 @@ export default function ConsumerSupplierProducts() {
                     onClick={() => handleRemoveCartItem(item.id)}
                     disabled={cartActionLoading === `remove-${item.id}`}
                   >
-                    ✕
+                    X
                   </button>
                 </div>
               ))}

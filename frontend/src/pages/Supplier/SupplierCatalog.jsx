@@ -68,7 +68,6 @@ export default function SupplierLinkRequests() {
     fetchRequests();
   }, [authLoading]);
 
-  // Modal helpers
   const openModal = (action, linkId, message) => {
     setModalData({
       visible: true,
@@ -224,7 +223,7 @@ export default function SupplierLinkRequests() {
     openModal(
       "unlink",
       linkId,
-      "Unlink this consumer? They will lose access to your catalog."
+      "Unlink this consumer? They will lose access to your catalog :(."
     );
   };
 
@@ -287,21 +286,21 @@ export default function SupplierLinkRequests() {
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon approved-icon">✓</div>
+          <div className="stat-icon approved-icon">✔️</div>
           <div className="stat-info">
             <h3>{counts.linked}</h3>
             <p>Linked Consumers</p>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon rejected-icon">✕</div>
+          <div className="stat-icon rejected-icon">X</div>
           <div className="stat-info">
             <h3>{counts.rejected}</h3>
             <p>Rejected</p>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon blocked-icon">🚫</div>
+          <div className="stat-icon blocked-icon">🫸</div>
           <div className="stat-info">
             <h3>{counts.blocked}</h3>
             <p>Blocked</p>
@@ -358,9 +357,9 @@ export default function SupplierLinkRequests() {
                 </h3>
                 <span className={`request-status-badge ${request.status}`}>
                   {request.status === "pending" && "⏳ Pending"}
-                  {request.status === "linked" && "✓ Linked"}
-                  {request.status === "rejected" && "✕ Rejected"}
-                  {request.status === "blocked" && "🚫 Blocked"}
+                  {request.status === "linked" && "✔️ Linked"}
+                  {request.status === "rejected" && "X Rejected"}
+                  {request.status === "blocked" && "🫸 Blocked"}
                 </span>
               </div>
 
@@ -390,7 +389,7 @@ export default function SupplierLinkRequests() {
                     >
                       {actionLoading === request.id
                         ? "Processing..."
-                        : "✓ Accept"}
+                        : "✔️ Accept"}
                     </button>
 
                     <button
@@ -398,7 +397,7 @@ export default function SupplierLinkRequests() {
                       onClick={() => handleReject(request.id)}
                       disabled={actionLoading === request.id}
                     >
-                      ✕ Reject
+                      X Reject
                     </button>
 
                     <button
@@ -406,7 +405,7 @@ export default function SupplierLinkRequests() {
                       onClick={() => handleBlock(request.id)}
                       disabled={actionLoading === request.id}
                     >
-                      🚫 Block
+                      🫸 Block
                     </button>
                   </>
                 )}

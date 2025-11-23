@@ -82,7 +82,7 @@ export default function ConsumerOrders() {
   };
 
   const formatDate = (value) => {
-    if (!value) return "—";
+    if (!value) return "-";
     try {
       return new Date(value).toLocaleDateString();
     } catch {
@@ -118,21 +118,21 @@ export default function ConsumerOrders() {
           </div>
         </div>
         <div className="stat-box">
-          <div className="stat-icon stat-icon-transit">🚚</div>
+          <div className="stat-icon stat-icon-transit">🏎️</div>
           <div className="stat-content">
             <div className="stat-number">{stats.transit}</div>
             <div className="stat-label">In Transit</div>
           </div>
         </div>
         <div className="stat-box">
-          <div className="stat-icon stat-icon-delivered">✓</div>
+          <div className="stat-icon stat-icon-delivered">✔️</div>
           <div className="stat-content">
             <div className="stat-number">{stats.delivered}</div>
             <div className="stat-label">Delivered</div>
           </div>
         </div>
         <div className="stat-box">
-          <div className="stat-icon stat-icon-total">📦</div>
+          <div className="stat-icon stat-icon-total">🍱</div>
           <div className="stat-content">
             <div className="stat-number">{stats.total}</div>
             <div className="stat-label">Total Orders</div>
