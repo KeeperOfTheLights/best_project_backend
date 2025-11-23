@@ -95,7 +95,8 @@ class SupplierProductListCreateView(generics.ListCreateAPIView):
         user = self.request.user
         if not is_catalog_manager(user):
             raise PermissionError("Only Owner and Manager can create products")
-        serializer.save(supplier=user)
+        company_owner = get_company_owner(user)
+        serializer.save(supplier=company_owner)
 
 
 class SupplierProductDetailView(generics.RetrieveUpdateDestroyAPIView):
