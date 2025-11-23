@@ -47,6 +47,40 @@ class OrderService {
     }
   }
 
+  // Get supplier order statistics
+  // Backend: GET /api/accounts/orders/supplier/stats/
+  // Returns: {"active_orders": int, "completed_orders": int, "pending_deliveries": int, "total_revenue": float}
+  static Future<Map<String, dynamic>> getSupplierOrderStats() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl${ApiEndpoints.getSupplierOrderStats}'),
+        headers: _getHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // Backend returns total_revenue as DecimalField (string or number)
+        final totalRevenue = data['total_revenue'] != null
+            ? (data['total_revenue'] is String 
+                ? double.parse(data['total_revenue']) 
+                : (data['total_revenue'] as num).toDouble())
+            : 0.0;
+        
+        return {
+          'active_orders': data['active_orders'] ?? 0,
+          'completed_orders': data['completed_orders'] ?? 0,
+          'pending_deliveries': data['pending_deliveries'] ?? 0,
+          'total_revenue': totalRevenue,
+        };
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to fetch supplier order stats');
+      }
+    } catch (e) {
+      throw Exception('Connection error: ${e.toString()}');
+    }
+  }
+
   // Create order from cart items (checkout)
   // Backend: POST /orders/checkout/ - uses cart items, doesn't take items in body
   // Note: Backend automatically creates order from cart items, so we just call checkout

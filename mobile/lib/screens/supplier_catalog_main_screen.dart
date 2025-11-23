@@ -1,199 +1,711 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../providers/supplier_provider.dart';
+import '../providers/link_request_provider.dart';
 import '../providers/auth_provider.dart';
+import '../models/link_request.dart';
 import '../utils/constants.dart';
-import 'consumer_catalog_screen.dart';
-import 'catalog_management_screen.dart';
-import 'sales_management_screen.dart';
+import '../services/link_request_service.dart';
+import 'orders_screen.dart';
 
-// SupplierCatalogMainScreen - shows all supplier names from Sales Management for catalog viewing
+// SupplierCatalogMainScreen - shows Consumer Link Requests similar to website
 class SupplierCatalogMainScreen extends StatefulWidget {
   const SupplierCatalogMainScreen({super.key});
 
   @override
-  State<SupplierCatalogMainScreen> createState() =>
-      _SupplierCatalogMainScreenState();
+  State<SupplierCatalogMainScreen> createState() => _SupplierCatalogMainScreenState();
 }
 
-class _SupplierCatalogMainScreenState
-    extends State<SupplierCatalogMainScreen> {
+class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
+  String _filterStatus = 'all'; // 'all', 'pending', 'linked', 'rejected', 'blocked'
+  String? _actionLoadingId; // Track which request is being processed
+
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<SupplierProvider>(context, listen: false).loadMySuppliers();
+      Provider.of<LinkRequestProvider>(context, listen: false).loadLinkRequests();
     });
+  }
+
+  Future<void> _handleAccept(String requestId) async {
+    setState(() {
+      _actionLoadingId = requestId;
+    });
+
+    try {
+      final provider = Provider.of<LinkRequestProvider>(context, listen: false);
+      final success = await provider.approveLinkRequest(requestId);
+      
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Link request accepted'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // Provider already reloads the list, but refresh UI to ensure update
+          setState(() {});
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${provider.errorMessage ?? "Failed to accept request"}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString().replaceAll('Exception: ', '')}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _actionLoadingId = null;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleReject(String requestId) async {
+    setState(() {
+      _actionLoadingId = requestId;
+    });
+
+    try {
+      final provider = Provider.of<LinkRequestProvider>(context, listen: false);
+      final success = await provider.rejectLinkRequest(requestId);
+      
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Link request rejected'),
+              backgroundColor: Colors.orange,
+            ),
+          );
+          // Provider already reloads the list, but refresh UI to ensure update
+          setState(() {});
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${provider.errorMessage ?? "Failed to reject request"}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString().replaceAll('Exception: ', '')}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _actionLoadingId = null;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleBlock(String requestId) async {
+    setState(() {
+      _actionLoadingId = requestId;
+    });
+
+    try {
+      await LinkRequestService.blockLinkRequest(requestId);
+      final provider = Provider.of<LinkRequestProvider>(context, listen: false);
+      await provider.loadLinkRequests();
+      
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Consumer blocked'),
+            backgroundColor: Colors.red,
+          ),
+        );
+        // Refresh UI to ensure update
+        setState(() {});
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString().replaceAll('Exception: ', '')}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _actionLoadingId = null;
+        });
+      }
+    }
+  }
+
+  Future<void> _handleUnlink(String linkId) async {
+    setState(() {
+      _actionLoadingId = linkId;
+    });
+
+    try {
+      final provider = Provider.of<LinkRequestProvider>(context, listen: false);
+      final success = await provider.unlinkConsumer(linkId);
+      
+      if (mounted) {
+        if (success) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Consumer unlinked successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+          // Provider already reloads the list, but refresh UI to ensure update
+          setState(() {});
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Error: ${provider.errorMessage ?? "Failed to unlink consumer"}'),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: ${e.toString().replaceAll('Exception: ', '')}'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } finally {
+      if (mounted) {
+        setState(() {
+          _actionLoadingId = null;
+        });
+      }
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final userRole = authProvider.user?.role ?? '';
-    final canEdit = userRole == UserRole.owner || userRole == UserRole.manager;
+    
+    // Only Owners and Managers can view link requests
+    if (userRole != UserRole.owner && userRole != UserRole.manager) {
+      return Scaffold(
+        backgroundColor: const Color(0xFFBFB7B7),
+        appBar: AppBar(
+          backgroundColor: const Color(0xFFF6DEDE),
+          title: const Text('My Catalog'),
+        ),
+        body: Center(
+          child: Padding(
+            padding: const EdgeInsets.all(32.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.lock_outline, size: 64, color: Colors.red),
+                const SizedBox(height: 16),
+                const Text(
+                  'Access Denied',
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                const Text(
+                  'Only Owners and Managers can view link requests.',
+                  textAlign: TextAlign.center,
+                ),
+                const SizedBox(height: 24),
+                ElevatedButton(
+                  onPressed: () => Navigator.pop(context),
+                  child: const Text('Go to Dashboard'),
+                ),
+              ],
+            ),
+          ),
+        ),
+      );
+    }
 
     return Scaffold(
+      backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
       appBar: AppBar(
-        title: const Text('Catalog'),
+        backgroundColor: const Color(0xFFF6DEDE), // Light pink matching website header
+        title: const Text(
+          'My Catalog',
+          style: TextStyle(
+            color: Colors.black,
+            fontWeight: FontWeight.bold,
+          ),
+        ),
       ),
-      body: Consumer<SupplierProvider>(
-        builder: (context, supplierProvider, child) {
-          if (supplierProvider.isLoading) {
-            return const Center(child: CircularProgressIndicator());
-          }
-
-          if (supplierProvider.errorMessage != null) {
-            return Center(
-              child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: [
-                  const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                  const SizedBox(height: 16),
-                  Text(supplierProvider.errorMessage!),
-                  const SizedBox(height: 16),
-                  ElevatedButton(
-                    onPressed: () {
-                      supplierProvider.loadMySuppliers();
-                    },
-                    child: const Text('Retry'),
-                  ),
-                ],
+      body: Consumer<LinkRequestProvider>(
+        builder: (context, provider, child) {
+          if (provider.isLoading) {
+            return const Center(
+              child: Padding(
+                padding: EdgeInsets.all(32.0),
+                child: CircularProgressIndicator(),
               ),
             );
           }
 
-          final suppliers = supplierProvider.suppliers;
+          final allRequests = provider.linkRequests;
+          
+          // Calculate counts
+          final counts = {
+            'all': allRequests.length,
+            'pending': allRequests.where((r) => r.status == 'pending').length,
+            'linked': allRequests.where((r) => r.status == 'linked').length,
+            'rejected': allRequests.where((r) => r.status == 'rejected').length,
+            'blocked': allRequests.where((r) => r.status == 'blocked').length,
+          };
 
-          if (suppliers.isEmpty) {
-            return Center(
+          // Filter requests
+          final filteredRequests = _filterStatus == 'all'
+              ? allRequests
+              : allRequests.where((r) => r.status == _filterStatus).toList();
+
+          return RefreshIndicator(
+            onRefresh: () => provider.loadLinkRequests(),
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
               child: Column(
-                mainAxisAlignment: MainAxisAlignment.center,
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Icon(Icons.inventory_2_outlined,
-                      size: 64, color: Colors.grey),
-                  const SizedBox(height: 16),
+                  // Header
                   const Text(
-                    'No suppliers yet',
+                    'Consumer Link Requests',
                     style: TextStyle(
-                      color: Colors.grey,
-                      fontSize: 18,
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
+                      color: Color(0xFF20232A),
                     ),
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Create supplier names in Sales Management',
-                    style: TextStyle(color: Colors.grey),
+                    'Manage consumer connections and access',
+                    style: TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF20232A),
+                    ),
                   ),
-                  if (canEdit) ...[
-                    const SizedBox(height: 24),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) => const SalesManagementScreen(),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.add),
-                      label: const Text('Go to Sales Management'),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 24,
-                          vertical: 12,
+                  const SizedBox(height: 24),
+
+                  // Summary Cards
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildStatCard(
+                          counts['pending']!.toString(),
+                          'Pending Requests',
+                          Colors.orange,
+                          Icons.hourglass_empty,
                         ),
                       ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildStatCard(
+                          counts['linked']!.toString(),
+                          'Linked Consumers',
+                          Colors.green,
+                          Icons.check_circle,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildStatCard(
+                          counts['rejected']!.toString(),
+                          'Rejected',
+                          Colors.red,
+                          Icons.cancel,
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildStatCard(
+                          counts['blocked']!.toString(),
+                          'Blocked',
+                          Colors.red[700]!,
+                          Icons.block,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Filter Tabs
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildFilterTab('all', counts['all']!, _filterStatus == 'all'),
+                        const SizedBox(width: 8),
+                        _buildFilterTab('pending', counts['pending']!, _filterStatus == 'pending'),
+                        const SizedBox(width: 8),
+                        _buildFilterTab('linked', counts['linked']!, _filterStatus == 'linked'),
+                        const SizedBox(width: 8),
+                        _buildFilterTab('rejected', counts['rejected']!, _filterStatus == 'rejected'),
+                        const SizedBox(width: 8),
+                        _buildFilterTab('blocked', counts['blocked']!, _filterStatus == 'blocked'),
+                      ],
                     ),
-                  ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Link Request Cards
+                  if (filteredRequests.isEmpty)
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(32.0),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'No requests found',
+                              style: TextStyle(
+                                fontSize: 18,
+                                fontWeight: FontWeight.bold,
+                                color: Colors.grey,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    ...filteredRequests.map((request) => _buildRequestCard(request)),
                 ],
               ),
-            );
-          }
-
-          return RefreshIndicator(
-            onRefresh: () async {
-              await supplierProvider.loadMySuppliers();
-            },
-            child: ListView.builder(
-              padding: const EdgeInsets.all(16),
-              itemCount: suppliers.length,
-              itemBuilder: (context, index) {
-                final supplier = suppliers[index];
-                return Card(
-                  margin: const EdgeInsets.only(bottom: 12),
-                  child: ListTile(
-                    leading: CircleAvatar(
-                      backgroundColor: Colors.teal,
-                      child: Text(
-                        supplier.companyName[0].toUpperCase(),
-                        style: const TextStyle(color: Colors.white),
-                      ),
-                    ),
-                    title: Text(
-                      supplier.companyName,
-                      style: const TextStyle(fontWeight: FontWeight.bold),
-                    ),
-                    subtitle: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        if (supplier.companyType != null)
-                          Text(supplier.companyType!),
-                        Text('Supplier ID: ${supplier.id.substring(supplier.id.length - 6)}'),
-                      ],
-                    ),
-                    trailing: Row(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        // Edit button (only for Owners/Managers)
-                        if (canEdit)
-                          IconButton(
-                            icon: const Icon(Icons.edit),
-                            onPressed: () {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => CatalogManagementScreen(
-                                    supplierId: supplier.id,
-                                    supplierName: supplier.companyName,
-                                  ),
-                                ),
-                              ).then((result) {
-                                if (result == true && mounted) {
-                                  supplierProvider.loadMySuppliers();
-                                }
-                              });
-                            },
-                            tooltip: 'Edit Products',
-                            color: Colors.grey[700],
-                          ),
-                        IconButton(
-                          icon: const Icon(Icons.visibility),
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => ConsumerCatalogScreen(
-                                  supplierId: supplier.id,
-                                  supplierName: supplier.companyName,
-                                ),
-                              ),
-                            );
-                          },
-                          tooltip: 'View Products',
-                          color: Colors.green,
-                        ),
-                      ],
-                    ),
-                    isThreeLine: true,
-                  ),
-                );
-              },
             ),
           );
         },
       ),
     );
   }
-}
 
+  Widget _buildStatCard(String value, String label, Color color, IconData icon) {
+    return Card(
+      color: Colors.white,
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: color,
+                    size: 24,
+                  ),
+                ),
+                Text(
+                  value,
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF666666),
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildFilterTab(String status, int count, bool isActive) {
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _filterStatus = status;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isActive ? const Color(0xFF61DAFB) : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isActive ? const Color(0xFF61DAFB) : Colors.grey[300]!,
+          ),
+        ),
+        child: Text(
+          '${status[0].toUpperCase()}${status.substring(1)} ($count)',
+          style: TextStyle(
+            fontSize: 14,
+            fontWeight: FontWeight.w600,
+            color: isActive ? Colors.white : const Color(0xFF20232A),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRequestCard(LinkRequest request) {
+    // Format date as DD.MM.YYYY
+    final date = request.createdAt;
+    final requestDate = '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
+
+    return Card(
+      color: Colors.white,
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
+      margin: const EdgeInsets.only(bottom: 16),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Consumer Name
+            Text(
+              request.consumerName ?? 'Unknown Consumer',
+              style: const TextStyle(
+                fontSize: 20,
+                fontWeight: FontWeight.bold,
+                color: Color(0xFF20232A),
+              ),
+            ),
+            const SizedBox(height: 16),
+
+            // Request Details
+            Row(
+              children: [
+                const Icon(Icons.calendar_today, size: 20, color: Color(0xFF666666)),
+                const SizedBox(width: 8),
+                Text(
+                  'Request Date: $requestDate',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF666666),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            Row(
+              children: [
+                const Icon(Icons.badge, size: 20, color: Color(0xFF9C27B0)),
+                const SizedBox(width: 8),
+                Text(
+                  'Consumer ID: ${request.consumerId}',
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF666666),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 16),
+
+            // Action Buttons
+            if (request.status == 'pending') ...[
+              Row(
+                children: [
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: _actionLoadingId == request.id
+                          ? null
+                          : () => _handleAccept(request.id),
+                      icon: const Icon(Icons.check, size: 18),
+                      label: Text(_actionLoadingId == request.id ? 'Processing...' : 'Accept'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.green,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: _actionLoadingId == request.id
+                          ? null
+                          : () => _handleReject(request.id),
+                      icon: const Icon(Icons.close, size: 18),
+                      label: Text(_actionLoadingId == request.id ? 'Processing...' : 'Reject'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.red,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: ElevatedButton.icon(
+                      onPressed: _actionLoadingId == request.id
+                          ? null
+                          : () => _handleBlock(request.id),
+                      icon: const Icon(Icons.block, size: 18),
+                      label: const Text('Block'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.grey[600]!,
+                        foregroundColor: Colors.white,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ] else if (request.status == 'linked') ...[
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // Navigate to Order Management filtered by consumer ID
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => OrdersScreen(
+                            isConsumer: false,
+                            // Note: We'll filter orders by consumer ID in the OrdersScreen
+                            // For now, just navigate - filtering can be added later if needed
+                          ),
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.shopping_cart, size: 18),
+                    label: const Text('View Orders'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF61DAFB),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: () {
+                      // Message functionality - to be implemented later
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        const SnackBar(
+                          content: Text('Message functionality coming soon'),
+                          backgroundColor: Colors.blue,
+                        ),
+                      );
+                    },
+                    icon: const Icon(Icons.message, size: 18),
+                    label: const Text('Message'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.blue,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    ),
+                  ),
+                  ElevatedButton.icon(
+                    onPressed: _actionLoadingId == request.id
+                        ? null
+                        : () => _handleUnlink(request.id),
+                    icon: const Icon(Icons.link_off, size: 18),
+                    label: Text(_actionLoadingId == request.id ? 'Processing...' : 'Unlink'),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.orange,
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
+                    ),
+                  ),
+                ],
+              ),
+            ] else if (request.status == 'rejected') ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red[50],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red[200]!),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.cancel, color: Colors.red, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'Rejected',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ] else if (request.status == 'blocked') ...[
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.red[100],
+                  borderRadius: BorderRadius.circular(8),
+                  border: Border.all(color: Colors.red[300]!),
+                ),
+                child: const Row(
+                  children: [
+                    Icon(Icons.block, color: Colors.red, size: 20),
+                    SizedBox(width: 8),
+                    Text(
+                      'Blocked',
+                      style: TextStyle(
+                        color: Colors.red,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ],
+        ),
+      ),
+    );
+  }
+}

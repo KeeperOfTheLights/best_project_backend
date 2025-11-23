@@ -1,20 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import '../providers/link_request_provider.dart';
-import '../providers/complaint_provider.dart';
-import '../models/complaint.dart';
-import '../utils/constants.dart';
-import '../widgets/dv_logo.dart';
-import 'manage_link_requests_screen.dart';
-import 'orders_screen.dart';
-import 'chat_list_screen.dart';
-import 'staff_management_screen.dart';
-import 'sales_management_screen.dart';
-import 'complaints_management_screen.dart';
+import '../providers/order_provider.dart';
+import '../services/order_service.dart';
 import 'supplier_catalog_main_screen.dart';
+import 'catalog_management_screen.dart';
+import 'orders_screen.dart';
+import 'staff_management_screen.dart';
+import 'chat_list_screen.dart';
+import 'complaints_management_screen.dart';
 
-// SupplierDashboard - the main screen for suppliers after login
+// SupplierDashboard - matches website design with order statistics and quick actions
 class SupplierDashboard extends StatefulWidget {
   const SupplierDashboard({super.key});
 
@@ -23,420 +19,383 @@ class SupplierDashboard extends StatefulWidget {
 }
 
 class _SupplierDashboardState extends State<SupplierDashboard> {
+  Map<String, dynamic>? _orderStats;
+  bool _isLoadingStats = true;
+  String? _statsError;
+
   @override
   void initState() {
     super.initState();
-    // Load link requests and complaints when dashboard opens
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      Provider.of<LinkRequestProvider>(context, listen: false)
-          .loadLinkRequests();
-      Provider.of<ComplaintProvider>(context, listen: false)
-          .loadComplaints();
+    _loadOrderStats();
+  }
+
+  Future<void> _loadOrderStats() async {
+    setState(() {
+      _isLoadingStats = true;
+      _statsError = null;
     });
+
+    try {
+      final stats = await OrderService.getSupplierOrderStats();
+      setState(() {
+        _orderStats = stats;
+        _isLoadingStats = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoadingStats = false;
+        _statsError = e.toString().replaceAll('Exception: ', '');
+        // Set default values if error
+        _orderStats = {
+          'active_orders': 0,
+          'completed_orders': 0,
+          'pending_deliveries': 0,
+          'total_revenue': 0.0,
+        };
+      });
+    }
+  }
+
+  String _getGreeting() {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final role = authProvider.user?.role ?? '';
+    if (role == 'owner') return 'Hello, Owner!';
+    if (role == 'manager') return 'Hello, Manager!';
+    if (role == 'sales') return 'Hello, Sales Representative!';
+    return 'Welcome Back!';
+  }
+
+  String _getSubtitle() {
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+    final role = authProvider.user?.role ?? '';
+    if (role == 'sales') {
+      return "Manage your communications and handle customer inquiries.";
+    }
+    return "Here's an overview of your performance and current activity.";
   }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
-    final userRole = authProvider.user?.role ?? '';
 
     return Scaffold(
+      backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
       appBar: AppBar(
+        backgroundColor: const Color(0xFFF6DEDE), // Light pink matching website header
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const DVLogo(size: 32),
+            Image.asset(
+              'assets/images/Logo.png',
+              width: 32,
+              height: 32,
+              fit: BoxFit.contain,
+            ),
             const SizedBox(width: 8),
-            const Text('Supplier Dashboard'),
+            const Text(
+              'DV',
+              style: TextStyle(
+                color: Colors.black,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
           ],
         ),
         actions: [
           IconButton(
-            icon: const Icon(Icons.logout),
+            icon: const Icon(Icons.logout, color: Colors.black),
             onPressed: () async {
               await authProvider.logout();
             },
-            tooltip: 'Logout',
+            tooltip: 'Sign Out',
           ),
         ],
       ),
-      body: Consumer<LinkRequestProvider>(
-        builder: (context, linkProvider, child) {
-          final pendingRequests = linkProvider.getPendingRequests();
-
-          return RefreshIndicator(
-            onRefresh: () async {
-              await linkProvider.loadLinkRequests();
-            },
-            child: SingleChildScrollView(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  // Welcome section
-                  Card(
-                    child: Padding(
-                      padding: const EdgeInsets.all(16.0),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            'Welcome, ${authProvider.user?.name ?? 'Supplier'}!',
-                            style: const TextStyle(
-                              fontSize: 24,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            authProvider.user?.companyName ?? 'Your Company',
-                            style: const TextStyle(
-                              fontSize: 16,
-                              color: Colors.grey,
-                            ),
-                          ),
-                          if (userRole != UserRole.supplier)
-                            Padding(
-                              padding: const EdgeInsets.only(top: 4),
-                              child: Chip(
-                                label: Text(
-                                  userRole.toUpperCase(),
-                                  style: const TextStyle(fontSize: 12),
-                                ),
-                                backgroundColor: Colors.grey[200],
-                              ),
-                            ),
-                        ],
+      body: RefreshIndicator(
+        onRefresh: _loadOrderStats,
+        child: SingleChildScrollView(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Welcome section
+              Card(
+                color: Colors.white,
+                elevation: 0,
+                child: Padding(
+                  padding: const EdgeInsets.all(16.0),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        _getGreeting(),
+                        style: const TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: Color(0xFF20232A),
+                        ),
                       ),
+                      const SizedBox(height: 8),
+                      Text(
+                        _getSubtitle(),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF20232A),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              const SizedBox(height: 24),
+
+              // Order Statistics Overview Cards (only for non-sales roles)
+              if (authProvider.user?.role != 'sales') ...[
+                _isLoadingStats
+                    ? const Center(
+                        child: Padding(
+                          padding: EdgeInsets.all(32.0),
+                          child: CircularProgressIndicator(),
+                        ),
+                      )
+                    : _orderStats == null
+                        ? const SizedBox.shrink()
+                        : Column(
+                            children: [
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildStatCard(
+                                      '${_orderStats!['active_orders']}',
+                                      'Active Orders',
+                                      const Color(0xFF61DAFB), // Light blue matching website
+                                      Icons.shopping_cart,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildStatCard(
+                                      '${_orderStats!['completed_orders']}',
+                                      'Completed Orders',
+                                      Colors.green,
+                                      Icons.check_circle,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 12),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: _buildStatCard(
+                                      '${_orderStats!['pending_deliveries']}',
+                                      'Pending Deliveries',
+                                      Colors.orange,
+                                      Icons.local_shipping,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: _buildStatCard(
+                                      '${_orderStats!['total_revenue']!.toStringAsFixed(0)} ₸',
+                                      'Total Revenue',
+                                      const Color(0xFF9C27B0), // Purple matching website
+                                      Icons.attach_money,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                if (_statsError != null) ...[
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12.0),
+                    decoration: BoxDecoration(
+                      color: Colors.red[50],
+                      borderRadius: BorderRadius.circular(8),
+                      border: Border.all(color: Colors.red[200]!),
+                    ),
+                    child: Row(
+                      children: [
+                        const Icon(Icons.error_outline, color: Colors.red),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            _statsError!,
+                            style: const TextStyle(color: Colors.red),
+                          ),
+                        ),
+                        TextButton(
+                          onPressed: _loadOrderStats,
+                          child: const Text('Retry'),
+                        ),
+                      ],
                     ),
                   ),
-                  const SizedBox(height: 24),
+                ],
+                const SizedBox(height: 24),
+              ],
 
-                  // Statistics Cards
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildStatCard(
-                          'Pending Requests',
-                          pendingRequests.length.toString(),
-                          Colors.orange,
-                          Icons.pending,
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildStatCard(
-                          'New Orders',
-                          '0', // TODO: Get from orders provider
-                          Colors.grey[700]!,
-                          Icons.shopping_cart,
-                        ),
-                      ),
-                    ],
+              // Quick Actions Section
+              Row(
+                children: [
+                  Container(
+                    width: 4,
+                    height: 24,
+                    color: const Color(0xFF20232A), // Black bar matching website
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: Consumer<ComplaintProvider>(
-                          builder: (context, complaintProvider, child) {
-                            // Count open complaints (pending + in progress)
-                            final openComplaints = complaintProvider.complaints
-                                .where((c) =>
-                                    c.status == ComplaintStatus.pending ||
-                                    c.status == ComplaintStatus.inProgress)
-                                .length;
-                            return _buildStatCard(
-                          'Open Complaints',
-                              openComplaints.toString(),
-                          Colors.red,
-                          Icons.report_problem,
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildStatCard(
-                          'Active Links',
-                          linkProvider.getApprovedRequests().length.toString(),
-                          Colors.green,
-                          Icons.link,
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 24),
-
-                  // Quick Actions
+                  const SizedBox(width: 12),
                   const Text(
                     'Quick Actions',
                     style: TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
+                      color: Color(0xFF20232A),
                     ),
                   ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildActionCard(
-                          context,
-                          icon: Icons.shopping_cart,
-                          title: 'Orders',
-                          color: Colors.orange,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const OrdersScreen(isConsumer: false),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildActionCard(
-                          context,
-                          icon: Icons.link,
-                          title: 'Link Requests',
-                          color: Colors.green,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const ManageLinkRequestsScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                          Expanded(
-                            child: _buildActionCard(
-                              context,
-                              icon: Icons.chat,
-                              title: 'Chats',
-                              color: Colors.purple,
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => const ChatListScreen(),
-                                  ),
-                                );
-                              },
-                            ),
-                          ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildActionCard(
-                          context,
-                          icon: Icons.report_problem,
-                          title: 'Complaints',
-                          color: Colors.red,
-                          onTap: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const ComplaintsManagementScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                   // Management Section (Owners and Managers only)
-                   if (userRole == UserRole.owner || userRole == UserRole.manager) ...[
-                     const SizedBox(height: 24),
-                     const Text(
-                       'Management',
-                       style: TextStyle(
-                         fontSize: 20,
-                         fontWeight: FontWeight.bold,
-                       ),
-                     ),
-                     const SizedBox(height: 12),
-                     Row(
-                       children: [
-                         Expanded(
-                           child: _buildActionCard(
-                             context,
-                             icon: Icons.inventory_2,
-                             title: 'Catalog',
-                             color: Colors.purple,
-                             onTap: () {
-                               Navigator.push(
-                                 context,
-                                 MaterialPageRoute(
-                                   builder: (context) => const SupplierCatalogMainScreen(),
-                                 ),
-                               );
-                             },
-                           ),
-                         ),
-                         const SizedBox(width: 12),
-                         Expanded(
-                           child: _buildActionCard(
-                             context,
-                             icon: Icons.business,
-                             title: 'Sales Management',
-                             color: Colors.teal,
-                             onTap: () {
-                               Navigator.push(
-                                 context,
-                                 MaterialPageRoute(
-                                   builder: (context) => const SalesManagementScreen(),
-                                 ),
-                               );
-                             },
-                           ),
-                         ),
-                       ],
-                     ),
-                     // Staff Management (Owners only)
-                     if (userRole == UserRole.owner) ...[
-                       const SizedBox(height: 12),
-                       Row(
-                         children: [
-                           Expanded(
-                             child: _buildActionCard(
-                               context,
-                               icon: Icons.people,
-                               title: 'Staff Management',
-                               color: Colors.indigo,
-                               onTap: () {
-                                 Navigator.push(
-                                   context,
-                                   MaterialPageRoute(
-                                     builder: (context) => const StaffManagementScreen(),
-                                   ),
-                                 );
-                               },
-                             ),
-                           ),
-                           const SizedBox(width: 12),
-                           Expanded(
-                             child: Container(), // Empty space for alignment
-                           ),
-                         ],
-                       ),
-                     ],
-                   ],
-                  const SizedBox(height: 24),
-
-                  // Pending Link Requests Section
-                  if (pendingRequests.isNotEmpty &&
-                      (userRole == UserRole.owner ||
-                          userRole == UserRole.manager)) ...[
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        const Text(
-                          'Pending Link Requests',
-                          style: TextStyle(
-                            fontSize: 20,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        TextButton(
-                          onPressed: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) =>
-                                    const ManageLinkRequestsScreen(),
-                              ),
-                            );
-                          },
-                          child: const Text('View All'),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 12),
-                    ...pendingRequests.take(3).map((request) => Card(
-                          margin: const EdgeInsets.only(bottom: 8),
-                          child: ListTile(
-                            leading: const CircleAvatar(
-                              backgroundColor: Colors.orange,
-                              child: Icon(Icons.pending, color: Colors.white),
-                            ),
-                            title: Text(
-                              request.consumer?.name ?? 'Consumer',
-                              style: const TextStyle(fontWeight: FontWeight.bold),
-                            ),
-                            subtitle: Text(
-                              request.consumer?.businessName ?? '',
-                            ),
-                            trailing: Row(
-                              mainAxisSize: MainAxisSize.min,
-                              children: [
-                                IconButton(
-                                  icon: const Icon(Icons.check, color: Colors.green),
-                                  onPressed: () async {
-                                    final provider =
-                                        Provider.of<LinkRequestProvider>(
-                                      context,
-                                      listen: false,
-                                    );
-                                    await provider.approveLinkRequest(request.id);
-                                    if (mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Request approved'),
-                                          backgroundColor: Colors.green,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  tooltip: 'Approve',
-                                ),
-                                IconButton(
-                                  icon: const Icon(Icons.close, color: Colors.red),
-                                  onPressed: () async {
-                                    final provider =
-                                        Provider.of<LinkRequestProvider>(
-                                      context,
-                                      listen: false,
-                                    );
-                                    await provider.rejectLinkRequest(request.id);
-                                    if (mounted) {
-                                      ScaffoldMessenger.of(context).showSnackBar(
-                                        const SnackBar(
-                                          content: Text('Request rejected'),
-                                          backgroundColor: Colors.orange,
-                                        ),
-                                      );
-                                    }
-                                  },
-                                  tooltip: 'Reject',
-                                ),
-                              ],
-                            ),
-                          ),
-                        )),
-                    const SizedBox(height: 24),
-                  ],
                 ],
               ),
-            ),
-          );
-        },
+              const SizedBox(height: 16),
+
+              // Quick Actions Buttons - matching website design
+              Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildQuickActionButton(
+                          context,
+                          'My Catalog',
+                          Icons.inventory_2,
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const SupplierCatalogMainScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildQuickActionButton(
+                          context,
+                          'Products',
+                          Icons.category,
+                          () {
+                            final authProvider = Provider.of<AuthProvider>(context, listen: false);
+                            final userId = authProvider.user?.id ?? '';
+                            final userName = authProvider.user?.name ?? 'Supplier';
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => CatalogManagementScreen(
+                                  supplierId: userId,
+                                  supplierName: userName,
+                                ),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildQuickActionButton(
+                          context,
+                          'Order Management',
+                          Icons.shopping_cart,
+                          () async {
+                            // Preload orders before navigating
+                            final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+                            await orderProvider.loadOrders();
+                            
+                            if (context.mounted) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const OrdersScreen(isConsumer: false),
+                                ),
+                              );
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildQuickActionButton(
+                          context,
+                          'Company Management',
+                          Icons.business,
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const StaffManagementScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildQuickActionButton(
+                          context,
+                          'Chats',
+                          Icons.chat,
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ChatListScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildQuickActionButton(
+                          context,
+                          'Complaints',
+                          Icons.report_problem,
+                          () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const ComplaintsManagementScreen(),
+                              ),
+                            );
+                          },
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ],
+          ),
+        ),
       ),
     );
   }
 
-  Widget _buildStatCard(String title, String value, Color color, IconData icon) {
+  Widget _buildStatCard(String value, String label, Color color, IconData icon) {
     return Card(
+      color: Colors.white,
       elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -445,7 +404,19 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
-                Icon(icon, color: color, size: 24),
+                Container(
+                  width: 48,
+                  height: 48,
+                  decoration: BoxDecoration(
+                    color: color.withOpacity(0.1),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Icon(
+                    icon,
+                    color: color,
+                    size: 24,
+                  ),
+                ),
                 Text(
                   value,
                   style: TextStyle(
@@ -456,12 +427,13 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                 ),
               ],
             ),
-            const SizedBox(height: 8),
+            const SizedBox(height: 12),
             Text(
-              title,
+              label,
               style: const TextStyle(
-                fontSize: 12,
-                color: Colors.grey,
+                fontSize: 14,
+                color: Color(0xFF666666),
+                fontWeight: FontWeight.w500,
               ),
             ),
           ],
@@ -470,31 +442,45 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
     );
   }
 
-  Widget _buildActionCard(
-    BuildContext context, {
-    required IconData icon,
-    required String title,
-    required Color color,
-    required VoidCallback onTap,
-  }) {
+  Widget _buildQuickActionButton(
+    BuildContext context,
+    String label,
+    IconData icon,
+    VoidCallback onTap,
+  ) {
     return Card(
+      color: Colors.white,
       elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(12),
+      ),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(12),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 12.0),
           child: Column(
+            mainAxisSize: MainAxisSize.min,
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 32, color: color),
+              Icon(
+                icon,
+                color: const Color(0xFF61DAFB), // Light blue matching website
+                size: 24,
+              ),
               const SizedBox(height: 8),
-              Text(
-                title,
-                style: const TextStyle(
-                  fontSize: 14,
-                  fontWeight: FontWeight.bold,
+              Flexible(
+                child: Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                    color: Color(0xFF20232A),
+                  ),
+                  textAlign: TextAlign.center,
+                  maxLines: 2,
+                  overflow: TextOverflow.ellipsis,
                 ),
-                textAlign: TextAlign.center,
               ),
             ],
           ),

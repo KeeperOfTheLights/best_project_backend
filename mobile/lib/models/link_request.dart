@@ -6,10 +6,12 @@ class LinkRequest {
   final String id;
   final String consumerId;
   final String supplierId;
-  final String status; // 'pending', 'approved', 'rejected'
+  final String status; // 'pending', 'linked', 'rejected', 'blocked'
   final DateTime createdAt;
   final DateTime? updatedAt;
   final String? rejectionReason;
+  final String? consumerName; // From backend serializer
+  final String? supplierName; // From backend serializer
   
   // Optional: full objects if loaded
   final Supplier? supplier;
@@ -23,6 +25,8 @@ class LinkRequest {
     required this.createdAt,
     this.updatedAt,
     this.rejectionReason,
+    this.consumerName,
+    this.supplierName,
     this.supplier,
     this.consumer,
   });
@@ -42,6 +46,8 @@ class LinkRequest {
           ? DateTime.parse(json['updated_at'])
           : null,
       rejectionReason: json['rejection_reason'] ?? json['rejectionReason'],
+      consumerName: json['consumer_name'],
+      supplierName: json['supplier_name'],
       supplier: null, // Supplier data not included in LinkRequestSerializer
       consumer: null, // Consumer data not included in LinkRequestSerializer
     );
@@ -64,8 +70,10 @@ class LinkRequest {
 // Link request status constants
 class LinkRequestStatus {
   static const String pending = 'pending';
-  static const String approved = 'approved';
+  static const String linked = 'linked'; // Backend uses 'linked' instead of 'approved'
+  static const String approved = 'linked'; // Alias for compatibility
   static const String rejected = 'rejected';
+  static const String blocked = 'blocked';
 }
 
 

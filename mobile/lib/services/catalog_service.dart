@@ -131,6 +131,37 @@ class CatalogService {
       throw Exception('Connection error: ${e.toString()}');
     }
   }
+
+  // Toggle product status (Supplier only)
+  // Backend: PATCH /products/{id}/status/
+  static Future<CatalogItem> toggleProductStatus(String productId, String newStatus) async {
+    try {
+      final response = await http.patch(
+        Uri.parse('$baseUrl${ApiEndpoints.toggleProductStatus}/$productId/status/'),
+        headers: _getHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        // Backend returns {"message": "Status changed to active/inactive"}
+        // We need to reload the product to get updated data
+        // Try to get the product again to return updated CatalogItem
+        final productResponse = await http.get(
+          Uri.parse('$baseUrl${ApiEndpoints.updateProduct}/$productId/'),
+          headers: _getHeaders(),
+        );
+        if (productResponse.statusCode == 200) {
+          final productData = jsonDecode(productResponse.body);
+          return CatalogItem.fromJson(productData);
+        }
+        throw Exception('Failed to get updated product');
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['detail'] ?? error['message'] ?? error['error'] ?? 'Failed to toggle status');
+      }
+    } catch (e) {
+      throw Exception('Connection error: ${e.toString()}');
+    }
+  }
 }
 
 

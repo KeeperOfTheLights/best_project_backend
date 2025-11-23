@@ -57,7 +57,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
 
     try {
       final cartItems = await CartService.getCart();
-      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+    final cartProvider = Provider.of<CartProvider>(context, listen: false);
       cartProvider.loadFromBackend(cartItems);
     } catch (e) {
       setState(() {
@@ -95,7 +95,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
       });
       // Clear message after 3 seconds
       Future.delayed(const Duration(seconds: 3), () {
-        if (mounted) {
+            if (mounted) {
           setState(() {
             _cartMessage = null;
           });
@@ -142,7 +142,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
     try {
       await CartService.removeCartItem(itemId);
       await _loadCart();
-    } catch (e) {
+          } catch (e) {
       setState(() {
         _cartError = e.toString().replaceAll('Exception: ', '');
       });
@@ -161,14 +161,14 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
         .toList();
     
     if (supplierCartItems.isEmpty) {
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
+            if (mounted) {
+              ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
             content: Text('Cart is empty'),
-            backgroundColor: Colors.red,
-          ),
-        );
-      }
+                  backgroundColor: Colors.red,
+                ),
+              );
+            }
       return;
     }
 
@@ -238,9 +238,9 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                   .toList();
               
               return Column(
-                children: [
+                  children: [
                   // Products section
-                  Expanded(
+          Expanded(
                     child: catalogProvider.isLoading
                         ? const Center(child: CircularProgressIndicator())
                         : catalogProvider.errorMessage != null
@@ -252,7 +252,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                                     style: const TextStyle(color: Colors.red),
                                     textAlign: TextAlign.center,
                                   ),
-                                ),
+                    ),
                               )
                             : products.isEmpty
                                 ? const Center(
@@ -292,9 +292,9 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
             },
           );
         },
-      ),
-    );
-  }
+                    ),
+                  );
+                }
 
   Widget _buildProductCard(
     CatalogItem product,
@@ -305,30 +305,30 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
     final isLoading = _loadingProductId == product.id;
     final price = product.discountedPrice;
     
-    return Card(
+                      return Card(
       color: Colors.white,
       margin: const EdgeInsets.only(bottom: 16),
       elevation: 2,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12),
-      ),
-      child: Padding(
+                        ),
+                        child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
             // Product name and category
-            Text(
+                                        Text(
               product.name,
-              style: const TextStyle(
+                                          style: const TextStyle(
                 fontSize: 20,
-                fontWeight: FontWeight.bold,
+                                            fontWeight: FontWeight.bold,
                 color: Color(0xFF20232A),
-              ),
-            ),
+                                          ),
+                                        ),
             if (product.description != null && product.description!.isNotEmpty) ...[
-              const SizedBox(height: 4),
-              Text(
+                                          const SizedBox(height: 4),
+                                          Text(
                 product.description!,
                 style: const TextStyle(
                   fontSize: 14,
@@ -350,7 +350,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                     const SizedBox(width: 4),
                     Text(
                       'Stock: ${product.stock} ${product.unit}',
-                      style: const TextStyle(fontSize: 12),
+                                            style: const TextStyle(fontSize: 12),
                     ),
                   ],
                 ),
@@ -362,13 +362,13 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                     Text(
                       'Min Order: ${product.minOrder} ${product.unit}',
                       style: const TextStyle(fontSize: 12),
-                    ),
-                  ],
-                ),
+                                          ),
+                                      ],
+                                    ),
                 if (product.deliveryOption == 'pickup' || product.deliveryOption == 'both')
                   Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
+                                    mainAxisSize: MainAxisSize.min,
+                                    children: [
                       const Icon(Icons.local_shipping, size: 16, color: Colors.brown),
                       const SizedBox(width: 4),
                       Text(
@@ -382,14 +382,14 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
             const SizedBox(height: 12),
             
             // Price
-            Text(
+                                      Text(
               '${price.toStringAsFixed(0)} ₸',
-              style: const TextStyle(
+                                        style: const TextStyle(
                 fontSize: 18,
-                fontWeight: FontWeight.bold,
+                                          fontWeight: FontWeight.bold,
                 color: Color(0xFF61DAFB),
-              ),
-            ),
+                                        ),
+                                      ),
             const SizedBox(height: 12),
             
             // Quantity selector and Add to Cart button
@@ -400,7 +400,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
                     borderRadius: BorderRadius.circular(8),
-                  ),
+                                      ),
                   child: Row(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -425,7 +425,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                         icon: const Icon(Icons.add),
                         onPressed: quantity < product.stock
                             ? () => _updateQuantity(product.id, 1, product)
-                            : null,
+                                              : null,
                         padding: EdgeInsets.zero,
                         constraints: const BoxConstraints(),
                       ),
@@ -438,7 +438,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                 Expanded(
                   child: ElevatedButton(
                     onPressed: (product.stock == 0 || isLoading) ? null : () => _addToCart(product),
-                    style: ElevatedButton.styleFrom(
+                                          style: ElevatedButton.styleFrom(
                       backgroundColor: const Color(0xFF4CAF50), // Green
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
@@ -479,11 +479,11 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                     style: const TextStyle(
                       fontSize: 12,
                       color: Color(0xFF0F5132),
-                    ),
-                  ),
-                ),
-              ),
-          ],
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                                      ],
         ),
       ),
     );
@@ -504,9 +504,9 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
             spreadRadius: 1,
             blurRadius: 5,
             offset: const Offset(0, -2),
-          ),
-        ],
-      ),
+                                  ),
+                                ],
+                              ),
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
@@ -515,7 +515,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
             padding: const EdgeInsets.all(16.0),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
+                                children: [
                 Text(
                   'Cart (${supplierCartItems.length} items)',
                   style: const TextStyle(
@@ -529,10 +529,10 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                     width: 16,
                     height: 16,
                     child: CircularProgressIndicator(strokeWidth: 2),
-                  ),
-              ],
-            ),
-          ),
+                              ),
+                            ],
+                          ),
+                        ),
           
           // Cart messages
           if (_cartError != null)
@@ -627,10 +627,10 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                    ),
-                  ),
-                ],
-              ),
+            ),
+          ),
+        ],
+      ),
             ),
           ],
         ],
@@ -669,8 +669,8 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
             ),
             child: Row(
               mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
+            children: [
+              IconButton(
                   icon: const Icon(Icons.remove, size: 18),
                   onPressed: isLoading
                       ? null
@@ -686,25 +686,25 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                     textAlign: TextAlign.center,
                     style: const TextStyle(fontSize: 14),
                   ),
-                ),
-                IconButton(
+              ),
+              IconButton(
                   icon: const Icon(Icons.add, size: 18),
                   onPressed: isLoading || quantity >= product.stock
                       ? null
                       : () => _updateCartItem(cartItem.id.toString(), quantity + 1),
                   padding: EdgeInsets.zero,
                   constraints: const BoxConstraints(),
-                ),
-              ],
-            ),
+              ),
+            ],
+          ),
           ),
           IconButton(
             icon: const Icon(Icons.close, color: Colors.red),
             onPressed: isLoading
                 ? null
                 : () => _removeCartItem(cartItem.id.toString()),
-          ),
-        ],
+        ),
+      ],
       ),
     );
   }
