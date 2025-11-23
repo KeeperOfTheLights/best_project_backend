@@ -90,8 +90,10 @@ export default function SupplierOrders() {
         acc.total += 1;
         if (order.status === "pending") acc.pending += 1;
         if (order.status === "approved") acc.processing += 1;
-        if (order.status === "delivered") acc.completed += 1;
-        acc.revenue += Number(order.total_price || 0);
+        if (order.status === "delivered") {
+          acc.completed += 1;
+          acc.revenue += Number(order.total_price || 0);
+        }
         return acc;
       },
       { pending: 0, processing: 0, completed: 0, total: 0, revenue: 0 }
