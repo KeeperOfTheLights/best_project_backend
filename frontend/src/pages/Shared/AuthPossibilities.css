@@ -1,7 +1,7 @@
 html, body {
   margin: 0;
   padding: 0;
-  background-color: #bfb7b7 !important;
+  background-color: #c2b8b8 !important;
   height: 100%;
   font-family: sans-serif;
 }
@@ -15,7 +15,7 @@ html, body {
 }
 
 .signup-card {
-  background: white;
+  background: rgb(255, 255, 255);
   padding: 0.5rem 3rem;
   border-radius: 15px;
   box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
@@ -25,12 +25,12 @@ html, body {
 
 .signup-card h2 {
   margin-bottom: 0.5rem;
-  color: #20232a;
+  color: #2a2e39;
 }
 
 .signup-subtext {
   margin-bottom: 2rem;
-  color: #20232a;
+  color: #252931;
   font-size: 0.9rem;
 }
 
@@ -44,19 +44,19 @@ html, body {
   padding: 0.8rem;
   border-radius: 8px;
   color: black;
-  border: 1px solid #9b9a9a;
-  background-color: #b5b5b5;
+  border: 1px solid #9c9898;
+  background-color: #b8b1b1;
   font-size: 1rem;
   outline: none;
 }
 
 .signup-form input:focus {
-  border-color: #61dafb;
+  border-color: #5ac9e8;
 }
 
 .signup-form button {
-  background-color: #61dafb;
-  color: #20232a;
+  background-color: #58cbeb;
+  color: #272b34;
   border: none;
   padding: 0.9rem;
   border-radius: 8px;
@@ -66,17 +66,17 @@ html, body {
 }
 
 .signup-form button:hover {
-  background-color: #4fcbe4;
+  background-color: #4cc2da;
 }
 
 .signup-footer {
   margin-top: 1.5rem;
   font-size: 0.9rem;
-  color: #514e4e;
+  color: #555050;
 }
 
 .signup-footer a {
-  color: #61dafb;
+  color: #59cbea;
   text-decoration: none;
 }
 
@@ -95,27 +95,27 @@ html, body {
   flex: 1;
   padding: 0.6rem 1rem;
   border-radius: 8px;
-  border: 1px solid #9b9a9a;
-  background-color: #b5b5b5 !important;
-  color: #20232a !important;
+  border: 1px solid #9f9b9b;
+  background-color: #b4afaf !important;
+  color: #262b34 !important;
   cursor: pointer;
   font-weight: 500;
   transition: all 0.2s;
 }
 
 .role-btn:hover {
-  background-color: #a1a1a1 !important;
+  background-color: #9f9a9a !important;
 }
 
 .role-btn.active {
-  background-color: #61dafb !important;
-  border-color: #61dafb;
-  color: #20232a;
+  background-color: #57cbec !important;
+  border-color: #58c7e6;
+  color: #2d333e;
   font-weight: 600;
 }
 
 .error-message {
-  color: #ff4d4f;
+  color: #ee4447;
   margin-bottom: 10px;
   font-weight: 500;
   background: rgba(255, 77, 79, 0.15);
@@ -130,15 +130,15 @@ html, body {
 }
 
 .password-error.weak {
-  color: #ef4444;
+  color: #e53e3e;
 }
 
 .password-error.strong {
-  color: #10b981;
+  color: #10a976;
 }
 
 .form-error {
-  color: #ef4444;
+  color: #de3d3d;
   font-size: 0.9rem;
   margin: 0.5rem 0 1rem 0;
 }

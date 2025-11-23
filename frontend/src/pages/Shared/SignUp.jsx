@@ -30,7 +30,7 @@ export default function SignUp() {
     e.preventDefault();
 
     if (password !== repeatPassword) {
-      setErrorMessage("Passwords do not match!");
+      setErrorMessage("Passwords do not match! :(");
       return;
     }
 
@@ -71,7 +71,7 @@ export default function SignUp() {
     <div className="signup-container">
       <div className="signup-card">
         <h2>Create an Account</h2>
-        <p className="signup-subtext">Join Daivinvhik today</p>
+        <p className="signup-subtext">Join DV today</p>
 
         <form className="signup-form" onSubmit={handleSubmit}>
           <input type="text" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
