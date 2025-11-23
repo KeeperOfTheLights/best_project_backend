@@ -15,6 +15,7 @@ class CatalogItem {
   final String deliveryOption; // 'delivery', 'pickup', or 'both'
   final int leadTimeDays; // Lead time in days
   final String? imageUrl;
+  final String? supplierName; // Supplier name from backend (for search results)
 
   CatalogItem({
     required this.id,
@@ -32,6 +33,7 @@ class CatalogItem {
     required this.deliveryOption,
     this.leadTimeDays = 0,
     this.imageUrl,
+    this.supplierName,
   });
 
   // Get stock quantity (for compatibility)
@@ -70,6 +72,7 @@ class CatalogItem {
       deliveryOption: json['delivery_option'] ?? json['deliveryOption'] ?? 'both',
       leadTimeDays: json['lead_time_days'] ?? json['leadTimeDays'] ?? 0,
       imageUrl: json['image'],
+      supplierName: json['supplier_name'] ?? json['supplierName'],
     );
   }
 
