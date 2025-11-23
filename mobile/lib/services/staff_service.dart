@@ -64,15 +64,14 @@ class StaffService {
   }
 
   // Assign user to company (add staff member)
-  // Backend: POST /company/assign/ with {"user_id": ..., "role": "manager" or "sales"}
+  // Backend: POST /company/assign/ with {"user_id": ...}
+  // Note: Backend uses the user's existing role, not from request body
   static Future<StaffMember> addStaff({
     required String userId,
-    required String role,
   }) async {
     try {
       final body = {
         'user_id': userId,
-        'role': role,  // "manager" or "sales"
       };
 
       final response = await http.post(

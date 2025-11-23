@@ -20,20 +20,20 @@ class ComplaintService {
 
   // Create a new complaint (Consumer)
   // Backend: POST /complaints/{order_id}/create/ - order_id in URL, not body
+  // Backend only requires: title, description
   static Future<Complaint> createComplaint({
     required String orderId,
     required String title,
-    required String accountName,
-    String? orderItemId,
-    required String issueType,
     required String description,
-    List<String>? photoUrls,
   }) async {
     try {
+      // Convert orderId to integer (backend expects integer)
+      final orderIdInt = int.parse(orderId);
+      
       final body = {
+        'order': orderIdInt, // Backend serializer requires this field as integer
         'title': title,
         'description': description,
-        // Backend expects: title, description (optional fields not in serializer)
       };
 
       final response = await http.post(
@@ -46,10 +46,34 @@ class ComplaintService {
         final data = jsonDecode(response.body);
         return Complaint.fromJson(data);
       } else {
-        final error = jsonDecode(response.body);
-        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to create complaint');
+        String errorMessage = 'Failed to create complaint';
+        try {
+          final error = jsonDecode(response.body);
+          // Handle different error formats
+          if (error['detail'] != null) {
+            errorMessage = error['detail'].toString();
+          } else if (error['message'] != null) {
+            errorMessage = error['message'].toString();
+          } else if (error['title'] != null) {
+            // Handle validation errors which might be lists
+            final titleError = error['title'];
+            errorMessage = titleError is List ? titleError.join(', ') : titleError.toString();
+          } else if (error['description'] != null) {
+            final descError = error['description'];
+            errorMessage = descError is List ? descError.join(', ') : descError.toString();
+          } else {
+            errorMessage = error.toString();
+          }
+        } catch (e) {
+          errorMessage = 'Server error: ${response.statusCode}. ${response.body}';
+        }
+        throw Exception(errorMessage);
       }
     } catch (e) {
+      // If it's already an Exception, rethrow it; otherwise wrap it
+      if (e is Exception) {
+        rethrow;
+      }
       throw Exception('Connection error: ${e.toString()}');
     }
   }

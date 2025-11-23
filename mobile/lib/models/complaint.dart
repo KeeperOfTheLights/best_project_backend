@@ -8,13 +8,16 @@ class Complaint {
   final String consumerId;
   final String supplierId;
   final String title; // Complaint title
-  final String accountName; // Consumer's account name
-  final String issueType; // e.g., 'damaged', 'wrong_item', 'missing', 'quality', 'other'
+  final String? accountName; // Consumer's account name (legacy)
+  final String? consumerName; // Consumer's name from backend serializer
+  final String? supplierName; // Supplier's name from backend serializer
+  final String? issueType; // e.g., 'damaged', 'wrong_item', 'missing', 'quality', 'other' (optional in backend)
   final String description;
   final List<String>? photoUrls; // URLs or paths to attached photos
-  final String status; // 'pending', 'in_progress', 'resolved', 'escalated'
+  final String status; // 'pending', 'resolved', 'rejected', 'escalated'
   final DateTime createdAt;
   final DateTime? updatedAt;
+  final DateTime? resolvedAt; // When complaint was resolved
   final String? resolutionNote; // Supplier's response/resolution
   final String? escalatedBy; // User ID who escalated (Sales -> Manager)
   
@@ -28,29 +31,35 @@ class Complaint {
     required this.consumerId,
     required this.supplierId,
     required this.title,
-    required this.accountName,
-    required this.issueType,
+    this.accountName,
+    this.consumerName,
+    this.supplierName,
+    this.issueType,
     required this.description,
     this.photoUrls,
     required this.status,
     required this.createdAt,
     this.updatedAt,
+    this.resolvedAt,
     this.resolutionNote,
     this.escalatedBy,
     this.order,
   });
 
   // Convert JSON from backend to Complaint object
+  // Backend ComplaintSerializer returns: id, order, consumer, consumer_name, supplier, supplier_name, title, description, status, created_at, resolved_at
   factory Complaint.fromJson(Map<String, dynamic> json) {
     return Complaint(
       id: json['id']?.toString() ?? '',
-      orderId: json['order_id']?.toString() ?? json['orderId'] ?? '',
+      orderId: json['order']?.toString() ?? json['order_id']?.toString() ?? json['orderId'] ?? '',
       orderItemId: json['order_item_id']?.toString() ?? json['orderItemId'],
-      consumerId: json['consumer_id']?.toString() ?? json['consumerId'] ?? '',
-      supplierId: json['supplier_id']?.toString() ?? json['supplierId'] ?? '',
+      consumerId: json['consumer']?.toString() ?? json['consumer_id']?.toString() ?? json['consumerId'] ?? '',
+      supplierId: json['supplier']?.toString() ?? json['supplier_id']?.toString() ?? json['supplierId'] ?? '',
       title: json['title'] ?? '',
-      accountName: json['account_name'] ?? json['accountName'] ?? '',
-      issueType: json['issue_type'] ?? json['issueType'] ?? '',
+      accountName: json['account_name'] ?? json['accountName'], // Legacy field
+      consumerName: json['consumer_name'] ?? json['consumerName'],
+      supplierName: json['supplier_name'] ?? json['supplierName'],
+      issueType: json['issue_type'] ?? json['issueType'],
       description: json['description'] ?? '',
       photoUrls: json['photo_urls'] != null
           ? List<String>.from(json['photo_urls'])
@@ -64,9 +73,14 @@ class Complaint {
       updatedAt: json['updated_at'] != null
           ? DateTime.parse(json['updated_at'])
           : null,
+      resolvedAt: json['resolved_at'] != null
+          ? DateTime.parse(json['resolved_at'])
+          : null,
       resolutionNote: json['resolution_note'] ?? json['resolutionNote'],
       escalatedBy: json['escalated_by']?.toString() ?? json['escalatedBy']?.toString(),
-      order: json['order'] != null ? Order.fromJson(json['order']) : null,
+      order: json['order'] != null && json['order'] is Map
+          ? Order.fromJson(json['order'])
+          : null,
     );
   }
 
@@ -100,12 +114,15 @@ class Complaint {
     String? supplierId,
     String? title,
     String? accountName,
+    String? consumerName,
+    String? supplierName,
     String? issueType,
     String? description,
     List<String>? photoUrls,
     String? status,
     DateTime? createdAt,
     DateTime? updatedAt,
+    DateTime? resolvedAt,
     String? resolutionNote,
     String? escalatedBy,
     Order? order,
@@ -118,12 +135,15 @@ class Complaint {
       supplierId: supplierId ?? this.supplierId,
       title: title ?? this.title,
       accountName: accountName ?? this.accountName,
+      consumerName: consumerName ?? this.consumerName,
+      supplierName: supplierName ?? this.supplierName,
       issueType: issueType ?? this.issueType,
       description: description ?? this.description,
       photoUrls: photoUrls ?? this.photoUrls,
       status: status ?? this.status,
       createdAt: createdAt ?? this.createdAt,
       updatedAt: updatedAt ?? this.updatedAt,
+      resolvedAt: resolvedAt ?? this.resolvedAt,
       resolutionNote: resolutionNote ?? this.resolutionNote,
       escalatedBy: escalatedBy ?? this.escalatedBy,
       order: order ?? this.order,

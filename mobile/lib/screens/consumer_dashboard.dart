@@ -261,12 +261,12 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                             await orderProvider.loadOrders();
                             
                             if (context.mounted) {
-                              Navigator.push(
-                                context,
-                                MaterialPageRoute(
-                                  builder: (context) => const OrdersScreen(isConsumer: true),
-                                ),
-                              );
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const OrdersScreen(isConsumer: true),
+                              ),
+                            );
                             }
                           },
                         ),

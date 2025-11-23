@@ -43,6 +43,11 @@ dependencies:
   
   # Provider for state management (managing login state across app)
   provider: ^6.1.1
+  
+  # File picker for chat attachments
+  file_picker: ^8.0.0+1
+  # URL launcher for opening/downloading attachments
+  url_launcher: ^6.2.5
 
 dev_dependencies:
   flutter_test:

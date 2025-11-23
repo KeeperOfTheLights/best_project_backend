@@ -1,9 +1,9 @@
+import 'dart:io';
 import 'package:flutter/foundation.dart';
 import '../models/chat_room.dart';
 import '../models/chat_message.dart';
 import '../services/chat_service.dart';
 import '../services/mock_chat_service.dart';
-import '../services/storage_service.dart';
 import '../utils/constants.dart';
 
 // ChatProvider - manages chat state
@@ -77,10 +77,12 @@ class ChatProvider with ChangeNotifier {
   // Backend: POST /chat/{supplier_id}/send/
   Future<bool> sendMessage({
     required String supplierId,
-    required String message,
+    String? text,
     String? consumerId,  // Required if sender is supplier staff
     String? orderId,
     String? productId,
+    String? messageType,
+    File? attachment,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -90,22 +92,27 @@ class ChatProvider with ChangeNotifier {
       final newMessage = useMockApi
           ? await MockChatService.sendMessage(
               chatRoomId: supplierId,
-              message: message,
+              text: text,
               orderId: orderId,
+              productId: productId,
+              messageType: messageType,
             )
           : await ChatService.sendMessage(
               supplierId: supplierId,
-              message: message,
+              text: text,
               consumerId: consumerId,
               orderId: orderId,
               productId: productId,
+              messageType: messageType,
+              attachment: attachment,
             );
 
-      // Add to messages list using supplierId as key
-      if (!_messages.containsKey(supplierId)) {
-        _messages[supplierId] = [];
+      // Add to messages list using supplierId as key (or partnerId)
+      final partnerId = consumerId ?? supplierId;
+      if (!_messages.containsKey(partnerId)) {
+        _messages[partnerId] = [];
       }
-      _messages[supplierId]!.add(newMessage);
+      _messages[partnerId]!.add(newMessage);
 
       _isLoading = false;
       notifyListeners();

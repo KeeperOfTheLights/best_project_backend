@@ -31,8 +31,10 @@ class MockChatService {
   // Send a message
   static Future<ChatMessage> sendMessage({
     required String chatRoomId,
-    required String message,
+    String? text,
     String? orderId,
+    String? productId,
+    String? messageType,
   }) async {
     await _delay();
 
@@ -42,9 +44,11 @@ class MockChatService {
       id: '${_nextMessageId++}',
       chatRoomId: chatRoomId,
       senderId: currentUserId,
-      message: message,
+      text: text ?? '',
       createdAt: DateTime.now(),
+      messageType: messageType ?? 'text',
       orderId: orderId,
+      productId: productId,
     );
 
     // Add to messages list

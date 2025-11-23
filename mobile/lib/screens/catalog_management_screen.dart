@@ -745,6 +745,8 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                   if (mounted) {
                     Navigator.pop(context);
                     if (success) {
+                      // Reload catalog to ensure we have the latest data from backend
+                      await provider.loadMyCatalog();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(
                           content: Text(isEdit ? 'Product updated successfully' : 'Product created successfully'),
@@ -756,6 +758,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                         SnackBar(
                           content: Text('Error: ${provider.errorMessage ?? "Failed to save product"}'),
                           backgroundColor: Colors.red,
+                          duration: const Duration(seconds: 5),
                         ),
                       );
                     }

@@ -91,3 +91,8 @@ class UserRole {
   static const String sales = 'sales';
 }
 
+// Helper function to check if user is supplier side
+bool isSupplierSide(String role) {
+  return role == UserRole.owner || role == UserRole.manager || role == UserRole.sales || role == UserRole.supplier;
+}
+

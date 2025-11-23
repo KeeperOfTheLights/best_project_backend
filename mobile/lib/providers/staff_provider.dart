@@ -69,17 +69,16 @@ class StaffProvider with ChangeNotifier {
 
   // Add new staff member
   // For mock API: creates a full login account with email/name/password
-  // For real backend: assigns existing user to company with userId and role
+  // For real backend: assigns existing user to company with userId (role comes from user)
   Future<bool> addStaff({
     // For real backend
     String? userId,
+    String? role, // Optional - used for mock API or if needed
     // For mock API
     String? email,
     String? name,
     String? password,
     String? phone,
-    // Common
-    required String role,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -90,13 +89,12 @@ class StaffProvider with ChangeNotifier {
           ? await MockStaffService.addStaff(
               email: email ?? '',
               name: name ?? '',
-              role: role,
+              role: role ?? 'sales',
               password: password ?? '',
               phone: phone,
             )
           : await StaffService.addStaff(
               userId: userId ?? '',
-              role: role,
             );
 
       _staff.add(newStaff);

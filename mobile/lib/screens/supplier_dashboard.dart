@@ -3,10 +3,11 @@ import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/order_provider.dart';
 import '../services/order_service.dart';
+import '../utils/constants.dart';
 import 'supplier_catalog_main_screen.dart';
 import 'catalog_management_screen.dart';
 import 'orders_screen.dart';
-import 'staff_management_screen.dart';
+import 'company_management_screen.dart';
 import 'chat_list_screen.dart';
 import 'complaints_management_screen.dart';
 
@@ -259,128 +260,149 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
               const SizedBox(height: 16),
 
               // Quick Actions Buttons - matching website design
-              Column(
-                children: [
-                  Row(
+              // Role-based access: Owner/Manager see all, Sales Rep only sees Orders/Chat/Complaints
+              Builder(
+                builder: (context) {
+                  final userRole = authProvider.user?.role ?? '';
+                  final isOwner = userRole == UserRole.owner;
+                  final isManager = userRole == UserRole.manager;
+                  final isCatalogManager = isOwner || isManager; // Owner and Manager can manage catalog
+
+                  return Column(
                     children: [
-                      Expanded(
-                        child: _buildQuickActionButton(
-                          context,
-                          'My Catalog',
-                          Icons.inventory_2,
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const SupplierCatalogMainScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildQuickActionButton(
-                          context,
-                          'Products',
-                          Icons.category,
-                          () {
-                            final authProvider = Provider.of<AuthProvider>(context, listen: false);
-                            final userId = authProvider.user?.id ?? '';
-                            final userName = authProvider.user?.name ?? 'Supplier';
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => CatalogManagementScreen(
-                                  supplierId: userId,
-                                  supplierName: userName,
-                                ),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildQuickActionButton(
-                          context,
-                          'Order Management',
-                          Icons.shopping_cart,
-                          () async {
-                            // Preload orders before navigating
-                            final orderProvider = Provider.of<OrderProvider>(context, listen: false);
-                            await orderProvider.loadOrders();
-                            
-                            if (context.mounted) {
-                              Navigator.push(
+                      // My Catalog and Products - Only for Owner and Manager
+                      if (isCatalogManager) ...[
+                        Row(
+                          children: [
+                            Expanded(
+                              child: _buildQuickActionButton(
                                 context,
-                                MaterialPageRoute(
-                                  builder: (context) => const OrdersScreen(isConsumer: false),
-                                ),
-                              );
-                            }
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildQuickActionButton(
-                          context,
-                          'Company Management',
-                          Icons.business,
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const StaffManagementScreen(),
+                                'My Catalog',
+                                Icons.inventory_2,
+                                () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const SupplierCatalogMainScreen(),
+                                    ),
+                                  );
+                                },
                               ),
-                            );
-                          },
+                            ),
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildQuickActionButton(
+                                context,
+                                'Products',
+                                Icons.category,
+                                () {
+                                  final userId = authProvider.user?.id ?? '';
+                                  final userName = authProvider.user?.name ?? 'Supplier';
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => CatalogManagementScreen(
+                                        supplierId: userId,
+                                        supplierName: userName,
+                                      ),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ],
                         ),
+                        const SizedBox(height: 12),
+                      ],
+                      // Order Management - All roles
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildQuickActionButton(
+                              context,
+                              'Order Management',
+                              Icons.shopping_cart,
+                              () async {
+                                // Preload orders before navigating
+                                final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+                                await orderProvider.loadOrders();
+                                
+                                if (context.mounted) {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const OrdersScreen(isConsumer: false),
+                                    ),
+                                  );
+                                }
+                              },
+                            ),
+                          ),
+                          // Company Management - Only for Owner
+                          if (isOwner) ...[
+                            const SizedBox(width: 12),
+                            Expanded(
+                              child: _buildQuickActionButton(
+                                context,
+                                'Company Management',
+                                Icons.business,
+                                () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (context) => const CompanyManagementScreen(),
+                                    ),
+                                  );
+                                },
+                              ),
+                            ),
+                          ] else if (isCatalogManager) ...[
+                            // If Manager, show empty space or another action
+                            const SizedBox(width: 12),
+                            const Expanded(child: SizedBox()),
+                          ],
+                        ],
+                      ),
+                      const SizedBox(height: 12),
+                      // Chats and Complaints - All roles
+                      Row(
+                        children: [
+                          Expanded(
+                            child: _buildQuickActionButton(
+                              context,
+                              'Chats',
+                              Icons.chat,
+                              () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const ChatListScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                          const SizedBox(width: 12),
+                          Expanded(
+                            child: _buildQuickActionButton(
+                              context,
+                              'Complaints',
+                              Icons.report_problem,
+                              () {
+                                Navigator.push(
+                                  context,
+                                  MaterialPageRoute(
+                                    builder: (context) => const ComplaintsManagementScreen(),
+                                  ),
+                                );
+                              },
+                            ),
+                          ),
+                        ],
                       ),
                     ],
-                  ),
-                  const SizedBox(height: 12),
-                  Row(
-                    children: [
-                      Expanded(
-                        child: _buildQuickActionButton(
-                          context,
-                          'Chats',
-                          Icons.chat,
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ChatListScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                      const SizedBox(width: 12),
-                      Expanded(
-                        child: _buildQuickActionButton(
-                          context,
-                          'Complaints',
-                          Icons.report_problem,
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const ComplaintsManagementScreen(),
-                              ),
-                            );
-                          },
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+                  );
+                },
               ),
             ],
           ),

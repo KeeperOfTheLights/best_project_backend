@@ -82,8 +82,32 @@ class CatalogService {
         final data = jsonDecode(response.body);
         return CatalogItem.fromJson(data);
       } else {
-        final error = jsonDecode(response.body);
-        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to create item');
+        String errorMessage = 'Failed to create product';
+        try {
+          final error = jsonDecode(response.body);
+          // Handle different error formats
+          if (error['detail'] != null) {
+            errorMessage = error['detail'].toString();
+          } else if (error['message'] != null) {
+            errorMessage = error['message'].toString();
+          } else if (error is Map) {
+            // Handle validation errors
+            final errors = <String>[];
+            error.forEach((key, value) {
+              if (value is List) {
+                errors.add('$key: ${value.join(", ")}');
+              } else {
+                errors.add('$key: $value');
+              }
+            });
+            if (errors.isNotEmpty) {
+              errorMessage = errors.join('; ');
+            }
+          }
+        } catch (e) {
+          errorMessage = 'Server error: ${response.statusCode}';
+        }
+        throw Exception(errorMessage);
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');

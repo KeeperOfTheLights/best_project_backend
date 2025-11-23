@@ -25,12 +25,13 @@ class StaffMember {
   });
 
   // Convert JSON from backend to StaffMember object
+  // Backend UserSerializer returns: id, full_name, email, role, company
   factory StaffMember.fromJson(Map<String, dynamic> json) {
     return StaffMember(
       id: json['id']?.toString() ?? '',
-      supplierId: json['supplier_id']?.toString() ?? json['supplierId'] ?? '',
+      supplierId: json['supplier_id']?.toString() ?? json['supplierId'] ?? json['company']?.toString() ?? '',
       email: json['email'] ?? '',
-      name: json['name'] ?? '',
+      name: json['full_name'] ?? json['name'] ?? '', // Backend uses full_name
       role: json['role'] ?? '',
       phone: json['phone'],
       isActive: json['is_active'] ?? json['isActive'] ?? true,

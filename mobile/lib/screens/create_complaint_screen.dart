@@ -48,17 +48,11 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
 
     final complaintProvider =
         Provider.of<ComplaintProvider>(context, listen: false);
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final accountName = authProvider.user?.name ?? '';
 
     final success = await complaintProvider.createComplaint(
       orderId: widget.orderId,
       title: _titleController.text.trim(),
-      accountName: accountName,
-      orderItemId: _selectedOrderItemId,
-      issueType: _selectedIssueType!,
       description: _descriptionController.text.trim(),
-      photoUrls: _photoUrls.isNotEmpty ? _photoUrls : null,
     );
 
     if (mounted) {

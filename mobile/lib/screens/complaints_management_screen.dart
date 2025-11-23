@@ -2,10 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/complaint_provider.dart';
 import '../providers/auth_provider.dart';
-import '../providers/chat_provider.dart';
 import '../models/complaint.dart';
 import '../utils/constants.dart';
-import 'order_details_screen.dart';
 import 'chat_room_screen.dart';
 
 // ComplaintsManagementScreen - allows suppliers to manage complaints
@@ -19,6 +17,9 @@ class ComplaintsManagementScreen extends StatefulWidget {
 
 class _ComplaintsManagementScreenState
     extends State<ComplaintsManagementScreen> {
+  String _filterStatus = 'all'; // 'all', 'pending', 'resolved', 'rejected', 'escalated'
+  String? _actionLoadingId; // Track which complaint is being processed
+
   @override
   void initState() {
     super.initState();
@@ -27,183 +28,129 @@ class _ComplaintsManagementScreenState
     });
   }
 
-  void _showActionDialog(Complaint complaint) {
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-    final userRole = authProvider.user?.role ?? '';
+  Map<String, int> _getCounts(List<Complaint> complaints) {
+    return {
+      'all': complaints.length,
+      'pending': complaints.where((c) => c.status == 'pending').length,
+      'resolved': complaints.where((c) => c.status == 'resolved').length,
+      'rejected': complaints.where((c) => c.status == 'rejected').length,
+      'escalated': complaints.where((c) => c.status == 'escalated').length,
+    };
+  }
 
-    // Determine available actions based on role and status
-    final canMarkInProgress = complaint.status == ComplaintStatus.pending &&
-        (userRole == UserRole.owner ||
-            userRole == UserRole.manager ||
-            userRole == UserRole.sales);
-
-    final canResolve = (complaint.status == ComplaintStatus.pending ||
-            complaint.status == ComplaintStatus.inProgress) &&
-        (userRole == UserRole.owner || userRole == UserRole.manager);
-
-    final canEscalate = complaint.status != ComplaintStatus.escalated &&
-        complaint.status != ComplaintStatus.resolved &&
-        userRole == UserRole.sales;
-
-    if (!canMarkInProgress && !canResolve && !canEscalate) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('No actions available for this complaint'),
-          backgroundColor: Colors.grey,
-        ),
-      );
-      return;
+  List<Complaint> _getFilteredComplaints(List<Complaint> complaints) {
+    if (_filterStatus == 'all') {
+      return complaints;
     }
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text('Complaint #${complaint.id.substring(complaint.id.length - 6)}'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Issue: ${IssueType.getDisplayName(complaint.issueType)}'),
-            const SizedBox(height: 8),
-            Text('Description: ${complaint.description}'),
-            const SizedBox(height: 16),
-            const Text('Select an action:'),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          if (canMarkInProgress)
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                await _updateComplaintStatus(
-                  complaint.id,
-                  ComplaintStatus.inProgress,
-                );
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.grey[800]),
-              child: const Text('Mark In Progress'),
-            ),
-          if (canResolve)
-            ElevatedButton(
-              onPressed: () => _showResolveDialog(complaint),
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-              child: const Text('Resolve'),
-            ),
-          if (canEscalate)
-            ElevatedButton(
-              onPressed: () async {
-                Navigator.pop(context);
-                await _updateComplaintStatus(
-                  complaint.id,
-                  ComplaintStatus.escalated,
-                );
-              },
-              style: ElevatedButton.styleFrom(backgroundColor: Colors.purple),
-              child: const Text('Escalate to Manager'),
-            ),
-        ],
-      ),
-    );
+    return complaints.where((c) => c.status == _filterStatus).toList();
   }
 
-  void _showResolveDialog(Complaint complaint) {
-    final resolutionController = TextEditingController();
-
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Resolve Complaint'),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Add a resolution note (optional):'),
-            const SizedBox(height: 16),
-            TextField(
-              controller: resolutionController,
-              maxLines: 3,
-              decoration: const InputDecoration(
-                labelText: 'Resolution Note',
-                hintText: 'Describe how the issue was resolved...',
-                border: OutlineInputBorder(),
-              ),
-            ),
-          ],
-        ),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Cancel'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _updateComplaintStatus(
-                complaint.id,
-                ComplaintStatus.resolved,
-                resolutionNote: resolutionController.text.trim().isEmpty
-                    ? null
-                    : resolutionController.text.trim(),
-              );
-            },
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-            child: const Text('Resolve'),
-          ),
-        ],
-      ),
-    );
+  String _getStatusLabel(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return 'Pending';
+      case 'resolved':
+        return 'Resolved';
+      case 'rejected':
+        return 'Rejected';
+      case 'escalated':
+        return 'Escalated';
+      default:
+        return status;
+    }
   }
 
-  Future<void> _updateComplaintStatus(
-    String complaintId,
-    String status, {
-    String? resolutionNote,
-  }) async {
-    final complaintProvider =
-        Provider.of<ComplaintProvider>(context, listen: false);
+  Color _getStatusColor(String status) {
+    switch (status.toLowerCase()) {
+      case 'pending':
+        return Colors.orange;
+      case 'resolved':
+        return Colors.green;
+      case 'rejected':
+        return Colors.red;
+      case 'escalated':
+        return Colors.purple;
+      default:
+        return Colors.grey;
+    }
+  }
 
-    bool success = false;
+  String _formatDate(DateTime? date) {
+    if (date == null) return '—';
+    return '${date.day}.${date.month}.${date.year}';
+  }
+
+  Future<void> _handleResolve(String complaintId) async {
+    setState(() => _actionLoadingId = complaintId);
+    final complaintProvider = Provider.of<ComplaintProvider>(context, listen: false);
     
-    // Use appropriate method based on status
-    if (status == ComplaintStatus.resolved) {
-      success = await complaintProvider.resolveComplaint(complaintId);
-    } else if (status == ComplaintStatus.rejected) {
-      success = await complaintProvider.rejectComplaint(complaintId);
-    } else if (status == ComplaintStatus.escalated) {
-      success = await complaintProvider.escalateComplaint(complaintId);
-    } else {
-      // For inProgress or other statuses, we might not have backend support
-      // For now, just show error
-      if (mounted) {
+    final success = await complaintProvider.resolveComplaint(complaintId);
+    
+    if (mounted) {
+      setState(() => _actionLoadingId = null);
+      if (success) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('This status update is not supported'),
-            backgroundColor: Colors.orange,
-          ),
-        );
-      }
-      return;
-    }
-
-    if (mounted) {
-      if (success) {
-        // Reload complaints to get updated status
-        await complaintProvider.loadComplaints();
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Complaint status updated to ${_formatStatus(status)}'),
+            content: Text('Complaint resolved successfully'),
             backgroundColor: Colors.green,
           ),
         );
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(
-              complaintProvider.errorMessage ?? 'Failed to update complaint',
-            ),
+            content: Text(complaintProvider.errorMessage ?? 'Failed to resolve complaint'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleReject(String complaintId) async {
+    setState(() => _actionLoadingId = complaintId);
+    final complaintProvider = Provider.of<ComplaintProvider>(context, listen: false);
+    
+    final success = await complaintProvider.rejectComplaint(complaintId);
+    
+    if (mounted) {
+      setState(() => _actionLoadingId = null);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Complaint rejected'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(complaintProvider.errorMessage ?? 'Failed to reject complaint'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    }
+  }
+
+  Future<void> _handleEscalate(String complaintId) async {
+    setState(() => _actionLoadingId = complaintId);
+    final complaintProvider = Provider.of<ComplaintProvider>(context, listen: false);
+    
+    final success = await complaintProvider.escalateComplaint(complaintId);
+    
+    if (mounted) {
+      setState(() => _actionLoadingId = null);
+      if (success) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Complaint escalated to Manager/Owner'),
+            backgroundColor: Colors.orange,
+          ),
+        );
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(complaintProvider.errorMessage ?? 'Failed to escalate complaint'),
             backgroundColor: Colors.red,
           ),
         );
@@ -215,295 +162,466 @@ class _ComplaintsManagementScreenState
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final userRole = authProvider.user?.role ?? '';
+    final isSales = userRole == UserRole.sales;
 
-    // Filter complaints based on role
-    // Sales: sees complaints from assigned consumers (all for now in mock)
-    // Manager: sees escalated complaints
-    // Owner: sees all complaints
-
-    return DefaultTabController(
-      length: 4,
-      child: Scaffold(
-        appBar: AppBar(
-          title: const Text('Complaints Management'),
-          bottom: const TabBar(
-            isScrollable: true,
-            tabs: [
-              Tab(text: 'All'),
-              Tab(text: 'Pending'),
-              Tab(text: 'In Progress'),
-              Tab(text: 'Resolved'),
-            ],
+    return Scaffold(
+      backgroundColor: const Color(0xFFF5F5F5),
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF5E6E6),
+        title: const Text(
+          'Complaints Management',
+          style: TextStyle(
+            color: Color(0xFF20232A),
+            fontWeight: FontWeight.bold,
           ),
         ),
-        body: Consumer<ComplaintProvider>(
-          builder: (context, complaintProvider, child) {
-            if (complaintProvider.isLoading &&
-                complaintProvider.complaints.isEmpty) {
-              return const Center(child: CircularProgressIndicator());
-            }
+        elevation: 0,
+      ),
+      body: Consumer<ComplaintProvider>(
+        builder: (context, complaintProvider, child) {
+          final complaints = complaintProvider.complaints;
+          final counts = _getCounts(complaints);
+          final filteredComplaints = _getFilteredComplaints(complaints);
 
-            // Filter complaints by role
-            List<Complaint> filteredComplaints = complaintProvider.complaints;
-            if (userRole == UserRole.manager) {
-              // Manager sees escalated complaints
-              filteredComplaints = complaintProvider.escalatedComplaints;
-            } else if (userRole == UserRole.sales) {
-              // Sales sees complaints from assigned consumers
-              // For mock, show all non-escalated complaints
-              filteredComplaints = complaintProvider.complaints
-                  .where((c) => c.status != ComplaintStatus.escalated)
-                  .toList();
-            }
-            // Owner sees all complaints
-
-            if (complaintProvider.errorMessage != null) {
-              return Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.error_outline, size: 48, color: Colors.red),
-                    const SizedBox(height: 16),
-                    Text(complaintProvider.errorMessage!),
-                    const SizedBox(height: 16),
-                    ElevatedButton(
-                      onPressed: () {
-                        complaintProvider.loadComplaints();
-                      },
-                      child: const Text('Retry'),
-                    ),
-                  ],
-                ),
-              );
-            }
-
-            return RefreshIndicator(
-              onRefresh: () async {
-                await complaintProvider.loadComplaints();
-              },
-              child: TabBarView(
+          return SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  _buildComplaintsList(filteredComplaints, userRole),
-                  _buildComplaintsList(
-                    filteredComplaints
-                        .where((c) => c.status == ComplaintStatus.pending)
-                        .toList(),
-                    userRole,
+                  // Header with subtitle and Refresh button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Expanded(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Text(
+                              'Complaints Management',
+                              style: TextStyle(
+                                fontSize: 24,
+                                fontWeight: FontWeight.bold,
+                                color: Color(0xFF20232A),
+                              ),
+                            ),
+                            const SizedBox(height: 4),
+                            Text(
+                              isSales
+                                  ? 'Handle customer complaints and escalate when manager review is needed.'
+                                  : 'Review escalated complaints and manage order-related issues.',
+                              style: const TextStyle(
+                                fontSize: 14,
+                                color: Color(0xFF666666),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      ElevatedButton(
+                        onPressed: complaintProvider.isLoading
+                            ? null
+                            : () {
+                                complaintProvider.loadComplaints();
+                              },
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: const Color(0xFF61DAFB),
+                          foregroundColor: Colors.white,
+                        ),
+                        child: complaintProvider.isLoading
+                            ? const SizedBox(
+                                height: 20,
+                                width: 20,
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                              )
+                            : const Text('Refresh'),
+                      ),
+                    ],
                   ),
-                  _buildComplaintsList(
-                    filteredComplaints
-                        .where((c) => c.status == ComplaintStatus.inProgress)
-                        .toList(),
-                    userRole,
+                  const SizedBox(height: 24),
+
+                  // Summary Cards
+                  if (isSales)
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildSummaryCard(
+                            icon: Icons.hourglass_empty,
+                            count: counts['pending'] ?? 0,
+                            label: 'Pending',
+                            color: Colors.orange,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildSummaryCard(
+                            icon: Icons.check_circle,
+                            count: counts['resolved'] ?? 0,
+                            label: 'Resolved',
+                            color: Colors.green,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildSummaryCard(
+                            icon: Icons.cancel,
+                            count: counts['rejected'] ?? 0,
+                            label: 'Rejected',
+                            color: Colors.red,
+                          ),
+                        ),
+                      ],
+                    )
+                  else
+                    _buildSummaryCard(
+                      icon: Icons.trending_up,
+                      count: counts['escalated'] ?? 0,
+                      label: 'Escalated',
+                      color: Colors.purple,
+                    ),
+
+                  const SizedBox(height: 24),
+
+                  // Filter Tabs
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _buildFilterTab('all', counts['all'] ?? 0, _filterStatus == 'all'),
+                        const SizedBox(width: 8),
+                        if (isSales) ...[
+                          _buildFilterTab('pending', counts['pending'] ?? 0, _filterStatus == 'pending'),
+                          const SizedBox(width: 8),
+                          _buildFilterTab('resolved', counts['resolved'] ?? 0, _filterStatus == 'resolved'),
+                          const SizedBox(width: 8),
+                          _buildFilterTab('rejected', counts['rejected'] ?? 0, _filterStatus == 'rejected'),
+                        ] else ...[
+                          _buildFilterTab('escalated', counts['escalated'] ?? 0, _filterStatus == 'escalated'),
+                        ],
+                      ],
+                    ),
                   ),
-                  _buildComplaintsList(
-                    filteredComplaints
-                        .where((c) => c.status == ComplaintStatus.resolved)
-                        .toList(),
-                    userRole,
-                  ),
+                  const SizedBox(height: 16),
+
+                  // Complaints List
+                  if (complaintProvider.isLoading && complaints.isEmpty)
+                    const Center(
+                      child: Padding(
+                        padding: EdgeInsets.all(48.0),
+                        child: CircularProgressIndicator(),
+                      ),
+                    )
+                  else if (complaintProvider.errorMessage != null && complaints.isEmpty)
+                    Center(
+                      child: Column(
+                        children: [
+                          const Icon(Icons.error_outline, size: 48, color: Colors.red),
+                          const SizedBox(height: 16),
+                          Text(complaintProvider.errorMessage!),
+                          const SizedBox(height: 16),
+                          ElevatedButton(
+                            onPressed: () {
+                              complaintProvider.loadComplaints();
+                            },
+                            child: const Text('Retry'),
+                          ),
+                        ],
+                      ),
+                    )
+                  else if (filteredComplaints.isEmpty)
+                    Card(
+                      color: Colors.white,
+                      child: Padding(
+                        padding: const EdgeInsets.all(48.0),
+                        child: Column(
+                          children: [
+                            const Icon(Icons.report_problem_outlined, size: 64, color: Colors.grey),
+                            const SizedBox(height: 16),
+                            const Text(
+                              'No complaints found for this status.',
+                              style: TextStyle(color: Colors.grey, fontSize: 16),
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  else
+                    ...filteredComplaints.map((complaint) => _buildComplaintCard(complaint, userRole)),
                 ],
               ),
-            );
-          },
+            ),
+          );
+        },
+      ),
+    );
+  }
+
+  Widget _buildSummaryCard({
+    required IconData icon,
+    required int count,
+    required String label,
+    required Color color,
+  }) {
+    return Card(
+      color: Colors.white,
+      elevation: 2,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: color.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(8),
+              ),
+              child: Icon(icon, color: color, size: 24),
+            ),
+            const SizedBox(width: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  count.toString(),
+                  style: TextStyle(
+                    fontSize: 24,
+                    fontWeight: FontWeight.bold,
+                    color: color,
+                  ),
+                ),
+                Text(
+                  label,
+                  style: const TextStyle(
+                    fontSize: 14,
+                    color: Color(0xFF666666),
+                  ),
+                ),
+              ],
+            ),
+          ],
         ),
       ),
     );
   }
 
-  Widget _buildComplaintsList(List<Complaint> complaints, String userRole) {
-    if (complaints.isEmpty) {
-      return Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.report_problem_outlined,
-                size: 64, color: Colors.grey),
-            const SizedBox(height: 16),
-            const Text(
-              'No complaints',
-              style: TextStyle(color: Colors.grey, fontSize: 16),
-            ),
-          ],
-        ),
-      );
-    }
-
-    return ListView.builder(
-      padding: const EdgeInsets.all(16),
-      itemCount: complaints.length,
-      itemBuilder: (context, index) {
-        final complaint = complaints[index];
-        return Card(
-          margin: const EdgeInsets.only(bottom: 12),
-          child: ListTile(
-            leading: CircleAvatar(
-              backgroundColor: _getStatusColor(complaint.status),
-              child: Icon(_getStatusIcon(complaint.status),
-                  color: Colors.white, size: 20),
-            ),
-            title: Text(
-              complaint.title.isNotEmpty
-                  ? complaint.title
-                  : 'Complaint #${complaint.id.substring(complaint.id.length - 6)}',
-              style: const TextStyle(fontWeight: FontWeight.bold),
-            ),
-            subtitle: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                if (complaint.accountName.isNotEmpty)
-                  Text(
-                    'From: ${complaint.accountName}',
-                    style: const TextStyle(fontWeight: FontWeight.w500),
-                  ),
-                Text('Order: #${complaint.orderId}'),
-                Text('Issue: ${IssueType.getDisplayName(complaint.issueType)}'),
-                if (complaint.description.isNotEmpty) ...[
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      color: Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(4),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        const Text(
-                          'Description:',
-                          style: TextStyle(
-                            fontWeight: FontWeight.bold,
-                            fontSize: 12,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          complaint.description,
-                          style: const TextStyle(fontSize: 13),
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-                const SizedBox(height: 4),
-                Text('Status: ${_formatStatus(complaint.status)}'),
-                Text('Date: ${_formatDate(complaint.createdAt)}'),
-                if (complaint.resolutionNote != null) ...[
-                  const SizedBox(height: 4),
-                  Text(
-                    'Resolution: ${complaint.resolutionNote}',
-                    style: const TextStyle(
-                      color: Colors.green,
-                      fontStyle: FontStyle.italic,
-                    ),
-                  ),
-                ],
-                if (complaint.status == ComplaintStatus.escalated) ...[
-                  const SizedBox(height: 4),
-                  const Text(
-                    'Escalated to Manager',
-                    style: TextStyle(
-                      color: Colors.purple,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                ],
-              ],
-            ),
-            trailing: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.chat),
-                  onPressed: () async {
-                    final chatProvider =
-                        Provider.of<ChatProvider>(context, listen: false);
-                    final room = await chatProvider.createOrGetChatRoom(
-                      complaint.consumerId,
-                      orderId: complaint.orderId,
-                    );
-                    if (room != null && mounted) {
-                      Navigator.push(
-                        context,
-                        MaterialPageRoute(
-                          builder: (context) => ChatRoomScreen(
-                            chatRoomId: room.id,
-                            otherPartyName: complaint.accountName.isNotEmpty
-                                ? complaint.accountName
-                                : 'Consumer',
-                          ),
-                        ),
-                      );
-                    }
-                  },
-                  tooltip: 'Message Consumer',
-                  color: Colors.grey[700],
-                ),
-                IconButton(
-                  icon: const Icon(Icons.visibility),
-                  onPressed: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) =>
-                            OrderDetailsScreen(orderId: complaint.orderId),
-                      ),
-                    );
-                  },
-                  tooltip: 'View Order',
-                ),
-                IconButton(
-                  icon: const Icon(Icons.more_vert),
-                  onPressed: () => _showActionDialog(complaint),
-                  tooltip: 'Actions',
-                ),
-              ],
-            ),
-            isThreeLine: true,
-          ),
-        );
+  Widget _buildFilterTab(String status, int count, bool isActive) {
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _filterStatus = status;
+        });
       },
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        decoration: BoxDecoration(
+          color: isActive ? const Color(0xFF61DAFB) : Colors.white,
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isActive ? const Color(0xFF61DAFB) : Colors.grey[300]!,
+          ),
+        ),
+        child: Text(
+          '${status[0].toUpperCase()}${status.substring(1)}${count > 0 ? ' ($count)' : ''}',
+          style: TextStyle(
+            color: isActive ? Colors.white : const Color(0xFF20232A),
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+      ),
     );
   }
 
-  Color _getStatusColor(String status) {
-    switch (status) {
-      case ComplaintStatus.pending:
-        return Colors.orange;
-      case ComplaintStatus.inProgress:
-        return Colors.grey[700]!;
-      case ComplaintStatus.resolved:
-        return Colors.green;
-      case ComplaintStatus.escalated:
-        return Colors.purple;
-      default:
-        return Colors.grey;
-    }
-  }
+  Widget _buildComplaintCard(Complaint complaint, String userRole) {
+    // Show Resolve/Reject buttons for pending or escalated complaints
+    final canResolveOrReject = complaint.status == 'pending' || complaint.status == 'escalated';
+    final isLoading = _actionLoadingId == complaint.id;
 
-  IconData _getStatusIcon(String status) {
-    switch (status) {
-      case ComplaintStatus.pending:
-        return Icons.pending;
-      case ComplaintStatus.inProgress:
-        return Icons.hourglass_empty;
-      case ComplaintStatus.resolved:
-        return Icons.check_circle;
-      case ComplaintStatus.escalated:
-        return Icons.trending_up;
-      default:
-        return Icons.help_outline;
-    }
-  }
-
-  String _formatStatus(String status) {
-    return status.split('_').map((word) {
-      return word[0].toUpperCase() + word.substring(1);
-    }).join(' ');
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.day}/${date.month}/${date.year}';
+    return Card(
+      margin: const EdgeInsets.only(bottom: 12),
+      color: Colors.white,
+      elevation: 1,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+        side: BorderSide(
+          color: _getStatusColor(complaint.status).withOpacity(0.3),
+          width: 3,
+        ),
+      ),
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header with Title and Status
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Expanded(
+                  child: Text(
+                    complaint.title,
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: Color(0xFF20232A),
+                    ),
+                  ),
+                ),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                  decoration: BoxDecoration(
+                    color: _getStatusColor(complaint.status).withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Text(
+                    _getStatusLabel(complaint.status),
+                    style: TextStyle(
+                      color: _getStatusColor(complaint.status),
+                      fontWeight: FontWeight.bold,
+                      fontSize: 12,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            const SizedBox(height: 12),
+            // Complaint Info
+            Text(
+              'Consumer: ${complaint.consumerName ?? complaint.accountName ?? "Unknown"}',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF666666),
+              ),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Order ID: #${complaint.orderId}',
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF666666),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              complaint.description,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF20232A),
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Created: ${_formatDate(complaint.createdAt)}',
+              style: const TextStyle(
+                fontSize: 12,
+                color: Color(0xFF666666),
+              ),
+            ),
+            const SizedBox(height: 12),
+            // Action Buttons
+            Column(
+              children: [
+                // Open Chat button - full width
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: isLoading
+                        ? null
+                        : () {
+                            // Navigate to chat with consumer
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => ChatRoomScreen(
+                                  chatRoomId: complaint.consumerId,
+                                  otherPartyName: complaint.consumerName ?? complaint.accountName ?? 'Consumer',
+                                  otherPartyType: 'Consumer',
+                                ),
+                              ),
+                            );
+                          },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: const Color(0xFF61DAFB),
+                      foregroundColor: Colors.white,
+                      padding: const EdgeInsets.symmetric(vertical: 12),
+                    ),
+                    child: const Text('Open Chat'),
+                  ),
+                ),
+                if (canResolveOrReject || (userRole == UserRole.sales && complaint.status == 'pending')) ...[
+                  const SizedBox(height: 8),
+                  // Action buttons row
+                  Row(
+                    children: [
+                      if (canResolveOrReject) ...[
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: isLoading ? null : () => _handleResolve(complaint.id),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.green,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            child: isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  )
+                                : const Text('Resolve'),
+                          ),
+                        ),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: isLoading ? null : () => _handleReject(complaint.id),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.red,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            child: isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  )
+                                : const Text('Reject'),
+                          ),
+                        ),
+                      ],
+                      // Escalate button - only for Sales Rep on pending complaints
+                      if (userRole == UserRole.sales && complaint.status == 'pending') ...[
+                        if (canResolveOrReject) const SizedBox(width: 8),
+                        Expanded(
+                          child: ElevatedButton(
+                            onPressed: isLoading ? null : () => _handleEscalate(complaint.id),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.orange,
+                              foregroundColor: Colors.white,
+                              padding: const EdgeInsets.symmetric(vertical: 12),
+                            ),
+                            child: isLoading
+                                ? const SizedBox(
+                                    height: 20,
+                                    width: 20,
+                                    child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+                                  )
+                                : const Text('Escalate'),
+                          ),
+                        ),
+                      ],
+                    ],
+                  ),
+                ],
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }
-

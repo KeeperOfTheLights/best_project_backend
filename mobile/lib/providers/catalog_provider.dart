@@ -101,7 +101,14 @@ class CatalogProvider with ChangeNotifier {
           ? await MockCatalogService.createItem(item)
           : await CatalogService.createItem(item);
 
-      _items.add(newItem);
+      // Reload catalog from backend to ensure we have the latest data
+      // This is important because backend might filter products differently
+      if (!useMockApi) {
+        await loadMyCatalog();
+      } else {
+        _items.add(newItem);
+      }
+      
       _isLoading = false;
       notifyListeners();
       return true;

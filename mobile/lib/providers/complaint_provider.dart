@@ -66,11 +66,7 @@ class ComplaintProvider with ChangeNotifier {
   Future<bool> createComplaint({
     required String orderId,
     required String title,
-    required String accountName,
-    String? orderItemId,
-    required String issueType,
     required String description,
-    List<String>? photoUrls,
   }) async {
     _isLoading = true;
     _errorMessage = null;
@@ -81,25 +77,20 @@ class ComplaintProvider with ChangeNotifier {
           ? await MockComplaintService.createComplaint(
               orderId: orderId,
               title: title,
-              accountName: accountName,
-              orderItemId: orderItemId,
-              issueType: issueType,
+              accountName: '',
+              orderItemId: null,
+              issueType: 'other',
               description: description,
-              photoUrls: photoUrls,
+              photoUrls: null,
             )
           : await ComplaintService.createComplaint(
               orderId: orderId,
               title: title,
-              accountName: accountName,
-              orderItemId: orderItemId,
-              issueType: issueType,
               description: description,
-              photoUrls: photoUrls,
             );
 
-      _complaints.add(newComplaint);
-      _isLoading = false;
-      notifyListeners();
+      // Reload complaints to get the latest data from backend
+      await loadComplaints();
       return true;
     } catch (e) {
       _errorMessage = e.toString();
@@ -123,10 +114,8 @@ class ComplaintProvider with ChangeNotifier {
             )
           : await ComplaintService.resolveComplaint(complaintId);
 
-      final index = _complaints.indexWhere((c) => c.id == complaintId);
-      if (index != -1) {
-        _complaints[index] = updatedComplaint;
-      }
+      // Reload complaints to get updated data from backend
+      await loadComplaints();
 
       _isLoading = false;
       notifyListeners();
@@ -153,10 +142,8 @@ class ComplaintProvider with ChangeNotifier {
             )
           : await ComplaintService.rejectComplaint(complaintId);
 
-      final index = _complaints.indexWhere((c) => c.id == complaintId);
-      if (index != -1) {
-        _complaints[index] = updatedComplaint;
-      }
+      // Reload complaints to get updated data from backend
+      await loadComplaints();
 
       _isLoading = false;
       notifyListeners();
@@ -170,6 +157,7 @@ class ComplaintProvider with ChangeNotifier {
   }
 
   // Escalate complaint (Supplier Sales -> Manager)
+  // Note: User requested NOT to add Escalate button yet
   Future<bool> escalateComplaint(String complaintId) async {
     _isLoading = true;
     _errorMessage = null;
@@ -183,10 +171,8 @@ class ComplaintProvider with ChangeNotifier {
             )
           : await ComplaintService.escalateComplaint(complaintId);
 
-      final index = _complaints.indexWhere((c) => c.id == complaintId);
-      if (index != -1) {
-        _complaints[index] = updatedComplaint;
-      }
+      // Reload complaints to get updated data from backend
+      await loadComplaints();
 
       _isLoading = false;
       notifyListeners();
