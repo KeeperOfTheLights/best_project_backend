@@ -19,6 +19,33 @@ class OrderService {
     return headers;
   }
 
+  // Get consumer order statistics
+  // Backend: GET /api/accounts/orders/stats/
+  // Returns: {"completed_orders": int, "in_progress_orders": int, "cancelled_orders": int, "total_spent": float}
+  static Future<Map<String, dynamic>> getConsumerOrderStats() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl${ApiEndpoints.getConsumerOrderStats}'),
+        headers: _getHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        return {
+          'completed_orders': data['completed_orders'] ?? 0,
+          'in_progress_orders': data['in_progress_orders'] ?? 0,
+          'cancelled_orders': data['cancelled_orders'] ?? 0,
+          'total_spent': (data['total_spent'] ?? 0).toDouble(),
+        };
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to fetch order stats');
+      }
+    } catch (e) {
+      throw Exception('Connection error: ${e.toString()}');
+    }
+  }
+
   // Create order from cart items (checkout)
   // Backend: POST /orders/checkout/ - uses cart items, doesn't take items in body
   // Note: Backend automatically creates order from cart items, so we just call checkout

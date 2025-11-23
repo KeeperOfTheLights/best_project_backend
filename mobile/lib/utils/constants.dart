@@ -50,6 +50,7 @@ class ApiEndpoints {
   static const String acceptOrder = '/orders';  // POST /orders/{id}/accept/
   static const String rejectOrder = '/orders';  // POST /orders/{id}/reject/
   static const String deliverOrder = '/orders';  // POST /orders/{id}/deliver/
+  static const String getConsumerOrderStats = '/orders/stats/';  // GET - Consumer order statistics
   
   // Chat
   static const String getChatHistory = '/chat';  // GET /chat/{partner_id}/
@@ -73,6 +74,7 @@ class ApiEndpoints {
 // Storage keys - keys used to save data in local storage
 class StorageKeys {
   static const String token = 'auth_token';
+  static const String refreshToken = 'refresh_token';
   static const String userRole = 'user_role';
   static const String userId = 'user_id';
   static const String userEmail = 'user_email';

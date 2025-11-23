@@ -36,9 +36,10 @@ class ApiService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         // Transform backend response to match AuthResponse format
-        // Backend uses "access" for token and returns user fields directly (not nested)
+        // Backend returns: {"access": "...", "refresh": "...", "id": ..., "full_name": "...", "role": "...", "email": "..."}
         final transformedData = {
           'token': data['access'] ?? data['token'] ?? '',  // Backend uses "access"
+          'refresh': data['refresh'] ?? '',  // Backend returns refresh token
           'user': {
             'id': data['id']?.toString() ?? '',
             'email': data['email'] ?? '',
@@ -49,8 +50,21 @@ class ApiService {
         return AuthResponse.fromJson(transformedData);
       } else {
         final error = jsonDecode(response.body);
-        final errorMessage = error['detail'] ?? error['message'] ?? error.toString();
-        throw Exception('Login failed: $errorMessage');
+        // Backend may return errors in different formats - match website behavior
+        String errorMessage = 'Invalid email or password';
+        if (error is Map) {
+          // Check for non_field_errors first (matching website)
+          if (error.containsKey('non_field_errors')) {
+            errorMessage = error['non_field_errors'] is List
+                ? error['non_field_errors'].first.toString()
+                : error['non_field_errors'].toString();
+          } else if (error.containsKey('detail')) {
+            errorMessage = error['detail'].toString();
+          } else if (error.containsKey('message')) {
+            errorMessage = error['message'].toString();
+          }
+        }
+        throw Exception(errorMessage);
       }
     } catch (e) {
       if (e.toString().contains('Connection error')) {
@@ -61,32 +75,32 @@ class ApiService {
   }
 
   // Signup - creates a new user account
-  // Backend expects: {"email": "...", "password": "...", "password2": "...", "full_name": "...", "role": "..."}
-  // Backend returns: {"token": "...", "refresh": "...", "id": ..., "role": "..."}
+  // Backend expects: {"full_name": "...", "email": "...", "password": "...", "password2": "...", "role": "..."}
+  // Backend returns: {"message": "...", "id": ..., "role": "...", "token": "...", "refresh": "..."}
   // We transform it to: {"token": "...", "user": {"id": ..., "email": "...", "name": "...", "role": "..."}}
   static Future<AuthResponse> signup({
     required String email,
     required String password,
-    required String name,
-    required String role,
-    String? businessName,
-    String? companyName,
-    String? companyType,
-    String? address,
-    String? phone,
+    required String name, // This will be sent as 'full_name' to backend
+    required String role, // consumer, owner, manager, or sales
+    String? businessName, // Not used in registration
+    String? companyName, // Not used in registration
+    String? companyType, // Not used in registration
+    String? address, // Not used in registration
+    String? phone, // Not used in registration
   }) async {
     try {
-      // Prepare the data to send - backend expects "full_name" not "name", and "password2"
+      // Prepare the data to send - ONLY what backend expects (matching RegisterSerializer)
       Map<String, dynamic> body = {
+        'full_name': name,  // Backend expects "full_name"
         'email': email,
         'password': password,
         'password2': password,  // Backend requires password confirmation
-        'full_name': name,  // Backend expects "full_name"
-        'role': role,
+        'role': role,  // consumer, owner, manager, or sales
       };
 
-      // Backend doesn't expect these extra fields in register (based on RegisterSerializer)
-      // These might need to be added to user profile later, but not in initial registration
+      // Note: Backend RegisterSerializer only accepts: full_name, email, password, password2, role
+      // Extra fields (businessName, companyName, etc.) are NOT sent during registration
 
       final response = await http.post(
         Uri.parse('$baseUrl${ApiEndpoints.signup}'),
@@ -96,14 +110,15 @@ class ApiService {
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
-        // Transform backend response to match AuthResponse format
-        // Backend returns token, id, role (minimal data)
+        // Backend returns: {message, id, role, token, refresh}
+        // Transform to AuthResponse format: {token, user: {id, email, name, role}}
         final transformedData = {
-          'token': data['token'] ?? '',  // Register uses "token"
+          'token': data['token'] ?? '',  // Access token
+          'refresh': data['refresh'] ?? '',  // Refresh token (we'll save this separately)
           'user': {
             'id': data['id']?.toString() ?? '',
-            'email': email,  // We send this, backend might not return it
-            'name': name,  // We send full_name as name
+            'email': email,  // Backend doesn't return email, use what we sent
+            'name': name,  // Backend doesn't return full_name, use what we sent
             'role': data['role'] ?? role,
           }
         };
@@ -113,14 +128,25 @@ class ApiService {
         // Backend might return errors in different formats
         String errorMessage = 'Signup failed';
         if (error is Map) {
-          errorMessage = error['detail'] ?? 
-                        error['message'] ?? 
-                        (error.values.isNotEmpty ? error.values.first.toString() : 'Signup failed');
+          // Check for field-specific errors (e.g., password validation)
+          if (error.containsKey('password')) {
+            errorMessage = error['password'] is List 
+                ? error['password'].first.toString()
+                : error['password'].toString();
+          } else if (error.containsKey('non_field_errors')) {
+            errorMessage = error['non_field_errors'] is List
+                ? error['non_field_errors'].first.toString()
+                : error['non_field_errors'].toString();
+          } else {
+            errorMessage = error['detail'] ?? 
+                          error['message'] ?? 
+                          (error.values.isNotEmpty ? error.values.first.toString() : 'Signup failed');
+          }
         }
         throw Exception(errorMessage);
       }
     } catch (e) {
-      if (e.toString().contains('Connection error')) {
+      if (e.toString().contains('Connection error') || e.toString().contains('Exception:')) {
         rethrow;
       }
       throw Exception('Connection error: ${e.toString()}');
