@@ -547,29 +547,29 @@ export default function ConsumerLinkManagement() {
                   <p className="catalog-card-description">{item.description || "No description"}</p>
                 </div>
                 <div className="catalog-card-meta">
-                  <span>📊 Stock: {item.stock} {item.unit}</span>
-                  <span>📦 Min Order: {item.minOrder} {item.unit}</span>
+                  <span>🏛️ Stock: {item.stock} {item.unit}</span>
+                  <span>🍱 Min Order: {item.minOrder} {item.unit}</span>
                   {item.delivery_option && (
                     <span>
-                      {item.delivery_option === "delivery" && "🚚 Delivery"}
-                      {item.delivery_option === "pickup" && "📦 Pickup"}
-                      {item.delivery_option === "both" && "🚚📦 Both"}
+                      {item.delivery_option === "delivery" && "🏎️ Delivery"}
+                      {item.delivery_option === "pickup" && "🍱 Pickup"}
+                      {item.delivery_option === "both" && "🏎️🍱 Both"}
                     </span>
                   )}
                   {item.lead_time_days > 0 && (
-                    <span>⏱️ {item.lead_time_days} {item.lead_time_days === 1 ? "day" : "days"}</span>
+                    <span>⌚ {item.lead_time_days} {item.lead_time_days === 1 ? "day" : "days"}</span>
                   )}
                 </div>
                 <div className="catalog-card-price">
                   {item.discounted_price && item.discount > 0 ? (
                     <>
-                      <span style={{ textDecoration: "line-through", color: "#999", marginRight: "8px", fontSize: "0.9rem" }}>
+                      <span style={{ textDecoration: "line-through", color: "#9b9696ff", marginRight: "8px", fontSize: "0.9rem" }}>
                         {formatCurrency(item.price)}
                       </span>
-                      <span style={{ color: "#e74c3c", fontWeight: "bold" }}>
+                      <span style={{ color: "#e44c3bff", fontWeight: "bold" }}>
                         {formatCurrency(item.discounted_price)}
                       </span>
-                      <span style={{ color: "#e74c3c", marginLeft: "4px", fontSize: "0.85rem" }}>
+                      <span style={{ color: "#e24938ff", marginLeft: "4px", fontSize: "0.85rem" }}>
                         ({item.discount}% off)
                       </span>
                     </>
@@ -585,7 +585,7 @@ export default function ConsumerLinkManagement() {
                       }
                       disabled={quantity <= (item.minOrder || 1)}
                     >
-                      −
+                      -
                     </button>
                     <input
                       type="number"
@@ -640,7 +640,7 @@ export default function ConsumerLinkManagement() {
               padding: "0.5rem 1rem",
               border: "none",
               borderRadius: "8px",
-              background: "#f44336",
+              background: "#f03f32ff",
               color: "white",
               fontWeight: "600",
               cursor: "pointer",
@@ -684,10 +684,10 @@ export default function ConsumerLinkManagement() {
                     <p>
                       {item.product_discounted_price && item.product_discount > 0 ? (
                         <>
-                          <span style={{ textDecoration: "line-through", color: "#999", marginRight: "8px", fontSize: "0.9rem" }}>
+                          <span style={{ textDecoration: "line-through", color: "#9a9797ff", marginRight: "8px", fontSize: "0.9rem" }}>
                             {formatCurrency(item.product_price)}
                           </span>
-                          <span style={{ color: "#e74c3c", fontWeight: "bold" }}>
+                          <span style={{ color: "#e14a39ff", fontWeight: "bold" }}>
                             {formatCurrency(item.product_discounted_price)}
                           </span>
                         </>
@@ -704,7 +704,7 @@ export default function ConsumerLinkManagement() {
                         cartActionLoading === `update-${item.id}` || item.quantity <= minOrder
                       }
                     >
-                      −
+                      -
                     </button>
                     <span>{item.quantity}</span>
                     <button
@@ -723,7 +723,7 @@ export default function ConsumerLinkManagement() {
                     onClick={() => handleRemoveCartItem(item.id)}
                     disabled={cartActionLoading === `remove-${item.id}`}
                   >
-                    ✕
+                    X
                   </button>
                 </div>
               );
@@ -766,7 +766,7 @@ export default function ConsumerLinkManagement() {
 
       <div className="link-stats">
         <div className="stat-card">
-          <div className="stat-icon approved-icon">✓</div>
+          <div className="stat-icon approved-icon">✔️</div>
           <div className="stat-info">
             <h3>{counts.linked}</h3>
             <p>Linked</p>
@@ -780,7 +780,7 @@ export default function ConsumerLinkManagement() {
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon available-icon">🔍</div>
+          <div className="stat-icon available-icon">🕵🏽‍♀️</div>
           <div className="stat-info">
             <h3>{counts.not_linked}</h3>
             <p>Available</p>
@@ -805,8 +805,8 @@ export default function ConsumerLinkManagement() {
           <div key={supplier.id} className="supplier-link-card">
             <div className="supplier-content">
               <h3 className="supplier-name">{supplier.name}</h3>
-              <p className="supplier-company">🏢 {supplier.company}</p>
-              <p className="supplier-email">📧 {supplier.email}</p>
+              <p className="supplier-company">🏚️ {supplier.company}</p>
+              <p className="supplier-email">📨 {supplier.email}</p>
 
               <div className="link-actions">
                 {supplier.linkStatus === "not_linked" && (
