@@ -1,12 +1,31 @@
 import 'package:flutter/foundation.dart';
 import '../models/cart_item.dart';
 import '../models/catalog_item.dart';
+import '../services/cart_service.dart';
 
 // CartProvider - manages shopping cart state
 class CartProvider with ChangeNotifier {
   final List<CartItem> _cartItems = [];
+  bool _isLoading = false;
+  String? _errorMessage;
 
   List<CartItem> get cartItems => _cartItems;
+  bool get isLoading => _isLoading;
+  String? get errorMessage => _errorMessage;
+
+  // Load cart from backend
+  Future<void> loadFromBackend(List<CartItemResponse> backendItems) async {
+    _cartItems.clear();
+    for (var item in backendItems) {
+      final catalogItem = item.toCatalogItem();
+      _cartItems.add(CartItem(
+        id: item.id,
+        item: catalogItem,
+        quantity: item.quantity,
+      ));
+    }
+    notifyListeners();
+  }
 
   // Get total number of items in cart
   int get totalItems {

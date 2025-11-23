@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import '../widgets/dv_logo.dart';
 import 'signup_screen.dart';
 
 // LoginScreen - the screen where users enter email and password to login
@@ -56,60 +55,120 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
-    // Calculate adaptive logo size based on screen width
-    final screenWidth = MediaQuery.of(context).size.width;
-    final logoSize = screenWidth * 0.25; // 25% of screen width, max 80px, min 60px
-    final adaptiveLogoSize = logoSize.clamp(60.0, 80.0);
-    
     return Scaffold(
+      backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24.0),
             child: Form(
               key: _formKey,
+              child: Container(
+                // White card matching website design
+                padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 32.0),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(15),
+                  boxShadow: [
+                    BoxShadow(
+                      color: Colors.black.withOpacity(0.1),
+                      blurRadius: 20,
+                      offset: const Offset(0, 6),
+                    ),
+                  ],
+                ),
+                width: 360, // Fixed width matching website
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                  // App Logo/Title
-                  DVLogo(size: adaptiveLogoSize),
-                  const SizedBox(height: 16),
+                    // Logo from assets
+                    Center(
+                      child: Image.asset(
+                        'assets/images/Logo.png',
+                        width: 60,
+                        height: 60,
+                        fit: BoxFit.contain,
+                      ),
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Title - "Welcome Back"
                   const Text(
-                    'Supplier Consumer Platform',
+                      'Welcome Back',
                     style: TextStyle(
-                      fontSize: 24,
+                        fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Colors.grey,
+                        color: Color(0xFF20232A), // Black text matching website
                     ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
+
+                    // Subtitle - "Log in to continue"
                   const Text(
-                    'Login to continue',
+                      'Log in to continue',
                     style: TextStyle(
-                      fontSize: 16,
-                      color: Colors.grey,
+                        fontSize: 14,
+                        color: Color(0xFF20232A), // Gray text matching website
+                      ),
+                      textAlign: TextAlign.center,
+                    ),
+                    const SizedBox(height: 24),
+
+                    // Error message (shown if login fails)
+                    Consumer<AuthProvider>(
+                      builder: (context, authProvider, child) {
+                        if (authProvider.errorMessage != null && authProvider.errorMessage!.isNotEmpty) {
+                          return Container(
+                            padding: const EdgeInsets.all(12),
+                            margin: const EdgeInsets.only(bottom: 16),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFFFF1F0), // Light red background
+                              borderRadius: BorderRadius.circular(8),
+                              border: Border.all(color: const Color(0xFFFF4D4F)),
+                            ),
+                            child: Text(
+                              authProvider.errorMessage!,
+                              style: const TextStyle(
+                                color: Color(0xFFFF4D4F), // Red text
+                                fontSize: 14,
                     ),
                     textAlign: TextAlign.center,
                   ),
-                  const SizedBox(height: 48),
+                          );
+                        }
+                        return const SizedBox.shrink();
+                      },
+                    ),
 
-                  // Email field
+                    // Email Address field
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
-                    decoration: const InputDecoration(
-                      labelText: 'Email',
-                      hintText: 'Enter your email',
-                      prefixIcon: Icon(Icons.email),
-                      border: OutlineInputBorder(),
+                      decoration: InputDecoration(
+                        hintText: 'Email Address',
+                        filled: true,
+                        fillColor: const Color(0xFFB5B5B5), // Gray background matching website
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Color(0xFF9B9A9A)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Color(0xFF9B9A9A)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Color(0xFF61DAFB)), // Light blue focus
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your email';
                       }
-                      if (!value.contains('@')) {
+                        if (!value.contains('@') || !value.contains('.')) {
                         return 'Please enter a valid email';
                       }
                       return null;
@@ -120,34 +179,47 @@ class _LoginScreenState extends State<LoginScreen> {
                   // Password field
                   TextFormField(
                     controller: _passwordController,
-                    obscureText: true, // Hide password text
-                    decoration: const InputDecoration(
-                      labelText: 'Password',
-                      hintText: 'Enter your password',
-                      prefixIcon: Icon(Icons.lock),
-                      border: OutlineInputBorder(),
+                      obscureText: true,
+                      decoration: InputDecoration(
+                        hintText: 'Password',
+                        filled: true,
+                        fillColor: const Color(0xFFB5B5B5), // Gray background matching website
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Color(0xFF9B9A9A)),
+                        ),
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Color(0xFF9B9A9A)),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                          borderSide: const BorderSide(color: Color(0xFF61DAFB)), // Light blue focus
+                        ),
+                        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
                         return 'Please enter your password';
-                      }
-                      if (value.length < 6) {
-                        return 'Password must be at least 6 characters';
                       }
                       return null;
                     },
                   ),
                   const SizedBox(height: 24),
 
-                  // Login button
+                    // Log In button
                   Consumer<AuthProvider>(
                     builder: (context, authProvider, child) {
                       return ElevatedButton(
                         onPressed: authProvider.isLoading ? null : _handleLogin,
                         style: ElevatedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 16),
-                          backgroundColor: Colors.grey[800],
-                          foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(vertical: 14),
+                            backgroundColor: const Color(0xFF61DAFB), // Light blue matching website
+                            foregroundColor: const Color(0xFF20232A), // Black text
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            elevation: 0,
                         ),
                         child: authProvider.isLoading
                             ? const SizedBox(
@@ -156,24 +228,33 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                    Colors.white,
+                                      Color(0xFF20232A),
                                   ),
                                 ),
                               )
                             : const Text(
-                                'Login',
-                                style: TextStyle(fontSize: 16),
+                                  'Log In',
+                                  style: TextStyle(
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.w600,
+                                  ),
                               ),
                       );
                     },
                   ),
                   const SizedBox(height: 16),
 
-                  // Sign up link
+                    // Footer - "Don't have an account yet? Sign Up"
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      const Text("Don't have an account? "),
+                        const Text(
+                          "Don't have an account yet? ",
+                          style: TextStyle(
+                            fontSize: 14,
+                            color: Color(0xFF20232A),
+                          ),
+                        ),
                       TextButton(
                         onPressed: () {
                           Navigator.push(
@@ -183,11 +264,24 @@ class _LoginScreenState extends State<LoginScreen> {
                             ),
                           );
                         },
-                        child: const Text('Sign Up'),
+                          style: TextButton.styleFrom(
+                            padding: EdgeInsets.zero,
+                            minimumSize: Size.zero,
+                            tapTargetSize: MaterialTapTargetSize.shrinkWrap,
+                          ),
+                          child: const Text(
+                            'Sign Up',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Color(0xFF61DAFB), // Light blue link
+                              decoration: TextDecoration.underline,
+                            ),
+                          ),
                       ),
                     ],
                   ),
                 ],
+                ),
               ),
             ),
           ),

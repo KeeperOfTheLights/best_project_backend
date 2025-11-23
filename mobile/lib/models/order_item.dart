@@ -1,3 +1,4 @@
+import 'package:flutter/foundation.dart';
 import 'catalog_item.dart';
 
 // OrderItem model - represents an item within an order
@@ -29,21 +30,33 @@ class OrderItem {
   });
 
   // Convert JSON from backend to OrderItem object
+  // Backend OrderItemSerializer returns: id, product (ID), product_name, quantity, price
+  // Note: product_unit is NOT included in OrderItemSerializer, so we default to empty string
   factory OrderItem.fromJson(Map<String, dynamic> json) {
-    return OrderItem(
-      id: json['id']?.toString() ?? '',
-      orderId: json['order_id']?.toString() ?? json['orderId'] ?? '',
-      itemId: json['item_id']?.toString() ?? json['itemId'] ?? '',
-      itemName: json['item_name'] ?? json['itemName'] ?? '',
-      itemDescription: json['item_description'] ?? json['itemDescription'],
-      unit: json['unit'] ?? '',
-      unitPrice: (json['unit_price'] ?? json['unitPrice'] ?? 0).toDouble(),
-      quantity: json['quantity'] ?? 0,
-      totalPrice: (json['total_price'] ?? json['totalPrice'] ?? 0).toDouble(),
-      catalogItem: json['catalog_item'] != null || json['catalogItem'] != null
-          ? CatalogItem.fromJson(json['catalog_item'] ?? json['catalogItem'])
-          : null,
-    );
+    try {
+      // Backend returns price as string (from DecimalField), need to parse
+      final unitPrice = json['price'] != null
+          ? (json['price'] is String ? double.parse(json['price']) : (json['price'] as num).toDouble())
+          : 0.0;
+      final quantity = json['quantity'] ?? 0;
+      final totalPrice = unitPrice * quantity;
+      
+      return OrderItem(
+        id: json['id']?.toString() ?? '',
+        orderId: json['order']?.toString() ?? json['order_id']?.toString() ?? json['orderId'] ?? '',
+        itemId: json['product']?.toString() ?? json['item_id']?.toString() ?? json['itemId'] ?? '',
+        itemName: json['product_name'] ?? json['item_name'] ?? json['itemName'] ?? '',
+        itemDescription: json['product_description'] ?? json['item_description'] ?? json['itemDescription'],
+        unit: json['product_unit'] ?? json['unit'] ?? 'kg', // Default to 'kg' if not provided
+        unitPrice: unitPrice,
+        quantity: quantity,
+        totalPrice: totalPrice,
+        catalogItem: null, // Backend doesn't include full product
+      );
+    } catch (e) {
+      debugPrint('Error parsing OrderItem: $e\nOrderItem JSON: $json');
+      rethrow;
+    }
   }
 
   // Convert OrderItem object to JSON for sending to backend

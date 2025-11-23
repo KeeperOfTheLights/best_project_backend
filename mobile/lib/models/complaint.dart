@@ -136,6 +136,7 @@ class ComplaintStatus {
   static const String pending = 'pending';
   static const String inProgress = 'in_progress';
   static const String resolved = 'resolved';
+  static const String rejected = 'rejected';  // Backend supports this
   static const String escalated = 'escalated';
 }
 

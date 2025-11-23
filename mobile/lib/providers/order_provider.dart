@@ -1,8 +1,10 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../models/order.dart';
 import '../models/cart_item.dart';
 import '../services/order_service.dart';
 import '../services/mock_order_service.dart';
+import '../services/storage_service.dart';
 import '../utils/constants.dart';
 
 // OrderProvider - manages order state
@@ -83,17 +85,34 @@ class OrderProvider with ChangeNotifier {
     notifyListeners();
 
     try {
+      final userRole = StorageService.getUserRole() ?? '';
+      debugPrint('OrderProvider: Loading orders for role: $userRole');
+      
       final orders = useMockApi
           ? await MockOrderService.getOrders()
-          : await OrderService.getOrders();
+          : await OrderService.getOrders(userRole: userRole);
 
       _orders = orders;
       _isLoading = false;
+      _errorMessage = null;
       notifyListeners();
-    } catch (e) {
+      
+      // Debug: Print orders count and details
+      debugPrint('OrderProvider: Loaded ${orders.length} orders');
+      if (orders.isNotEmpty) {
+        for (var order in orders.take(3)) {
+          debugPrint('OrderProvider: Order #${order.id} - Status: ${order.status} - Total: ${order.totalAmount}');
+        }
+      } else {
+        debugPrint('OrderProvider: No orders found');
+      }
+    } catch (e, stackTrace) {
       _errorMessage = e.toString();
       _isLoading = false;
+      _orders = []; // Clear orders on error
       notifyListeners();
+      debugPrint('OrderProvider: Error loading orders: $e');
+      debugPrint('OrderProvider: Stack trace: $stackTrace');
     }
   }
 
@@ -175,16 +194,16 @@ class OrderProvider with ChangeNotifier {
     }
   }
 
-  // Update order status (Supplier only)
-  Future<bool> updateOrderStatus(String orderId, String status) async {
+  // Deliver order (Supplier only) - marks order as delivered
+  Future<bool> deliverOrder(String orderId) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
       final order = useMockApi
-          ? await MockOrderService.updateOrderStatus(orderId, status)
-          : await OrderService.updateOrderStatus(orderId, status);
+          ? await MockOrderService.updateOrderStatus(orderId, 'delivered')
+          : await OrderService.deliverOrder(orderId);
 
       // Update in list
       final index = _orders.indexWhere((o) => o.id == orderId);

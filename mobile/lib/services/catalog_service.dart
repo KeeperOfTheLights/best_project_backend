@@ -19,19 +19,24 @@ class CatalogService {
   }
 
   // Get catalog items for a specific supplier (Consumer view)
+  // Backend: GET /supplier/{id}/catalog/
   static Future<List<CatalogItem>> getCatalogBySupplier(String supplierId) async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl${ApiEndpoints.getCatalogBySupplier}/$supplierId'),
+        Uri.parse('$baseUrl${ApiEndpoints.getCatalogBySupplier}/$supplierId/catalog/'),
         headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final List<dynamic> itemsJson = data['items'] ?? data;
+        // Backend returns array directly or wrapped in 'items' or 'products'
+        final List<dynamic> itemsJson = data is List 
+            ? data 
+            : (data['items'] ?? data['products'] ?? data['results'] ?? []);
         return itemsJson.map((json) => CatalogItem.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to get catalog');
+        final error = jsonDecode(response.body);
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to get catalog');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
@@ -39,19 +44,24 @@ class CatalogService {
   }
 
   // Get all catalog items for current supplier (Supplier view)
+  // Backend: GET /products/
   static Future<List<CatalogItem>> getMyCatalog() async {
     try {
       final response = await http.get(
-        Uri.parse('$baseUrl${ApiEndpoints.getCatalog}'),
+        Uri.parse('$baseUrl${ApiEndpoints.getMyProducts}'),
         headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        final List<dynamic> itemsJson = data['items'] ?? data;
+        // Backend returns array directly
+        final List<dynamic> itemsJson = data is List 
+            ? data 
+            : (data['items'] ?? data['products'] ?? data['results'] ?? []);
         return itemsJson.map((json) => CatalogItem.fromJson(json)).toList();
       } else {
-        throw Exception('Failed to get catalog');
+        final error = jsonDecode(response.body);
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to get catalog');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
@@ -59,10 +69,11 @@ class CatalogService {
   }
 
   // Create new catalog item (Supplier only)
+  // Backend: POST /products/
   static Future<CatalogItem> createItem(CatalogItem item) async {
     try {
       final response = await http.post(
-        Uri.parse('$baseUrl${ApiEndpoints.createCatalogItem}'),
+        Uri.parse('$baseUrl${ApiEndpoints.createProduct}'),
         headers: _getHeaders(),
         body: jsonEncode(item.toJson()),
       );
@@ -72,7 +83,7 @@ class CatalogService {
         return CatalogItem.fromJson(data);
       } else {
         final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Failed to create item');
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to create item');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
@@ -80,10 +91,11 @@ class CatalogService {
   }
 
   // Update catalog item (Supplier only)
+  // Backend: PUT /products/{id}/
   static Future<CatalogItem> updateItem(CatalogItem item) async {
     try {
       final response = await http.put(
-        Uri.parse('$baseUrl${ApiEndpoints.updateCatalogItem}/${item.id}'),
+        Uri.parse('$baseUrl${ApiEndpoints.updateProduct}/${item.id}/'),
         headers: _getHeaders(),
         body: jsonEncode(item.toJson()),
       );
@@ -93,7 +105,7 @@ class CatalogService {
         return CatalogItem.fromJson(data);
       } else {
         final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Failed to update item');
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to update item');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');
@@ -101,10 +113,11 @@ class CatalogService {
   }
 
   // Delete catalog item (Supplier only)
+  // Backend: DELETE /products/{id}/
   static Future<bool> deleteItem(String itemId) async {
     try {
       final response = await http.delete(
-        Uri.parse('$baseUrl${ApiEndpoints.deleteCatalogItem}/$itemId'),
+        Uri.parse('$baseUrl${ApiEndpoints.deleteProduct}/$itemId/'),
         headers: _getHeaders(),
       );
 
@@ -112,7 +125,7 @@ class CatalogService {
         return true;
       } else {
         final error = jsonDecode(response.body);
-        throw Exception(error['message'] ?? 'Failed to delete item');
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to delete item');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');

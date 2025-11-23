@@ -63,8 +63,11 @@ class AuthProvider with ChangeNotifier {
               password: password,
             );
 
-      // Save token and user data
+      // Save token, refresh token, and user data
       await StorageService.saveToken(authResponse.token);
+      if (authResponse.refreshToken != null) {
+        await StorageService.saveRefreshToken(authResponse.refreshToken!);
+      }
       await StorageService.saveUserRole(authResponse.user.role);
       await StorageService.saveUserData(
         userId: authResponse.user.id,
@@ -130,8 +133,11 @@ class AuthProvider with ChangeNotifier {
               phone: phone,
             );
 
-      // Save token and user data
+      // Save token, refresh token, and user data
       await StorageService.saveToken(authResponse.token);
+      if (authResponse.refreshToken != null) {
+        await StorageService.saveRefreshToken(authResponse.refreshToken!);
+      }
       await StorageService.saveUserRole(authResponse.user.role);
       await StorageService.saveUserData(
         userId: authResponse.user.id,

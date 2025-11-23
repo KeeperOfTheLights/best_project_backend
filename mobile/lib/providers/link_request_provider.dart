@@ -3,6 +3,7 @@ import '../models/supplier.dart';
 import '../models/link_request.dart';
 import '../services/link_request_service.dart';
 import '../services/mock_link_request_service.dart';
+import '../services/storage_service.dart';
 import '../utils/constants.dart';
 
 // LinkRequestProvider - manages link request state
@@ -82,9 +83,10 @@ class LinkRequestProvider with ChangeNotifier {
     notifyListeners();
 
     try {
+      final userRole = StorageService.getUserRole() ?? '';
       final requests = useMockApi
           ? await MockLinkRequestService.getLinkRequests()
-          : await LinkRequestService.getLinkRequests();
+          : await LinkRequestService.getLinkRequests(userRole: userRole);
 
       _linkRequests = requests;
       _isLoading = false;

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
-import '../utils/constants.dart';
 
 // SignUpScreen - the screen where new users create an account
 class SignUpScreen extends StatefulWidget {
@@ -12,40 +11,23 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  // Controllers for text fields
+  // Controllers for text fields - matching website form exactly
   final _formKey = GlobalKey<FormState>();
-  final _nameController = TextEditingController();
+  final _fullNameController = TextEditingController();
+  final _usernameController = TextEditingController(); // Collected but not sent to backend
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _confirmPasswordController = TextEditingController();
-  
-  // Consumer-specific fields
-  final _businessNameController = TextEditingController();
-  final _consumerAddressController = TextEditingController();
-  final _consumerPhoneController = TextEditingController();
-  
-  // Supplier-specific fields
-  final _companyNameController = TextEditingController();
-  final _companyTypeController = TextEditingController();
-  final _supplierAddressController = TextEditingController();
-  final _supplierPhoneController = TextEditingController();
+  final _repeatPasswordController = TextEditingController();
 
-  String _selectedRole = UserRole.consumer; // Default role
-  String? _supplierSubRole; // Owner, Manager, or Sales for suppliers
+  String _selectedRole = 'consumer'; // Default role: consumer, owner, manager, sales
 
   @override
   void dispose() {
-    _nameController.dispose();
+    _fullNameController.dispose();
+    _usernameController.dispose();
     _emailController.dispose();
     _passwordController.dispose();
-    _confirmPasswordController.dispose();
-    _businessNameController.dispose();
-    _consumerAddressController.dispose();
-    _consumerPhoneController.dispose();
-    _companyNameController.dispose();
-    _companyTypeController.dispose();
-    _supplierAddressController.dispose();
-    _supplierPhoneController.dispose();
+    _repeatPasswordController.dispose();
     super.dispose();
   }
 
@@ -55,44 +37,65 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-    final authProvider = Provider.of<AuthProvider>(context, listen: false);
-
-    // Validate supplier sub-role if supplier is selected
-    if (_selectedRole == UserRole.supplier && _supplierSubRole == null) {
+    // Validate passwords match
+    if (_passwordController.text != _repeatPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Please select your supplier role (Owner, Manager, or Sales)'),
+          content: Text('Passwords do not match!'),
           backgroundColor: Colors.red,
         ),
       );
       return;
     }
 
-    // Use supplier sub-role if supplier is selected, otherwise use selected role
-    final finalRole = _selectedRole == UserRole.supplier 
-        ? _supplierSubRole! 
-        : _selectedRole;
+    // Validate password strength (matching website requirements)
+    final password = _passwordController.text;
+    if (password.length < 6) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Password is too short (minimum 6 characters)'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    if (!password.contains(RegExp(r'[A-Z]'))) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Password must contain at least one uppercase letter'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    if (!password.contains(RegExp(r'[0-9]'))) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Password must contain at least one number'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
+    if (!password.contains(RegExp(r'[^A-Za-z0-9]'))) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Password must contain at least one special character'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      return;
+    }
 
+    final authProvider = Provider.of<AuthProvider>(context, listen: false);
+
+    // Call signup with only backend-expected fields
+    // Note: username is collected but not sent (backend doesn't use it)
     final success = await authProvider.signup(
       email: _emailController.text.trim(),
       password: _passwordController.text,
-      name: _nameController.text.trim(),
-      role: finalRole,
-      businessName: _selectedRole == UserRole.consumer
-          ? _businessNameController.text.trim()
-          : null,
-      address: _selectedRole == UserRole.consumer
-          ? _consumerAddressController.text.trim()
-          : _supplierAddressController.text.trim(),
-      phone: _selectedRole == UserRole.consumer
-          ? _consumerPhoneController.text.trim()
-          : _supplierPhoneController.text.trim(),
-      companyName: _selectedRole == UserRole.supplier
-          ? _companyNameController.text.trim()
-          : null,
-      companyType: _selectedRole == UserRole.supplier
-          ? _companyTypeController.text.trim()
-          : null,
+      name: _fullNameController.text.trim(), // This will be sent as 'full_name' to backend
+      role: _selectedRole, // consumer, owner, manager, or sales
     );
 
     if (!success && mounted) {
@@ -113,7 +116,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Sign Up'),
+        title: const Text('Create an Account'),
+        backgroundColor: Colors.pink[100],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -123,77 +127,83 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Role selection
+                // Title and subtitle - matching website
                 const Text(
-                  'Select your role:',
+                  'Create an Account',
                   style: TextStyle(
-                    fontSize: 16,
+                    fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
+                  textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                Row(
-                  children: [
-                    Expanded(
-                      child: RadioListTile<String>(
-                        title: const Text('Consumer'),
-                        value: UserRole.consumer,
-                        groupValue: _selectedRole,
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedRole = value!;
-                          });
-                        },
-                      ),
-                    ),
-                    Expanded(
-                      child: RadioListTile<String>(
-                        title: const Text('Supplier'),
-                        value: UserRole.supplier,
-                        groupValue: _selectedRole,
-                        onChanged: (value) {
-                          setState(() {
-                            _selectedRole = value!;
-                          });
-                        },
-                      ),
-                    ),
-                  ],
+                const Text(
+                  'Join Daivinvhik today',
+                  style: TextStyle(
+                    fontSize: 16,
+                    color: Colors.grey,
+                  ),
+                  textAlign: TextAlign.center,
                 ),
-                const SizedBox(height: 24),
+                const SizedBox(height: 32),
 
-                // Common fields
+                // Full Name field
                 TextFormField(
-                  controller: _nameController,
+                  controller: _fullNameController,
                   decoration: const InputDecoration(
-                    labelText: 'Name',
-                    hintText: 'Enter your name',
+                    labelText: 'Full Name',
+                    hintText: 'Enter your full name',
                     prefixIcon: Icon(Icons.person),
                     border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: Colors.grey,
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your name';
+                      return 'Please enter your full name';
                     }
                     return null;
                   },
                 ),
                 const SizedBox(height: 16),
 
+                // Username field (collected but not sent to backend)
+                TextFormField(
+                  controller: _usernameController,
+                  decoration: const InputDecoration(
+                    labelText: 'Username',
+                    hintText: 'Enter your username',
+                    prefixIcon: Icon(Icons.person_outline),
+                    border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: Colors.grey,
+                  ),
+                  validator: (value) {
+                    if (value == null || value.isEmpty) {
+                      return 'Please enter a username';
+                    }
+                    return null;
+                  },
+                ),
+                const SizedBox(height: 16),
+
+                // Email field
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
                   decoration: const InputDecoration(
-                    labelText: 'Email',
+                    labelText: 'Email Address',
                     hintText: 'Enter your email',
                     prefixIcon: Icon(Icons.email),
                     border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: Colors.grey,
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter your email';
                     }
-                    if (!value.contains('@')) {
+                    if (!value.contains('@') || !value.contains('.')) {
                       return 'Please enter a valid email';
                     }
                     return null;
@@ -201,6 +211,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 16),
 
+                // Password field
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
@@ -209,204 +220,72 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     hintText: 'Enter your password',
                     prefixIcon: Icon(Icons.lock),
                     border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: Colors.grey,
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please enter a password';
                     }
-                    if (value.length < 6) {
-                      return 'Password must be at least 6 characters';
-                    }
-                    return null;
+                    return null; // Password strength checked in _handleSignUp
                   },
                 ),
                 const SizedBox(height: 16),
 
+                // Repeat Password field
                 TextFormField(
-                  controller: _confirmPasswordController,
+                  controller: _repeatPasswordController,
                   obscureText: true,
                   decoration: const InputDecoration(
-                    labelText: 'Confirm Password',
+                    labelText: 'Repeat Password',
                     hintText: 'Re-enter your password',
                     prefixIcon: Icon(Icons.lock_outline),
                     border: OutlineInputBorder(),
+                    filled: true,
+                    fillColor: Colors.grey,
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
                       return 'Please confirm your password';
                     }
-                    if (value != _passwordController.text) {
-                      return 'Passwords do not match';
-                    }
-                    return null;
+                    return null; // Match checked in _handleSignUp
                   },
                 ),
                 const SizedBox(height: 24),
 
-                // Consumer-specific fields
-                if (_selectedRole == UserRole.consumer) ...[
-                  TextFormField(
-                    controller: _businessNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Business Name',
-                      hintText: 'Enter your business name',
-                      prefixIcon: Icon(Icons.business),
-                      border: OutlineInputBorder(),
+                // Role selection buttons - matching website
+                const Text(
+                  'Select your role:',
+                  style: TextStyle(
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 12),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildRoleButton('consumer', 'Consumer'),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your business name';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _consumerAddressController,
-                    decoration: const InputDecoration(
-                      labelText: 'Address',
-                      hintText: 'Enter your address',
-                      prefixIcon: Icon(Icons.location_on),
-                      border: OutlineInputBorder(),
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildRoleButton('owner', 'Owner'),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your address';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _consumerPhoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: const InputDecoration(
-                      labelText: 'Phone',
-                      hintText: 'Enter your phone number',
-                      prefixIcon: Icon(Icons.phone),
-                      border: OutlineInputBorder(),
+                  ],
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    Expanded(
+                      child: _buildRoleButton('manager', 'Manager'),
                     ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your phone number';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                ],
-
-                // Supplier-specific fields
-                if (_selectedRole == UserRole.supplier) ...[
-                  // Supplier role selection (Owner, Manager, Sales)
-                  const Text(
-                    'Select your supplier role:',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: _buildRoleButton('sales', 'Sales Rep'),
                     ),
-                  ),
-                  const SizedBox(height: 8),
-                  RadioListTile<String>(
-                    title: const Text('Owner'),
-                    subtitle: const Text('Full access to all features'),
-                    value: UserRole.owner,
-                    groupValue: _supplierSubRole,
-                    onChanged: (value) {
-                      setState(() {
-                        _supplierSubRole = value;
-                      });
-                    },
-                  ),
-                  RadioListTile<String>(
-                    title: const Text('Manager'),
-                    subtitle: const Text('Can manage sales staff'),
-                    value: UserRole.manager,
-                    groupValue: _supplierSubRole,
-                    onChanged: (value) {
-                      setState(() {
-                        _supplierSubRole = value;
-                      });
-                    },
-                  ),
-                  RadioListTile<String>(
-                    title: const Text('Sales Representative'),
-                    subtitle: const Text('Can view orders and chat'),
-                    value: UserRole.sales,
-                    groupValue: _supplierSubRole,
-                    onChanged: (value) {
-                      setState(() {
-                        _supplierSubRole = value;
-                      });
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _companyNameController,
-                    decoration: const InputDecoration(
-                      labelText: 'Company Name',
-                      hintText: 'Enter your company name',
-                      prefixIcon: Icon(Icons.business),
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your company name';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _companyTypeController,
-                    decoration: const InputDecoration(
-                      labelText: 'Company Type',
-                      hintText: 'Enter your company type',
-                      prefixIcon: Icon(Icons.category),
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your company type';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _supplierAddressController,
-                    decoration: const InputDecoration(
-                      labelText: 'Address',
-                      hintText: 'Enter your address',
-                      prefixIcon: Icon(Icons.location_on),
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your address';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-                  TextFormField(
-                    controller: _supplierPhoneController,
-                    keyboardType: TextInputType.phone,
-                    decoration: const InputDecoration(
-                      labelText: 'Phone',
-                      hintText: 'Enter your phone number',
-                      prefixIcon: Icon(Icons.phone),
-                      border: OutlineInputBorder(),
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Please enter your phone number';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 24),
-                ],
+                  ],
+                ),
+                const SizedBox(height: 24),
 
                 // Sign Up button
                 Consumer<AuthProvider>(
@@ -416,8 +295,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
                           authProvider.isLoading ? null : _handleSignUp,
                       style: ElevatedButton.styleFrom(
                         padding: const EdgeInsets.symmetric(vertical: 16),
-                        backgroundColor: Colors.grey[800],
-                        foregroundColor: Colors.white,
+                        backgroundColor: Colors.white,
+                        foregroundColor: Colors.black,
+                        side: const BorderSide(color: Colors.black, width: 1),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
                       ),
                       child: authProvider.isLoading
                           ? const SizedBox(
@@ -426,34 +309,71 @@ class _SignUpScreenState extends State<SignUpScreen> {
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
                                 valueColor: AlwaysStoppedAnimation<Color>(
-                                  Colors.white,
+                                  Colors.black,
                                 ),
                               ),
                             )
                           : const Text(
                               'Sign Up',
-                              style: TextStyle(fontSize: 16),
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                     );
                   },
                 ),
                 const SizedBox(height: 16),
 
-                // Login link
+                // Login link - matching website
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Already have an account? "),
+                    const Text("Do you have an account? "),
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: const Text('Login'),
+                      child: const Text(
+                        'Login',
+                        style: TextStyle(color: Colors.purple),
+                      ),
                     ),
                   ],
                 ),
               ],
             ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  // Helper widget for role selection buttons
+  Widget _buildRoleButton(String role, String label) {
+    final isSelected = _selectedRole == role;
+    return InkWell(
+      onTap: () {
+        setState(() {
+          _selectedRole = role;
+        });
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 12, horizontal: 8),
+        decoration: BoxDecoration(
+          color: isSelected ? Colors.blue[200] : Colors.grey[300],
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color: isSelected ? Colors.blue : Colors.grey,
+            width: 1,
+          ),
+        ),
+        child: Text(
+          label,
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+            color: isSelected ? Colors.blue[900] : Colors.black,
           ),
         ),
       ),

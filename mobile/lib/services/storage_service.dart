@@ -21,6 +21,16 @@ class StorageService {
     return _prefs?.getString(StorageKeys.token);
   }
 
+  // Save refresh token
+  static Future<bool> saveRefreshToken(String refreshToken) async {
+    return await _prefs?.setString(StorageKeys.refreshToken, refreshToken) ?? false;
+  }
+
+  // Get refresh token
+  static String? getRefreshToken() {
+    return _prefs?.getString(StorageKeys.refreshToken);
+  }
+
   // Save user role
   static Future<bool> saveUserRole(String role) async {
     return await _prefs?.setString(StorageKeys.userRole, role) ?? false;
