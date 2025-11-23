@@ -1,4 +1,5 @@
 import 'package:flutter/foundation.dart';
+import 'package:flutter/material.dart';
 import '../models/order.dart';
 import '../models/cart_item.dart';
 import '../services/order_service.dart';
@@ -85,17 +86,33 @@ class OrderProvider with ChangeNotifier {
 
     try {
       final userRole = StorageService.getUserRole() ?? '';
+      debugPrint('OrderProvider: Loading orders for role: $userRole');
+      
       final orders = useMockApi
           ? await MockOrderService.getOrders()
           : await OrderService.getOrders(userRole: userRole);
 
       _orders = orders;
       _isLoading = false;
+      _errorMessage = null;
       notifyListeners();
-    } catch (e) {
+      
+      // Debug: Print orders count and details
+      debugPrint('OrderProvider: Loaded ${orders.length} orders');
+      if (orders.isNotEmpty) {
+        for (var order in orders.take(3)) {
+          debugPrint('OrderProvider: Order #${order.id} - Status: ${order.status} - Total: ${order.totalAmount}');
+        }
+      } else {
+        debugPrint('OrderProvider: No orders found');
+      }
+    } catch (e, stackTrace) {
       _errorMessage = e.toString();
       _isLoading = false;
+      _orders = []; // Clear orders on error
       notifyListeners();
+      debugPrint('OrderProvider: Error loading orders: $e');
+      debugPrint('OrderProvider: Stack trace: $stackTrace');
     }
   }
 

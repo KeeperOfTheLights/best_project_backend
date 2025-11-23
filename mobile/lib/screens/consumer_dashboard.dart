@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
+import '../providers/order_provider.dart';
 import '../services/order_service.dart';
 import 'search_suppliers_screen.dart';
 import 'consumer_catalog_main_screen.dart';
@@ -49,7 +50,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
           'cancelled_orders': 0,
           'total_spent': 0.0,
         };
-      });
+    });
     }
   }
 
@@ -114,41 +115,41 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
       ),
       body: RefreshIndicator(
         onRefresh: _loadOrderStats,
-        child: SingleChildScrollView(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Welcome section
-              Card(
+            child: SingleChildScrollView(
+              padding: const EdgeInsets.all(16.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Welcome section
+                  Card(
                 color: Colors.white,
                 elevation: 0,
-                child: Padding(
-                  padding: const EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(
+                    child: Padding(
+                      padding: const EdgeInsets.all(16.0),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(
                         'Welcome back!',
-                        style: const TextStyle(
+                            style: const TextStyle(
                           fontSize: 28,
-                          fontWeight: FontWeight.bold,
+                              fontWeight: FontWeight.bold,
                           color: Color(0xFF20232A),
-                        ),
-                      ),
-                      const SizedBox(height: 8),
+                            ),
+                          ),
+                          const SizedBox(height: 8),
                       const Text(
                         "Here's an overview of your order activity.",
                         style: TextStyle(
                           fontSize: 14,
                           color: Color(0xFF20232A),
-                        ),
+                            ),
+                          ),
+                        ],
                       ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
-              const SizedBox(height: 24),
+                  const SizedBox(height: 24),
 
               // Order Activity Overview Cards
               _isLoadingStats
@@ -225,7 +226,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                     ),
                   ),
                 ],
-              ),
+                  ),
               const SizedBox(height: 16),
 
               // Quick Actions Buttons - matching website design
@@ -254,13 +255,19 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                           context,
                           'My Orders',
                           Icons.shopping_cart,
-                          () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (context) => const OrdersScreen(isConsumer: true),
-                              ),
-                            );
+                          () async {
+                            // Preload orders before navigating
+                            final orderProvider = Provider.of<OrderProvider>(context, listen: false);
+                            await orderProvider.loadOrders();
+                            
+                            if (context.mounted) {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const OrdersScreen(isConsumer: true),
+                                ),
+                              );
+                            }
                           },
                         ),
                       ),
@@ -322,11 +329,11 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                       ),
                       const Expanded(child: SizedBox()), // Empty space for alignment
                     ],
-                  ),
+                        ),
                 ],
-              ),
-            ],
-          ),
+                      ),
+                    ],
+                  ),
         ),
       ),
     );
@@ -336,25 +343,25 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
     return Card(
       color: Colors.white,
       elevation: 2,
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+                              child: Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
             Row(
               children: [
                 Icon(icon, color: color, size: 24),
                 const Spacer(),
-                Text(
+                                  Text(
                   value,
                   style: TextStyle(
                     fontSize: 24,
-                    fontWeight: FontWeight.bold,
+                                      fontWeight: FontWeight.bold,
                     color: color,
-                  ),
-                ),
-              ],
-            ),
+                              ),
+                            ),
+                          ],
+                        ),
             const SizedBox(height: 8),
             Text(
               label,
@@ -362,9 +369,9 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                 fontSize: 14,
                 color: Color(0xFF20232A),
               ),
-            ),
-          ],
-        ),
+                                            ),
+                              ],
+                            ),
       ),
     );
   }

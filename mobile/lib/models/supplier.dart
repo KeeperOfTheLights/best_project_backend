@@ -19,10 +19,11 @@ class Supplier {
   });
 
   // Convert JSON from backend to Supplier object
+  // Backend SupplierSerializer returns: id, full_name, email, role, supplier_company
   factory Supplier.fromJson(Map<String, dynamic> json) {
     return Supplier(
       id: json['id']?.toString() ?? '',
-      companyName: json['company_name'] ?? json['companyName'] ?? '',
+      companyName: json['supplier_company'] ?? json['company_name'] ?? json['companyName'] ?? json['full_name'] ?? '',
       companyType: json['company_type'] ?? json['companyType'],
       address: json['address'],
       phone: json['phone'],

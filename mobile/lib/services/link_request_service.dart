@@ -19,6 +19,29 @@ class LinkRequestService {
     return headers;
   }
 
+  // Get all suppliers (for consumer to see available suppliers)
+  // Backend: GET /suppliers/ - returns all owner suppliers
+  static Future<List<Supplier>> getAllSuppliers() async {
+    try {
+      final response = await http.get(
+        Uri.parse('$baseUrl${ApiEndpoints.searchSuppliers}'),
+        headers: _getHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        final data = jsonDecode(response.body);
+        // Backend returns array directly
+        final List<dynamic> suppliersJson = data is List ? data : (data['suppliers'] ?? data['results'] ?? []);
+        return suppliersJson.map((json) => Supplier.fromJson(json)).toList();
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to get suppliers');
+      }
+    } catch (e) {
+      throw Exception('Connection error: ${e.toString()}');
+    }
+  }
+
   // Search suppliers by name
   // Backend: GET /suppliers/ - returns all suppliers (no search query param, need to filter client-side or use /search/)
   static Future<List<Supplier>> searchSuppliers(String query) async {

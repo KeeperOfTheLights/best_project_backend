@@ -160,8 +160,11 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                 category: categoryController.text.trim(),
                 unit: unitController.text.trim(),
                 price: price,
-                stockQuantity: quantity,
-                isActive: true,
+                discountedPrice: price,
+                stock: quantity,
+                minOrder: 1,
+                status: 'active',
+                deliveryOption: 'both',
               );
 
               final success = await catalogProvider.createItem(newItem);
@@ -317,7 +320,8 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                 category: categoryController.text.trim(),
                 unit: unitController.text.trim(),
                 price: price,
-                stockQuantity: quantity,
+                discountedPrice: price,
+                stock: quantity,
               );
 
               final success = await catalogProvider.updateItem(updatedItem);

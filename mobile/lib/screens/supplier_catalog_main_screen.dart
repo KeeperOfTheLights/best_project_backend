@@ -176,7 +176,6 @@ class _SupplierCatalogMainScreenState
                                 builder: (context) => ConsumerCatalogScreen(
                                   supplierId: supplier.id,
                                   supplierName: supplier.companyName,
-                                  isSupplierView: true, // View-only mode
                                 ),
                               ),
                             );

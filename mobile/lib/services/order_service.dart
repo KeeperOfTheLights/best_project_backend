@@ -1,4 +1,5 @@
 import 'dart:convert';
+import 'package:flutter/foundation.dart';
 import 'package:http/http.dart' as http;
 import '../models/order.dart';
 import '../models/cart_item.dart';
@@ -84,21 +85,51 @@ class OrderService {
       final endpoint = userRole == UserRole.consumer 
           ? ApiEndpoints.getMyOrders 
           : ApiEndpoints.getSupplierOrders;
+      final url = '$baseUrl$endpoint';
+      
+      debugPrint('OrderService: Fetching orders from: $url');
+      debugPrint('OrderService: User role: $userRole');
+      
       final response = await http.get(
-        Uri.parse('$baseUrl$endpoint'),
+        Uri.parse(url),
         headers: _getHeaders(),
       );
 
+      debugPrint('OrderService: Response status: ${response.statusCode}');
+      
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
+        debugPrint('OrderService: Response data type: ${data.runtimeType}');
+        
         // Backend returns array directly
         final List<dynamic> ordersJson = data is List ? data : (data['orders'] ?? data['results'] ?? []);
-        return ordersJson.map((json) => Order.fromJson(json)).toList();
+        debugPrint('OrderService: Found ${ordersJson.length} orders in response');
+        
+        // Parse orders, catching any parsing errors
+        final List<Order> orders = [];
+        for (var json in ordersJson) {
+          try {
+            final order = Order.fromJson(json);
+            orders.add(order);
+            debugPrint('OrderService: Successfully parsed order #${order.id}');
+          } catch (e, stackTrace) {
+            // Log parsing error but continue with other orders
+            debugPrint('OrderService: Error parsing order: $e');
+            debugPrint('OrderService: Stack trace: $stackTrace');
+            debugPrint('OrderService: Order JSON: $json');
+          }
+        }
+        
+        debugPrint('OrderService: Successfully parsed ${orders.length} orders');
+        return orders;
       } else {
         final error = jsonDecode(response.body);
+        debugPrint('OrderService: Error response: $error');
         throw Exception(error['detail'] ?? error['message'] ?? 'Failed to get orders');
       }
-    } catch (e) {
+    } catch (e, stackTrace) {
+      debugPrint('OrderService: Exception caught: $e');
+      debugPrint('OrderService: Stack trace: $stackTrace');
       throw Exception('Connection error: ${e.toString()}');
     }
   }

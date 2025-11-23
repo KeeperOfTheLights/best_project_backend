@@ -28,12 +28,13 @@ class LinkRequest {
   });
 
   // Convert JSON from backend to LinkRequest object
+  // Backend LinkRequestSerializer returns: id, supplier, consumer, status, created_at, consumer_name, supplier_name
   factory LinkRequest.fromJson(Map<String, dynamic> json) {
     return LinkRequest(
       id: json['id']?.toString() ?? '',
-      consumerId: json['consumer_id']?.toString() ?? json['consumerId'] ?? '',
-      supplierId: json['supplier_id']?.toString() ?? json['supplierId'] ?? '',
-      status: json['status'] ?? 'pending',
+      consumerId: json['consumer']?.toString() ?? json['consumer_id']?.toString() ?? json['consumerId'] ?? '',
+      supplierId: json['supplier']?.toString() ?? json['supplier_id']?.toString() ?? json['supplierId'] ?? '',
+      status: json['status'] ?? 'pending', // Can be: pending, linked, rejected, blocked
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : DateTime.now(),
@@ -41,12 +42,8 @@ class LinkRequest {
           ? DateTime.parse(json['updated_at'])
           : null,
       rejectionReason: json['rejection_reason'] ?? json['rejectionReason'],
-      supplier: json['supplier'] != null
-          ? Supplier.fromJson(json['supplier'])
-          : null,
-      consumer: json['consumer'] != null
-          ? User.fromJson(json['consumer'])
-          : null,
+      supplier: null, // Supplier data not included in LinkRequestSerializer
+      consumer: null, // Consumer data not included in LinkRequestSerializer
     );
   }
 
