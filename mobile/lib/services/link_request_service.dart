@@ -122,17 +122,18 @@ class LinkRequestService {
   }
 
   // Approve a link request (Supplier only)
-  // Backend: PUT /link/{id}/accept/
-  static Future<LinkRequest> approveLinkRequest(String requestId) async {
+  // Backend: POST /link/{id}/accept/ - returns {"detail": "Accepted"}, doesn't return updated object
+  static Future<void> approveLinkRequest(String requestId) async {
     try {
-      final response = await http.put(
+      final response = await http.post(
         Uri.parse('$baseUrl${ApiEndpoints.acceptLinkRequest}/$requestId/accept/'),
         headers: _getHeaders(),
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return LinkRequest.fromJson(data);
+        // Backend returns {"detail": "Accepted"}, not the updated link request
+        // We need to reload the list to get updated status
+        return;
       } else {
         final error = jsonDecode(response.body);
         throw Exception(error['detail'] ?? error['message'] ?? 'Failed to approve link request');
@@ -143,10 +144,10 @@ class LinkRequestService {
   }
 
   // Reject a link request (Supplier only)
-  // Backend: PUT /link/{id}/reject/
-  static Future<LinkRequest> rejectLinkRequest(String requestId, {String? reason}) async {
+  // Backend: POST /link/{id}/reject/ - returns {"detail": "Rejected"}, doesn't return updated object
+  static Future<void> rejectLinkRequest(String requestId, {String? reason}) async {
     try {
-      final response = await http.put(
+      final response = await http.post(
         Uri.parse('$baseUrl${ApiEndpoints.rejectLinkRequest}/$requestId/reject/'),
         headers: _getHeaders(),
         body: reason != null ? jsonEncode({
@@ -155,11 +156,55 @@ class LinkRequestService {
       );
 
       if (response.statusCode == 200) {
-        final data = jsonDecode(response.body);
-        return LinkRequest.fromJson(data);
+        // Backend returns {"detail": "Rejected"}, not the updated link request
+        // We need to reload the list to get updated status
+        return;
       } else {
         final error = jsonDecode(response.body);
         throw Exception(error['detail'] ?? error['message'] ?? 'Failed to reject link request');
+      }
+    } catch (e) {
+      throw Exception('Connection error: ${e.toString()}');
+    }
+  }
+
+  // Block a link request (Supplier only)
+  // Backend: POST /link/{id}/block/ - returns {"detail": "Blocked"}, doesn't return updated object
+  static Future<void> blockLinkRequest(String requestId) async {
+    try {
+      final response = await http.post(
+        Uri.parse('$baseUrl${ApiEndpoints.acceptLinkRequest}/$requestId/block/'),
+        headers: _getHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        // Backend returns {"detail": "Blocked"}, not the updated link request
+        // We need to reload the list to get updated status
+        return;
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to block link request');
+      }
+    } catch (e) {
+      throw Exception('Connection error: ${e.toString()}');
+    }
+  }
+
+  // Unlink a consumer (Supplier only)
+  // Backend: DELETE /link/{id}/ - returns {"detail": "Unlinked successfully"}
+  static Future<void> unlinkConsumer(String linkId) async {
+    try {
+      final response = await http.delete(
+        Uri.parse('$baseUrl${ApiEndpoints.unlink}/$linkId/'),
+        headers: _getHeaders(),
+      );
+
+      if (response.statusCode == 200) {
+        // Backend returns {"detail": "Unlinked successfully"}
+        return;
+      } else {
+        final error = jsonDecode(response.body);
+        throw Exception(error['detail'] ?? error['message'] ?? 'Failed to unlink consumer');
       }
     } catch (e) {
       throw Exception('Connection error: ${e.toString()}');

@@ -77,23 +77,35 @@ class CatalogItem {
   }
 
   // Convert CatalogItem object to JSON for sending to backend
+  // Backend expects: name, category, price, discount, unit, stock, minOrder, image, description, status, delivery_option, lead_time_days
   Map<String, dynamic> toJson() {
-    return {
-      'id': id,
-      'supplier_id': supplierId,
+    final json = <String, dynamic>{
       'name': name,
-      'description': description,
       'category': category,
+      'price': price.toStringAsFixed(2),
+      'discount': discount.toStringAsFixed(2),
       'unit': unit,
-      'price': price,
-      'discount': discount,
       'stock': stock,
       'minOrder': minOrder,
       'status': status,
       'delivery_option': deliveryOption,
       'lead_time_days': leadTimeDays,
-      'image': imageUrl,
     };
+    
+    // Only include optional fields if they have values
+    if (description != null && description!.isNotEmpty) {
+      json['description'] = description;
+    }
+    if (imageUrl != null && imageUrl!.isNotEmpty) {
+      json['image'] = imageUrl;
+    }
+    
+    // Include id only for updates
+    if (id.isNotEmpty) {
+      json['id'] = id;
+    }
+    
+    return json;
   }
 
   // Create a copy with updated fields

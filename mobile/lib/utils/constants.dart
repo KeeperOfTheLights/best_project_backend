@@ -51,6 +51,7 @@ class ApiEndpoints {
   static const String rejectOrder = '/orders';  // POST /orders/{id}/reject/
   static const String deliverOrder = '/orders';  // POST /orders/{id}/deliver/
   static const String getConsumerOrderStats = '/orders/stats/';  // GET - Consumer order statistics
+  static const String getSupplierOrderStats = '/orders/supplier/stats/';  // GET - Supplier order statistics
   
   // Chat
   static const String getChatHistory = '/chat';  // GET /chat/{partner_id}/

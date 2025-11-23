@@ -24,7 +24,7 @@ class LinkRequestProvider with ChangeNotifier {
   }
 
   List<LinkRequest> getApprovedRequests() {
-    return _linkRequests.where((req) => req.status == LinkRequestStatus.approved).toList();
+    return _linkRequests.where((req) => req.status == LinkRequestStatus.linked || req.status == LinkRequestStatus.approved).toList();
   }
 
   List<LinkRequest> getRejectedRequests() {
@@ -105,15 +105,14 @@ class LinkRequestProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final request = useMockApi
-          ? await MockLinkRequestService.approveLinkRequest(requestId)
-          : await LinkRequestService.approveLinkRequest(requestId);
-
-      // Update in list
-      final index = _linkRequests.indexWhere((req) => req.id == requestId);
-      if (index != -1) {
-        _linkRequests[index] = request;
+      if (useMockApi) {
+        await MockLinkRequestService.approveLinkRequest(requestId);
+      } else {
+        await LinkRequestService.approveLinkRequest(requestId);
       }
+
+      // Backend doesn't return updated object, so reload the list
+      await loadLinkRequests();
 
       _isLoading = false;
       notifyListeners();
@@ -133,15 +132,42 @@ class LinkRequestProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final request = useMockApi
-          ? await MockLinkRequestService.rejectLinkRequest(requestId, reason: reason)
-          : await LinkRequestService.rejectLinkRequest(requestId, reason: reason);
-
-      // Update in list
-      final index = _linkRequests.indexWhere((req) => req.id == requestId);
-      if (index != -1) {
-        _linkRequests[index] = request;
+      if (useMockApi) {
+        await MockLinkRequestService.rejectLinkRequest(requestId, reason: reason);
+      } else {
+        await LinkRequestService.rejectLinkRequest(requestId, reason: reason);
       }
+
+      // Backend doesn't return updated object, so reload the list
+      await loadLinkRequests();
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
+  // Unlink consumer (Supplier only)
+  Future<bool> unlinkConsumer(String linkId) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      if (useMockApi) {
+        // Mock implementation would go here
+        throw Exception('Unlink not implemented in mock API');
+      } else {
+        await LinkRequestService.unlinkConsumer(linkId);
+      }
+
+      // Backend doesn't return updated object, so reload the list
+      await loadLinkRequests();
 
       _isLoading = false;
       notifyListeners();

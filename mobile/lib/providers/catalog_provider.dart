@@ -166,6 +166,33 @@ class CatalogProvider with ChangeNotifier {
     }
   }
 
+  // Toggle product status (Supplier only)
+  Future<bool> toggleProductStatus(String productId, String newStatus) async {
+    _isLoading = true;
+    _errorMessage = null;
+    notifyListeners();
+
+    try {
+      final updatedItem = useMockApi
+          ? throw Exception('Toggle status not implemented in mock API')
+          : await CatalogService.toggleProductStatus(productId, newStatus);
+
+      final index = _items.indexWhere((i) => i.id == productId);
+      if (index != -1) {
+        _items[index] = updatedItem;
+      }
+
+      _isLoading = false;
+      notifyListeners();
+      return true;
+    } catch (e) {
+      _errorMessage = e.toString();
+      _isLoading = false;
+      notifyListeners();
+      return false;
+    }
+  }
+
   // Set selected category filter
   void setCategoryFilter(String? category) {
     _selectedCategory = category;
