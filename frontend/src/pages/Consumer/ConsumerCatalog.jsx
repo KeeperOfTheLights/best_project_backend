@@ -547,13 +547,13 @@ export default function ConsumerLinkManagement() {
                   <p className="catalog-card-description">{item.description || "No description"}</p>
                 </div>
                 <div className="catalog-card-meta">
-                  <span>🏛️ Stock: {item.stock} {item.unit}</span>
-                  <span>🍱 Min Order: {item.minOrder} {item.unit}</span>
+                  <span> Stock: {item.stock} {item.unit}</span>
+                  <span> Min Order: {item.minOrder} {item.unit}</span>
                   {item.delivery_option && (
                     <span>
-                      {item.delivery_option === "delivery" && "🏎️ Delivery"}
-                      {item.delivery_option === "pickup" && "🍱 Pickup"}
-                      {item.delivery_option === "both" && "🏎️🍱 Both"}
+                      {item.delivery_option === "delivery" && "🏎 Delivery"}
+                      {item.delivery_option === "pickup" && "🏬 Pickup"}
+                      {item.delivery_option === "both" && "🚚 Delivery & Pickup"}
                     </span>
                   )}
                   {item.lead_time_days > 0 && (
@@ -766,7 +766,7 @@ export default function ConsumerLinkManagement() {
 
       <div className="link-stats">
         <div className="stat-card">
-          <div className="stat-icon approved-icon">✔️</div>
+          <div className="stat-icon approved-icon">✔</div>
           <div className="stat-info">
             <h3>{counts.linked}</h3>
             <p>Linked</p>
@@ -780,7 +780,7 @@ export default function ConsumerLinkManagement() {
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon available-icon">🕵🏽‍♀️</div>
+          <div className="stat-icon available-icon">🕵🏽</div>
           <div className="stat-info">
             <h3>{counts.not_linked}</h3>
             <p>Available</p>
@@ -805,7 +805,7 @@ export default function ConsumerLinkManagement() {
           <div key={supplier.id} className="supplier-link-card">
             <div className="supplier-content">
               <h3 className="supplier-name">{supplier.name}</h3>
-              <p className="supplier-company">🏚️ {supplier.company}</p>
+              <p className="supplier-company">🏚 {supplier.company}</p>
               <p className="supplier-email">📨 {supplier.email}</p>
 
               <div className="link-actions">

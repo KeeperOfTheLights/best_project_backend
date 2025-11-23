@@ -259,7 +259,7 @@ export default function SupplierComplaints() {
               </div>
             </div>
             <div className="stat-card">
-              <div className="stat-icon resolved-icon">✔️</div>
+              <div className="stat-icon resolved-icon">✔</div>
               <div className="stat-info">
                 <h3>{counts.resolved}</h3>
                 <p>Resolved</p>

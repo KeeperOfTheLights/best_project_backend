@@ -208,7 +208,7 @@ export default function ConsumerComplaints() {
       : complaints.filter((c) => c.status?.toLowerCase() === filterStatus.toLowerCase());
 
   const formatDate = (value) => {
-    if (!value) return "—";
+    if (!value) return "-";
     try {
       return new Date(value).toLocaleDateString();
     } catch {
