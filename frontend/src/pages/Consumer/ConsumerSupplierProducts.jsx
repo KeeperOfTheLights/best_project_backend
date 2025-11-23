@@ -383,9 +383,9 @@ export default function ConsumerSupplierProducts() {
                 </div>
                 {product.delivery_option && (
                   <div className="product-delivery">
-                    {product.delivery_option === "delivery" && "🏎️ Delivery"}
+                    {product.delivery_option === "delivery" && "🏎 Delivery"}
                     {product.delivery_option === "pickup" && "🍱 Pickup"}
-                    {product.delivery_option === "both" && "🏎️🍱 Delivery & Pickup"}
+                    {product.delivery_option === "both" && "🏎🍱 Delivery & Pickup"}
                   </div>
                 )}
                 {product.lead_time_days > 0 && (
@@ -443,7 +443,7 @@ export default function ConsumerSupplierProducts() {
                 </div>
                 {inCart && (
                   <div className="in-cart-indicator">
-                    ✔️ In Cart: {inCart.quantity} {product.unit}
+                    ✔ In Cart: {inCart.quantity} {product.unit}
                   </div>
                 )}
               </div>

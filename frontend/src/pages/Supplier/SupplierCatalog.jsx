@@ -286,7 +286,7 @@ export default function SupplierLinkRequests() {
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon approved-icon">✔️</div>
+          <div className="stat-icon approved-icon">✔</div>
           <div className="stat-info">
             <h3>{counts.linked}</h3>
             <p>Linked Consumers</p>
@@ -357,7 +357,7 @@ export default function SupplierLinkRequests() {
                 </h3>
                 <span className={`request-status-badge ${request.status}`}>
                   {request.status === "pending" && "⏳ Pending"}
-                  {request.status === "linked" && "✔️ Linked"}
+                  {request.status === "linked" && "✔ Linked"}
                   {request.status === "rejected" && "X Rejected"}
                   {request.status === "blocked" && "🫸 Blocked"}
                 </span>
@@ -389,7 +389,7 @@ export default function SupplierLinkRequests() {
                     >
                       {actionLoading === request.id
                         ? "Processing..."
-                        : "✔️ Accept"}
+                        : "✔ Accept"}
                     </button>
 
                     <button

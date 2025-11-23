@@ -118,14 +118,14 @@ export default function ConsumerOrders() {
           </div>
         </div>
         <div className="stat-box">
-          <div className="stat-icon stat-icon-transit">🏎️</div>
+          <div className="stat-icon stat-icon-transit">🏎</div>
           <div className="stat-content">
             <div className="stat-number">{stats.transit}</div>
             <div className="stat-label">In Transit</div>
           </div>
         </div>
         <div className="stat-box">
-          <div className="stat-icon stat-icon-delivered">✔️</div>
+          <div className="stat-icon stat-icon-delivered">✔</div>
           <div className="stat-content">
             <div className="stat-number">{stats.delivered}</div>
             <div className="stat-label">Delivered</div>

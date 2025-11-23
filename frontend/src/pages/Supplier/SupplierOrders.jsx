@@ -261,14 +261,14 @@ export default function SupplierOrders() {
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon processing-icon">⚙️</div>
+          <div className="stat-icon processing-icon">⚙</div>
           <div className="stat-info">
             <h3>{stats.processing}</h3>
             <p>Processing</p>
           </div>
         </div>
         <div className="stat-card">
-          <div className="stat-icon completed-icon">✔️</div>
+          <div className="stat-icon completed-icon">✔</div>
           <div className="stat-info">
             <h3>{stats.completed}</h3>
             <p>Completed</p>
