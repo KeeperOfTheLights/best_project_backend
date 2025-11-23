@@ -184,7 +184,7 @@ export default function SupplierComplaints() {
       : complaints.filter((c) => c.status.toLowerCase() === filterStatus.toLowerCase());
 
   const formatDate = (value) => {
-    if (!value) return "—";
+    if (!value) return "-";
     try {
       return new Date(value).toLocaleDateString();
     } catch {
@@ -230,7 +230,7 @@ export default function SupplierComplaints() {
       <div className="complaints-header-card">
         <div>
           <h2>Complaints Management</h2>
-          <p style={{ color: "#666", marginTop: "0.5rem", fontSize: "0.9rem" }}>
+          <p style={{ color: "#6b6464ff", marginTop: "0.5rem", fontSize: "0.9rem" }}>
             {getComplaintDescription()}
           </p>
         </div>
@@ -243,7 +243,7 @@ export default function SupplierComplaints() {
         <div className="error-message">
           {error}
           <button onClick={() => setError("")} className="close-btn">
-            ✕
+            X
           </button>
         </div>
       )}
@@ -259,14 +259,14 @@ export default function SupplierComplaints() {
               </div>
             </div>
             <div className="stat-card">
-              <div className="stat-icon resolved-icon">✓</div>
+              <div className="stat-icon resolved-icon">✔️</div>
               <div className="stat-info">
                 <h3>{counts.resolved}</h3>
                 <p>Resolved</p>
               </div>
             </div>
             <div className="stat-card">
-              <div className="stat-icon rejected-icon">✕</div>
+              <div className="stat-icon rejected-icon">X</div>
               <div className="stat-info">
                 <h3>{counts.rejected}</h3>
                 <p>Rejected</p>
@@ -275,7 +275,7 @@ export default function SupplierComplaints() {
           </>
         ) : (
           <div className="stat-card">
-            <div className="stat-icon escalated-icon">⚠️</div>
+            <div className="stat-icon escalated-icon">💀</div>
             <div className="stat-info">
               <h3>{counts.escalated}</h3>
               <p>Escalated</p>

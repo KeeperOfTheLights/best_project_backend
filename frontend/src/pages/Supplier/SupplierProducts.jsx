@@ -248,11 +248,11 @@ export default function SupplierProducts() {
                   style={{
                     width: "100%",
                     height: "200px",
-                    background: "#ddd",
+                    background: "#ded6d6ff",
                     display: "flex",
                     justifyContent: "center",
                     alignItems: "center",
-                    color: "#666",
+                    color: "#6a6666ff",
                   }}
                 >
                   No Image
@@ -267,13 +267,13 @@ export default function SupplierProducts() {
               <p className="product-price">
                 {product.discounted_price && product.discount > 0 ? (
                   <>
-                    <span style={{ textDecoration: "line-through", color: "#999", marginRight: "8px" }}>
+                    <span style={{ textDecoration: "line-through", color: "#a09c9cff", marginRight: "8px" }}>
                       {product.price} ₸
                     </span>
-                    <span style={{ color: "#e74c3c", fontWeight: "bold" }}>
+                    <span style={{ color: "#e14938ff", fontWeight: "bold" }}>
                       {product.discounted_price} ₸
                     </span>
-                    <span style={{ color: "#e74c3c", marginLeft: "8px" }}>
+                    <span style={{ color: "#e24938ff", marginLeft: "8px" }}>
                       ({product.discount}% off)
                     </span>
                   </>
@@ -354,7 +354,7 @@ export default function SupplierProducts() {
                   placeholder="0"
                 />
                 <small style={{ color: "#666", fontSize: "0.85rem" }}>
-                  Enter discount percentage (0-100). Example: 10 for 10% off
+                  Enter discount percentage (0-100). Example: 16 for 16% off
                 </small>
               </div>
               <div className="form-group">
@@ -451,7 +451,7 @@ export default function SupplierProducts() {
                 className="modal-btn confirm"
                 onClick={() => setErrorModal({ visible: false, message: "" })}
               >
-                OK
+                OK okok
               </button>
             </div>
           </div>

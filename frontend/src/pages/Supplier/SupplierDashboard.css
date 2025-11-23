@@ -3,35 +3,35 @@
   margin: 100px auto 50px;
   padding: 20px 25px;
   font-family: "Poppins", sans-serif;
-  background-color: #cdcccc;
+  background-color: #d0c9c9;
   border-radius: 10px;
-  color: #111;
+  color: #1b1b1b;
   box-sizing: border-box;
 }
 
 .dashboard-header h2 {
   font-size: 2rem;
   margin-bottom: 10px;
-  color: #000;
+  color: #080808;
   text-align: center;
 }
 
 .dashboard-header p {
   font-size: 1rem;
-  color: #111;
+  color: #1a1a1a;
   margin-bottom: 40px;
   text-align: center;
 }
 
 .dashboard-title {
   font-size: 2rem;
-  color: #000;
+  color: #0b0b0b;
   margin-bottom: 10px;
 }
 
 .dashboard-subtitle {
   font-size: 1rem;
-  color: #111;
+  color: #121212;
   margin-bottom: 40px;
 }
 
@@ -44,7 +44,7 @@
 }
 
 .stat-card {
-  background: #d6d6d6;
+  background: #d4d0d0;
   border-radius: 15px;
   padding: 25px 40px;
   flex: 1 1 200px;
@@ -62,22 +62,22 @@
   font-size: 1.8rem;
   font-weight: 600;
   margin-bottom: 10px;
-  color: #111;
+  color: #151515;
 }
 
 .stat-card p {
   font-size: 1.1rem;
-  color: #000;
+  color: #100f0f;
 }
 
-.stat-card.active h3 { color: #61dafb; }
-.stat-card.completed h3 { color: #4caf50; }
-.stat-card.pending h3 { color: #ffa726; }
-.stat-card.revenue h3 { color: #9c27b0; }
+.stat-card.active h3 { color: #5cd0f0; }
+.stat-card.completed h3 { color: #47a64a; }
+.stat-card.pending h3 { color: #f09f25; }
+.stat-card.revenue h3 { color: #8f23a2; }
 
 .quick-actions {
   margin-top: 50px;
-  background-color: #dcdcdc;
+  background-color: #dcd6d6;
   border-radius: 10px;
   padding: 20px 25px;
   box-shadow: 0 0 10px rgba(255, 255, 255, 0.15);
@@ -86,8 +86,8 @@
 .quick-actions h3 {
   font-size: 1.3rem;
   margin-bottom: 15px;
-  color: #000;
-  border-left: 4px solid #000;
+  color: #0a0a0a;
+  border-left: 4px solid #0f0f0f;
   padding-left: 10px;
 }
 
@@ -99,27 +99,25 @@
 
 .action-btn {
   flex: 1 1 180px;
-  background-color: #61dafb !important;
+  background-color: #57c9e9 !important;
   padding: 12px 20px;
   border-radius: 10px;
   text-align: center;
   font-weight: 600;
   border: none;
-  color: #20232a !important;
+  color: #262b34 !important;
   text-decoration: none;
   transition: transform 0.2s ease, background-color 0.2s ease;
 }
 
 .action-btn:hover {
-  background-color: #4fcbe4 !important;
+  background-color: #46b8cf !important;
   transform: translateY(-3px);
 }
 
-
-
 .feedback p {
-  background-color: #e0e0e0;
-  border-left: 4px solid #000;
+  background-color: #e0d8d8;
+  border-left: 4px solid #050505;
   padding: 10px 15px;
   border-radius: 6px;
   margin-bottom: 10px;
@@ -127,8 +125,8 @@
 }
 
 .error-banner {
-  background-color: #fdecea;
-  color: #b42318;
+  background-color: #eddbd9;
+  color: #ab2219;
   padding: 1rem 1.25rem;
   border-radius: 8px;
   margin-bottom: 1.5rem;
@@ -139,8 +137,8 @@
 }
 
 .error-banner button {
-  background-color: #61dafb;
-  color: #20232a;
+  background-color: #57c9e9;
+  color: #262b34;
   border: none;
   padding: 0.5rem 1rem;
   border-radius: 6px;
@@ -149,12 +147,12 @@
 }
 
 .error-banner button:hover {
-  background-color: #4fcbe4;
+  background-color: #49bcd3;
 }
 
 .loading-state {
   text-align: center;
   padding: 3rem 2rem;
-  color: #6b7280;
+  color: #6d7585;
   font-size: 1.1rem;
 }
