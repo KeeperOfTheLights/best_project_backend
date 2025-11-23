@@ -70,7 +70,7 @@ export default function ConsumerDashboard() {
       <h2></h2>
       <header className="dashboard-header">
         <h2>Welcome back!</h2>
-        <p>Here’s an overview of your order activity.</p>
+        <p>Here's an overview of your order activity.</p>
       </header>
 
       {error && (

@@ -4,7 +4,7 @@
   padding: 2rem;
   padding-top: 6rem;
   min-height: calc(100vh - 80px);
-  background-color: #f5f5f5;
+  background-color: #f7f4f4;
 }
 
 .link-header {
@@ -13,13 +13,13 @@
 }
 
 .link-header h2 {
-  color: #20232a;
+  color: #252831;
   font-size: 2rem;
   margin: 0 0 0.5rem 0;
 }
 
 .link-subtitle {
-  color: #666;
+  color: #6b6868;
   font-size: 1rem;
   margin: 0;
 }
@@ -58,26 +58,26 @@
 }
 
 .approved-icon {
-  background-color: #d1e7dd;
+  background-color: #cbe4d9;
 }
 
 .pending-icon {
-  background-color: #fff3cd;
+  background-color: #f4e8c2;
 }
 
 .available-icon {
-  background-color: #cfe2ff;
+  background-color: #c2d6f4;
 }
 
 .stat-info h3 {
   margin: 0;
   font-size: 2rem;
-  color: #20232a;
+  color: #242830;
 }
 
 .stat-info p {
   margin: 0.5rem 0 0 0;
-  color: #666;
+  color: #686565;
   font-size: 0.9rem;
 }
 
@@ -90,24 +90,24 @@
 
 .filter-btn {
   padding: 0.8rem 1.5rem;
-  border: 2px solid #ddd;
-  background-color: white;
+  border: 2px solid #dddada;
+  background-color: rgb(255, 255, 255);
   border-radius: 8px;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.3s;
-  color: #666;
+  color: #666464;
 }
 
 .filter-btn:hover {
-  border-color: #61dafb;
-  color: #61dafb;
+  border-color: #5bcfef;
+  color: #5acfef;
 }
 
 .filter-btn.active {
-  background-color: #61dafb;
-  border-color: #61dafb;
-  color: #20232a;
+  background-color: #59ceee;
+  border-color: #5bd3f5;
+  color: #262a34;
 }
 
 .suppliers-grid {
@@ -158,28 +158,28 @@
 }
 
 .link-status-badge.approved {
-  background-color: #4caf50;
-  color: white;
+  background-color: #49b14d;
+  color: rgb(255, 255, 255);
 }
 
 .link-status-badge.pending {
-  background-color: #ff9800;
-  color: white;
+  background-color: #f59403;
+  color: rgb(255, 255, 255);
 }
 
 .link-status-badge.not_linked {
-  background-color: #2196f3;
-  color: white;
+  background-color: #1f8feb;
+  color: rgb(255, 255, 255);
 }
 
 .link-status-badge.rejected {
-  background-color: #f44336;
-  color: white;
+  background-color: #eb4236;
+  color: rgb(255, 255, 255);
 }
 
 .link-status-badge.blocked {
-  background-color: #9e9e9e;
-  color: white;
+  background-color: #a39d9d;
+  color: rgb(255, 255, 255);
 }
 
 .supplier-content {
@@ -188,26 +188,26 @@
 
 .supplier-name {
   margin: 0 0 0.5rem 0;
-  color: #20232a;
+  color: #252932;
   font-size: 1.3rem;
 }
 
 .supplier-category {
   margin: 0 0 0.5rem 0;
-  color: #61dafb;
+  color: #5bcded;
   font-weight: 600;
   font-size: 0.9rem;
 }
 
 .supplier-location {
   margin: 0 0 0.5rem 0;
-  color: #666;
+  color: #696666;
   font-size: 0.9rem;
 }
 
 .supplier-description {
   margin: 0 0 1.5rem 0;
-  color: #666;
+  color: #6c6a6a;
   font-size: 0.9rem;
   line-height: 1.4;
 }
@@ -229,42 +229,42 @@
 }
 
 .send-request-btn {
-  background-color: #61dafb;
-  color: #20232a;
+  background-color: #5cd1f1;
+  color: #242830;
 }
 
 .send-request-btn:hover {
-  background-color: #4fcbe4;
+  background-color: #49bfd6;
   transform: translateY(-2px);
 }
 
 .cancel-btn {
-  background-color: #ff9800;
-  color: white;
+  background-color: #f59403;
+  color: rgb(255, 255, 255);
 }
 
 .cancel-btn:hover {
-  background-color: #f57c00;
+  background-color: #ee7801;
   transform: translateY(-2px);
 }
 
 .view-catalog-btn {
-  background-color: #4caf50;
-  color: white;
+  background-color: #46a649;
+  color: rgb(255, 255, 255);
 }
 
 .view-catalog-btn:hover {
-  background-color: #388e3c;
+  background-color: #328536;
   transform: translateY(-2px);
 }
 
 .unlink-btn {
-  background-color: #f44336;
-  color: white;
+  background-color: #f23f32;
+  color: rgb(255, 255, 255);
 }
 
 .unlink-btn:hover {
-  background-color: #d32f2f;
+  background-color: #ca2c2c;
   transform: translateY(-2px);
 }
 
@@ -273,28 +273,28 @@
   display: block;
   text-align: center;
   padding: 0.8rem;
-  background-color: #f8d7da;
-  color: #842029;
+  background-color: #efcdd0;
+  color: #741d24;
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
 }
 
 .blocked-message {
-  background-color: #e2e3e5;
-  color: #41464b;
+  background-color: #d5d6d9;
+  color: #3d4247;
 }
 
 .empty-state {
   text-align: center;
   padding: 3rem;
-  background: white;
+  background: rgb(255, 255, 255);
   border-radius: 12px;
   margin-top: 2rem;
 }
 
 .empty-state p {
-  color: #666;
+  color: #605e5e;
   font-size: 1.1rem;
   margin: 0;
 }
