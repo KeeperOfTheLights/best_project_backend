@@ -1,12 +1,18 @@
-# React + Vite
+Firstly to run the project you need to install all plugins in requirements.txt. 
+Then we need to run npm install to install the needed plugins for frontend part.
+Then we open two terminals. One will start the backend part - server using command " python manage.py runserver", 
+while in the second terminal we firstly write "cd frontend" and then "npm run dev".
+You will see something like this: 
+npm run dev                                                     
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+> nuprojectfront@0.0.0 dev
+> vite
 
-Currently, two official plugins are available:
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+  VITE v7.2.1  ready in 320 ms
 
-## Expanding the ESLint configuration
-
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and [`typescript-eslint`](https://typescript-eslint.io) in your project.
+  ➜  Local:   http://localhost:5173/
+  ➜  Network: use --host to expose
+  ➜  press h + enter to show help
+  
+Using the link "http://localhost:5173/" we could open our website. Good luck!e
