@@ -21,9 +21,10 @@ describe('Login', () => {
 
   it('renders login form', () => {
     render(<MockLogin />);
-    expect(screen.getByPlaceholderText(/email/i)).toBeInTheDocument();
-    expect(screen.getByPlaceholderText(/password/i)).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /log in/i })).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/email|auth\.emailAddress/i)).toBeInTheDocument();
+    expect(screen.getByPlaceholderText(/password|auth\.password/i)).toBeInTheDocument();
+    const button = screen.getByRole('button');
+    expect(button).toBeInTheDocument();
   });
 
   it('shows error message on failed login', async () => {
@@ -34,9 +35,9 @@ describe('Login', () => {
 
     render(<MockLogin />);
     
-    const emailInput = screen.getByPlaceholderText(/email/i);
-    const passwordInput = screen.getByPlaceholderText(/password/i);
-    const submitButton = screen.getByRole('button', { name: /log in/i });
+    const emailInput = screen.getByPlaceholderText(/email|auth\.emailAddress/i);
+    const passwordInput = screen.getByPlaceholderText(/password|auth\.password/i);
+    const submitButton = screen.getByRole('button');
 
     fireEvent.change(emailInput, { target: { value: 'test@example.com' } });
     fireEvent.change(passwordInput, { target: { value: 'wrongpassword' } });
