@@ -78,14 +78,14 @@
     "orderDate": "Дата заказа",
     "lastUpdate": "Последнее обновление",
     "total": "Итого",
-    "viewDetails": "Просмотр деталей",
+    "viewDetails": "Детали",
     "acceptOrder": "Принять заказ",
     "reject": "Отклонить",
     "markAsDelivered": "Отметить как доставлено",
     "awaitingApproval": "Ожидание одобрения",
     "reorder": "Повторить заказ",
     "fileComplaint": "Подать жалобу",
-    "generateInvoice": "Создать счет",
+    "generateInvoice": "Счет",
     "orderManagement": "Управление заказами",
     "myOrders": "Мои заказы",
     "orderItems": "Товары в заказе",
@@ -104,7 +104,11 @@
     "failedToAccept": "Не удалось принять заказ",
     "failedToReject": "Не удалось отклонить заказ",
     "failedToDeliver": "Не удалось отметить заказ как доставленный",
-    "haventPlacedOrders": "Вы еще не разместили ни одного заказа."
+    "haventPlacedOrders": "Вы еще не разместили ни одного заказа.",
+    "orderDetails": "Детали заказа",
+    "loadingOrderDetails": "Детали заказа...",
+    "customerInformation": "Информация о клиенте",
+    "noItemsFound": "Товары не найдены"
   },
   "products": {
     "productName": "Название товара",
@@ -230,7 +234,13 @@
     "manageSupplierRelationships": "Управляйте своими отношениями с поставщиками",
     "available": "Доступно",
     "sendAgain": "Отправить снова",
-    "noSuppliersFound": "Поставщики не найдены со статусом:"
+    "noSuppliersFound": "Поставщики не найдены со статусом:",
+    "placeOrder": "Разместить заказ",
+    "inCart": "В корзине",
+    "privateSupplier": "Частный поставщик",
+    "supplierDescription": "Товары доступны для оптового заказа. Только связанные поставщики.",
+    "searchProducts": "Поиск товаров...",
+    "allCategories": "Все категории"
   },
   "complaints": {
     "title": "Заголовок",

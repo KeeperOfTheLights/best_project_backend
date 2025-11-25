@@ -326,13 +326,9 @@ export default function ChatPage() {
   }, [messages]);
 
   useEffect(() => {
-    // Auto-scroll if:
-    // 1. User is at bottom (shouldAutoScrollRef.current is true)
-    // 2. AND there are new messages OR it's an initial load
     if (shouldAutoScrollRef.current && messagesContainerRef.current && hasNewMessagesRef.current) {
       setTimeout(() => {
         if (messagesContainerRef.current && shouldAutoScrollRef.current) {
-          // Scroll the container, not the page
           messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
         }
       }, 50);
@@ -413,12 +409,10 @@ export default function ChatPage() {
 
       setNewMessage("");
       setSelectedFile(null);
-      // Auto-scroll after sending - force scroll to bottom
       shouldAutoScrollRef.current = true;
       hasNewMessagesRef.current = true;
       setTimeout(() => {
         if (messagesContainerRef.current) {
-          // Scroll the container, not the page
           messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
         }
       }, 100);

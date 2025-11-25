@@ -54,6 +54,7 @@ export default function Login() {
             placeholder={t("auth.emailAddress")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            aria-label={t("auth.emailAddress")}
             required
           />
 
@@ -62,10 +63,11 @@ export default function Login() {
             placeholder={t("auth.password")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            aria-label={t("auth.password")}
             required
           />
 
-          <button type="submit">{t("auth.logIn")}</button>
+          <button type="submit" aria-label={t("auth.logIn")}>{t("auth.logIn")}</button>
 
           <p className="signup-subtext">
             {t("auth.dontHaveAccount")} <Link to="/signup">{t("common.signup")}</Link>

@@ -15,7 +15,6 @@ export default function SupplierLinkRequests() {
   const [errorMsg, setErrorMsg] = useState("");
   const [actionLoading, setActionLoading] = useState(null);
 
-  // modal state
   const [modalData, setModalData] = useState({
     visible: false,
     action: null,

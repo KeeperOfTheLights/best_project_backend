@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useParams, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 import "./ConsumerSupplierProducts.css";
@@ -6,6 +7,7 @@ import "./ConsumerSupplierProducts.css";
 const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
 export default function ConsumerSupplierProducts() {
+  const { t } = useTranslation();
   const { supplierId } = useParams();
   const navigate = useNavigate();
   const { token, logout, loading: authLoading } = useAuth();
@@ -29,10 +31,10 @@ export default function ConsumerSupplierProducts() {
 
   const parseErrorResponse = async (response) => {
     const text = await response.text();
-    if (!text) return "Request failed";
+    if (!text) return t("common.failed");
     try {
       const payload = JSON.parse(text);
-      return payload.detail || payload.message || payload.error || "Request failed";
+      return payload.detail || payload.message || payload.error || t("common.failed");
     } catch {
       return text;
     }
@@ -66,7 +68,7 @@ export default function ConsumerSupplierProducts() {
       setCartItems(Array.isArray(data) ? data : []);
     } catch (err) {
       setCartItems([]);
-      setCartError(err.message || "Failed to load cart");
+      setCartError(err.message || t("catalog.failedToLoadCart"));
     } finally {
       setCartLoading(false);
     }
@@ -184,9 +186,9 @@ export default function ConsumerSupplierProducts() {
 
       if (!res.ok) throw new Error(await parseErrorResponse(res));
       await fetchCart();
-      setCartMessage(`Added ${quantity} ${product.unit || ""} of ${product.name} to cart.`);
+      setCartMessage(t("catalog.addedToCart", { quantity, unit: product.unit || "", name: product.name }));
     } catch (err) {
-      setCartError(err.message || "Failed to add to cart");
+      setCartError(err.message || t("catalog.failedToAddToCart"));
     } finally {
       setCartActionLoading("");
     }
@@ -215,7 +217,7 @@ export default function ConsumerSupplierProducts() {
       if (!res.ok) throw new Error(await parseErrorResponse(res));
       await fetchCart();
     } catch (err) {
-      setCartError(err.message || "Failed to update cart");
+      setCartError(err.message || t("catalog.failedToUpdateCart"));
     } finally {
       setCartActionLoading("");
     }
@@ -240,7 +242,7 @@ export default function ConsumerSupplierProducts() {
       if (!res.ok) throw new Error(await parseErrorResponse(res));
       await fetchCart();
     } catch (err) {
-      setCartError(err.message || "Failed to remove item");
+      setCartError(err.message || t("catalog.failedToRemoveItem"));
     } finally {
       setCartActionLoading("");
     }
@@ -248,7 +250,7 @@ export default function ConsumerSupplierProducts() {
 
   const handleCheckout = async () => {
     if (!supplierCartItems.length) {
-      setCartError("Add items from this supplier before checking out.");
+      setCartError(t("catalog.addItemsBeforeCheckout"));
       return;
     }
 
@@ -270,11 +272,11 @@ export default function ConsumerSupplierProducts() {
 
       if (!res.ok) throw new Error(await parseErrorResponse(res));
       const data = await res.json();
-      setCartMessage(`Order #${data.id} placed successfully.`);
+      setCartMessage(t("catalog.orderPlacedSuccessfully", { id: data.id }));
       await fetchCart();
       navigate("/ConsumerOrders");
     } catch (err) {
-      setCartError(err.message || "Checkout failed");
+      setCartError(err.message || t("catalog.checkoutFailed"));
     } finally {
       setCheckoutLoading(false);
     }
@@ -307,11 +309,11 @@ export default function ConsumerSupplierProducts() {
           {supplier?.supplier_company?.[0] || supplier?.full_name?.[0] || "S"}
         </div>
         <div className="supplier-header-info">
-          <h1>{supplier?.full_name || "Supplier"}</h1>
-          <p className="supplier-category">{supplier?.supplier_company || "Private Supplier"}</p>
+          <h1>{supplier?.full_name || t("orders.supplier")}</h1>
+          <p className="supplier-category">{supplier?.supplier_company || t("catalog.privateSupplier")}</p>
           <p className="supplier-location">📨 {supplier?.email}</p>
           <p className="supplier-description">
-            Products available for wholesale ordering. Linked suppliers only.
+            {t("catalog.supplierDescription")}
           </p>
         </div>
       </div>
@@ -319,7 +321,7 @@ export default function ConsumerSupplierProducts() {
       <div className="products-filters">
         <input
           type="text"
-          placeholder="Search products..."
+          placeholder={t("catalog.searchProducts")}
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
           className="search-input"
@@ -331,7 +333,7 @@ export default function ConsumerSupplierProducts() {
         >
           {categories.map((cat) => (
             <option key={cat} value={cat}>
-              {cat === "all" ? "All Categories" : cat}
+              {cat === "all" ? t("catalog.allCategories") : cat}
             </option>
           ))}
         </select>
@@ -435,15 +437,15 @@ export default function ConsumerSupplierProducts() {
                     disabled={product.stock === 0 || cartActionLoading === `add-${product.id}`}
                   >
                     {product.stock === 0
-                      ? "Out of Stock"
+                      ? t("catalog.outOfStock")
                       : cartActionLoading === `add-${product.id}`
-                        ? "Adding..."
-                        : "Add to Cart"}
+                        ? t("common.processing")
+                        : t("catalog.addToCart")}
                   </button>
                 </div>
                 {inCart && (
                   <div className="in-cart-indicator">
-                    ✔ In Cart: {inCart.quantity} {product.unit}
+                    ✔ {t("catalog.inCart")}: {inCart.quantity} {product.unit}
                   </div>
                 )}
               </div>
@@ -460,15 +462,15 @@ export default function ConsumerSupplierProducts() {
 
       <div className="floating-cart">
         <div className="cart-header">
-          <h3>Cart ({supplierCartItems.length} items)</h3>
-          {cartLoading && <span className="cart-loading">Refreshing...</span>}
+          <h3>{t("catalog.cart")} ({supplierCartItems.length} {t("catalog.items")})</h3>
+          {cartLoading && <span className="cart-loading">{t("common.refresh")}...</span>}
         </div>
 
         {cartError && <div className="catalog-inline-alert error">{cartError}</div>}
         {cartMessage && <div className="catalog-inline-alert success">{cartMessage}</div>}
 
         {supplierCartItems.length === 0 ? (
-          <p className="cart-empty">No items from this supplier yet.</p>
+          <p className="cart-empty">{t("catalog.noItemsFromSupplier")}</p>
         ) : (
           <>
             <div className="cart-items">
@@ -529,7 +531,7 @@ export default function ConsumerSupplierProducts() {
 
             <div className="cart-footer">
               <div className="cart-total">
-                <span>Total:</span>
+                <span>{t("orders.total")}:</span>
                 <strong>{formatCurrency(cartTotalAmount)}</strong>
               </div>
               <button
@@ -537,7 +539,7 @@ export default function ConsumerSupplierProducts() {
                 onClick={handleCheckout}
                 disabled={checkoutLoading || supplierCartItems.length === 0}
               >
-                {checkoutLoading ? "Placing Order..." : "Place Order"}
+                {checkoutLoading ? t("catalog.placingOrder") : t("catalog.placeOrder")}
               </button>
             </div>
           </>

@@ -1,7 +1,9 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import "./modal.css";
 
 export default function Modal({ show, title, text, onConfirm, onCancel, children }) {
+  const { t } = useTranslation();
   if (!show) return null;
 
   return (
@@ -21,10 +23,10 @@ export default function Modal({ show, title, text, onConfirm, onCancel, children
         {onConfirm && (
           <div className="modal-buttons">
             <button className="modal-btn cancel" onClick={onCancel}>
-              Cancel
+              {t("common.cancel")}
             </button>
             <button className="modal-btn confirm" onClick={onConfirm}>
-              Confirm
+              {t("common.confirm")}
             </button>
           </div>
         )}

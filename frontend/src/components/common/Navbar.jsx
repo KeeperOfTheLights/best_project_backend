@@ -22,10 +22,10 @@ export default function Navbar() {
   const isAuthenticated = isLoggedIn && token;
 
   return (
-    <nav className="navbar">
+    <nav className="navbar" role="navigation" aria-label="Main navigation">
       <div className="navbar-left">
         <img src={reactLogo} alt="Project logo" className="navbar-logo" />
-        <Link to={getDashboardRoute()} className="navbar-title">
+        <Link to={getDashboardRoute()} className="navbar-title" aria-label="Go to dashboard">
           DV
         </Link>
       </div>

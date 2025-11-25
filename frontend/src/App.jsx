@@ -1,31 +1,43 @@
-import React from 'react';
+import React, { Suspense, lazy } from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/Auth-Context";
 import { is_supplier_side } from "./utils/roleUtils";
-import './i18n'; // Initialize i18n
+import './i18n';
 
 import Navbar from "./components/common/Navbar";
 import Login from "./pages/Shared/Login";
 import SignUp from "./pages/Shared/SignUp";
-import SupplierDashboard from "./pages/Supplier/SupplierDashboard";
-import ConsumerDashboard from "./pages/Consumer/ConsumerDashboard";
-import About from "./pages/Shared/About";
-import ConsumerCatalog from "./pages/Consumer/ConsumerCatalog";
-import SupplierCatalog from "./pages/Supplier/SupplierCatalog";
-import ConsumerOrders from "./pages/Consumer/ConsumerOrders";
-import SupplierOrders from "./pages/Supplier/SupplierOrders";
-import SupplierProducts from "./pages/Supplier/SupplierProducts";
-import Chat from "./pages/Shared/Chat";
-import Search from "./pages/Shared/Search";
-import ConsumerSupplierProducts from "./pages/Consumer/ConsumerSupplierProducts";
-import CComplaints from "./pages/Consumer/ConsumerComplaints";
-import SComplaints from "./pages/Supplier/SupplierComplaints";
-import CompanyManagement from "./pages/Supplier/CompanyManagement";
+const SupplierDashboard = lazy(() => import("./pages/Supplier/SupplierDashboard"));
+const ConsumerDashboard = lazy(() => import("./pages/Consumer/ConsumerDashboard"));
+const About = lazy(() => import("./pages/Shared/About"));
+const ConsumerCatalog = lazy(() => import("./pages/Consumer/ConsumerCatalog"));
+const SupplierCatalog = lazy(() => import("./pages/Supplier/SupplierCatalog"));
+const ConsumerOrders = lazy(() => import("./pages/Consumer/ConsumerOrders"));
+const SupplierOrders = lazy(() => import("./pages/Supplier/SupplierOrders"));
+const SupplierProducts = lazy(() => import("./pages/Supplier/SupplierProducts"));
+const Chat = lazy(() => import("./pages/Shared/Chat"));
+const Search = lazy(() => import("./pages/Shared/Search"));
+const ConsumerSupplierProducts = lazy(() => import("./pages/Consumer/ConsumerSupplierProducts"));
+const CComplaints = lazy(() => import("./pages/Consumer/ConsumerComplaints"));
+const SComplaints = lazy(() => import("./pages/Supplier/SupplierComplaints"));
+const CompanyManagement = lazy(() => import("./pages/Supplier/CompanyManagement"));
+
+const LoadingFallback = () => (
+  <div style={{ 
+    display: 'flex', 
+    justifyContent: 'center', 
+    alignItems: 'center', 
+    height: '100vh',
+    fontSize: '1.2rem'
+  }}>
+    Loading...
+  </div>
+);
 
 function RoleRoute({ role, children }) {
   const { isLoggedIn, role: userRole, loading } = useAuth();
 
-  if (loading) return <p>Loading...</p>;
+  if (loading) return <LoadingFallback />;
 
   if (!isLoggedIn) return <Navigate to="/login" replace />;
   
@@ -43,16 +55,15 @@ export default function App() {
     <AuthProvider>
       <Router>
         <Navbar />
-        <Routes>
-          {/* Public Routes */}
-          <Route path="/login" element={<Login />} />
-          <Route path="/signup" element={<SignUp />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/chat" element={<Chat />} />
-          <Route path="/search" element={<Search />} />
-          <Route path="/" element={<Navigate to="/about" replace />} />
+        <Suspense fallback={<LoadingFallback />}>
+          <Routes>
+            <Route path="/login" element={<Login />} />
+            <Route path="/signup" element={<SignUp />} />
+            <Route path="/about" element={<About />} />
+            <Route path="/chat" element={<Chat />} />
+            <Route path="/search" element={<Search />} />
+            <Route path="/" element={<Navigate to="/about" replace />} />
 
-          {/* Supplier Routes */}
           <Route
             path="/SupplierDashboard"
             element={
@@ -102,7 +113,6 @@ export default function App() {
             }
           />
 
-          {/* Consumer Routes */}
           <Route
             path="/ConsumerDashboard"
             element={
@@ -144,8 +154,9 @@ export default function App() {
             }
           />
 
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </Suspense>
       </Router>
     </AuthProvider>
   );

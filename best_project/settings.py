@@ -70,7 +70,8 @@ REST_FRAMEWORK = {
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
-    #"http://localhost:3000",
+    "http://localhost:80",
+    "http://localhost",
 ]
 
 
@@ -101,11 +102,11 @@ WSGI_APPLICATION = 'best_project.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql_psycopg2',
-        'NAME': 'django',
-        'USER': 'django_admin',
-        'PASSWORD': '123iki123',
-        'HOST': '127.0.0.1',
-        'PORT': '5432',
+        'NAME': os.getenv('DATABASE_NAME', 'django'),
+        'USER': os.getenv('DATABASE_USER', 'django_admin'),
+        'PASSWORD': os.getenv('DATABASE_PASSWORD', '123iki123'),
+        'HOST': os.getenv('DATABASE_HOST', '127.0.0.1'),
+        'PORT': os.getenv('DATABASE_PORT', '5432'),
     }
 }
 

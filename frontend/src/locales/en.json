@@ -104,7 +104,11 @@
     "failedToAccept": "Failed to accept order",
     "failedToReject": "Failed to reject order",
     "failedToDeliver": "Failed to mark order as delivered",
-    "haventPlacedOrders": "You haven't placed any orders yet."
+    "haventPlacedOrders": "You haven't placed any orders yet.",
+    "orderDetails": "Order Details",
+    "loadingOrderDetails": "Loading order details...",
+    "customerInformation": "Customer Information",
+    "noItemsFound": "No items found"
   },
   "products": {
     "productName": "Product Name",
@@ -230,7 +234,13 @@
     "manageSupplierRelationships": "Manage your supplier relationships",
     "available": "Available",
     "sendAgain": "Send Again",
-    "noSuppliersFound": "No suppliers found with the status:"
+    "noSuppliersFound": "No suppliers found with the status:",
+    "placeOrder": "Place Order",
+    "inCart": "In Cart",
+    "privateSupplier": "Private Supplier",
+    "supplierDescription": "Products available for wholesale ordering. Linked suppliers only.",
+    "searchProducts": "Search products...",
+    "allCategories": "All Categories"
   },
   "complaints": {
     "title": "Title",
