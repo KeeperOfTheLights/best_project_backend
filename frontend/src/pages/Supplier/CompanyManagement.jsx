@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 import "./CompanyManagement.css";
@@ -6,6 +7,7 @@ import "./CompanyManagement.css";
 const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
 export default function CompanyManagement() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { token, logout, role, loading: authLoading } = useAuth();
   const [unassignedUsers, setUnassignedUsers] = useState([]);
@@ -51,12 +53,12 @@ export default function CompanyManagement() {
 
       if (!unassignedRes.ok) {
         const text = await unassignedRes.text();
-        throw new Error(text || "Failed to load unassigned users");
+        throw new Error(text || t("company.failedToLoadUnassigned"));
       }
 
       if (!employeesRes.ok) {
         const text = await employeesRes.text();
-        throw new Error(text || "Failed to load employees");
+        throw new Error(text || t("company.failedToLoadEmployees"));
       }
 
       const unassignedData = await unassignedRes.json();
@@ -65,7 +67,7 @@ export default function CompanyManagement() {
       setUnassignedUsers(Array.isArray(unassignedData) ? unassignedData : []);
       setEmployees(Array.isArray(employeesData) ? employeesData : []);
     } catch (err) {
-      setError(err.message || "Failed to load data");
+      setError(err.message || t("company.failedToLoad"));
     } finally {
       setLoading(false);
     }
@@ -100,12 +102,12 @@ export default function CompanyManagement() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Failed to assign employee");
+        throw new Error(errorData.detail || t("company.failedToAssign"));
       }
 
       await fetchData();
     } catch (err) {
-      setError(err.message || "Failed to assign employee");
+      setError(err.message || t("company.failedToAssign"));
     } finally {
       setActionLoading(null);
     }
@@ -119,7 +121,7 @@ export default function CompanyManagement() {
       return;
     }
 
-    if (!window.confirm("Are you sure you want to remove this employee from your company?")) {
+    if (!window.confirm(t("company.confirmRemoveEmployee"))) {
       return;
     }
 
@@ -144,12 +146,12 @@ export default function CompanyManagement() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Failed to remove employee");
+        throw new Error(errorData.detail || t("company.failedToRemove"));
       }
 
       await fetchData();
     } catch (err) {
-      setError(err.message || "Failed to remove employee");
+      setError(err.message || t("company.failedToRemove"));
     } finally {
       setActionLoading(null);
     }
@@ -157,9 +159,9 @@ export default function CompanyManagement() {
 
   const getRoleLabel = (role) => {
     const roleMap = {
-      manager: "Manager",
-      sales: "Sales Representative",
-      owner: "Owner",
+      manager: t("auth.manager"),
+      sales: t("auth.sales"),
+      owner: t("auth.owner"),
     };
     return roleMap[role] || role;
   };
@@ -167,7 +169,7 @@ export default function CompanyManagement() {
   if (loading) {
     return (
       <div className="company-management-container">
-        <p>Loading...</p>
+        <p>{t("common.loading")}</p>
       </div>
     );
   }
@@ -175,9 +177,9 @@ export default function CompanyManagement() {
   return (
     <div className="company-management-container">
       <div className="company-header">
-        <h2>Company Management</h2>
+        <h2>{t("company.companyManagement")}</h2>
         <button className="refresh-button" onClick={fetchData} disabled={loading}>
-          {loading ? "Refreshing..." : "Refresh"}
+          {loading ? t("common.processing") : t("common.refresh")}
         </button>
       </div>
 
@@ -192,10 +194,10 @@ export default function CompanyManagement() {
 
       <div className="company-sections">
         <div className="section-card">
-          <h3>Current Employees ({employees.length})</h3>
+          <h3>{t("company.companyEmployees")} ({employees.length})</h3>
           {employees.length === 0 ? (
             <div className="empty-state">
-              <p>No employees assigned to your company yet.</p>
+              <p>{t("company.noEmployeesAssigned")}</p>
             </div>
           ) : (
             <div className="users-list">
@@ -211,7 +213,7 @@ export default function CompanyManagement() {
                     onClick={() => handleRemove(employee.id)}
                     disabled={actionLoading === employee.id}
                   >
-                    {actionLoading === employee.id ? "Removing..." : "Remove"}
+                    {actionLoading === employee.id ? t("common.processing") : t("company.removeEmployee")}
                   </button>
                 </div>
               ))}
@@ -220,13 +222,13 @@ export default function CompanyManagement() {
         </div>
 
         <div className="section-card">
-          <h3>Available to Assign ({unassignedUsers.length})</h3>
+          <h3>{t("company.unassignedUsers")} ({unassignedUsers.length})</h3>
           <p className="section-description">
-            Managers and Sales Representatives who are not yet assigned to any company.
+            {t("company.unassignedDescription")}
           </p>
           {unassignedUsers.length === 0 ? (
             <div className="empty-state">
-              <p>No unassigned users available.</p>
+              <p>{t("company.noUnassignedUsers")}</p>
             </div>
           ) : (
             <div className="users-list">
@@ -242,7 +244,7 @@ export default function CompanyManagement() {
                     onClick={() => handleAssign(user.id)}
                     disabled={actionLoading === user.id}
                   >
-                    {actionLoading === user.id ? "Assigning..." : "Assign to Company"}
+                    {actionLoading === user.id ? t("common.processing") : t("company.assignEmployee")}
                   </button>
                 </div>
               ))}

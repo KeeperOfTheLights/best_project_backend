@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 import { is_catalog_manager } from "../../utils/roleUtils";
 import "./SupplierCatalog.css";
 
 export default function SupplierLinkRequests() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { role, loading: authLoading } = useAuth();
   const [requests, setRequests] = useState([]);
@@ -50,7 +52,7 @@ export default function SupplierLinkRequests() {
         return;
       }
 
-      if (!res.ok) throw new Error("Failed to fetch requests");
+      if (!res.ok) throw new Error(t("catalog.failedToFetch"));
 
       const data = await res.json();
       setRequests(data);
@@ -109,7 +111,7 @@ export default function SupplierLinkRequests() {
         },
       });
 
-      if (!res.ok) throw new Error("Failed to reject request");
+      if (!res.ok) throw new Error(t("catalog.failedToReject"));
       await fetchRequests();
     } catch (err) {
       setErrorMsg(err.message);
@@ -131,7 +133,7 @@ export default function SupplierLinkRequests() {
         },
       });
 
-      if (!res.ok) throw new Error("Failed to block consumer");
+      if (!res.ok) throw new Error(t("catalog.failedToBlock"));
       await fetchRequests();
     } catch (err) {
       setErrorMsg(err.message);
@@ -153,7 +155,7 @@ export default function SupplierLinkRequests() {
         },
       });
 
-      if (!res.ok) throw new Error("Failed to unlink consumer");
+      if (!res.ok) throw new Error(t("catalog.failedToUnlink"));
       await fetchRequests();
     } catch (err) {
       setErrorMsg(err.message);
@@ -176,7 +178,7 @@ export default function SupplierLinkRequests() {
         },
       });
 
-      if (!res.ok) throw new Error("Failed to accept request");
+      if (!res.ok) throw new Error(t("catalog.failedToAccept"));
       await fetchRequests();
     } catch (err) {
       setErrorMsg(err.message);
@@ -186,14 +188,14 @@ export default function SupplierLinkRequests() {
   };
 
   const handleReject = (linkId) => {
-    openModal("reject", linkId, "Reject this consumer request?");
+    openModal("reject", linkId, t("catalog.rejectRequest"));
   };
 
   const handleBlock = (linkId) => {
     openModal(
       "block",
       linkId,
-      "Block this consumer? They will not be able to send requests again."
+      t("catalog.blockConsumer")
     );
   };
 
@@ -210,7 +212,7 @@ export default function SupplierLinkRequests() {
         },
       });
 
-      if (!res.ok) throw new Error("Failed to unblock consumer");
+      if (!res.ok) throw new Error(t("catalog.failedToUnblock"));
       await fetchRequests();
     } catch (err) {
       setErrorMsg(err.message);
@@ -223,7 +225,7 @@ export default function SupplierLinkRequests() {
     openModal(
       "unlink",
       linkId,
-      "Unlink this consumer? They will lose access to your catalog :(."
+      t("catalog.unlinkConsumer")
     );
   };
 
@@ -244,24 +246,24 @@ export default function SupplierLinkRequests() {
     return (
       <div className="link-requests-container">
         <div className="error-message" style={{ padding: "2rem", textAlign: "center" }}>
-          <h2>Access Denied</h2>
-          <p>Only Owners and Managers can view link requests.</p>
+          <h2>{t("common.error")}</h2>
+          <p>{t("catalog.accessDenied")}</p>
           <button onClick={() => navigate("/SupplierDashboard")} style={{ marginTop: "1rem", padding: "0.5rem 1rem" }}>
-            Go to Dashboard
+            {t("dashboard.viewOrders")}
           </button>
         </div>
       </div>
     );
   }
 
-  if (loading) return <p>Loading link requests...</p>;
+  if (loading) return <p>{t("catalog.loadingLinkRequests")}</p>;
 
   return (
     <div className="link-requests-container">
       <div className="requests-header">
-        <h2>Consumer Link Requests</h2>
+        <h2>{t("catalog.consumerLinkRequests")}</h2>
         <p className="requests-subtitle">
-          Manage consumer connections and access
+          {t("catalog.manageConnections")}
         </p>
       </div>
 
@@ -282,28 +284,28 @@ export default function SupplierLinkRequests() {
           <div className="stat-icon pending-icon">⏳</div>
           <div className="stat-info">
             <h3>{counts.pending}</h3>
-            <p>Pending Requests</p>
+            <p>{t("catalog.pendingRequests")}</p>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon approved-icon">✔</div>
           <div className="stat-info">
             <h3>{counts.linked}</h3>
-            <p>Linked Consumers</p>
+            <p>{t("catalog.linkedConsumers")}</p>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon rejected-icon">X</div>
           <div className="stat-info">
             <h3>{counts.rejected}</h3>
-            <p>Rejected</p>
+            <p>{t("catalog.rejected")}</p>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon blocked-icon">🫸</div>
           <div className="stat-info">
             <h3>{counts.blocked}</h3>
-            <p>Blocked</p>
+            <p>{t("catalog.blocked")}</p>
           </div>
         </div>
       </div>
@@ -313,7 +315,7 @@ export default function SupplierLinkRequests() {
           className={`filter-btn ${filterStatus === "all" ? "active" : ""}`}
           onClick={() => setFilterStatus("all")}
         >
-          All ({counts.all})
+          {t("common.all")} ({counts.all})
         </button>
         <button
           className={`filter-btn ${
@@ -321,13 +323,13 @@ export default function SupplierLinkRequests() {
           }`}
           onClick={() => setFilterStatus("pending")}
         >
-          Pending ({counts.pending})
+          {t("catalog.pending")} ({counts.pending})
         </button>
         <button
           className={`filter-btn ${filterStatus === "linked" ? "active" : ""}`}
           onClick={() => setFilterStatus("linked")}
         >
-          Linked ({counts.linked})
+          {t("catalog.linked")} ({counts.linked})
         </button>
         <button
           className={`filter-btn ${
@@ -335,7 +337,7 @@ export default function SupplierLinkRequests() {
           }`}
           onClick={() => setFilterStatus("rejected")}
         >
-          Rejected ({counts.rejected})
+          {t("catalog.rejected")} ({counts.rejected})
         </button>
         <button
           className={`filter-btn ${
@@ -343,7 +345,7 @@ export default function SupplierLinkRequests() {
           }`}
           onClick={() => setFilterStatus("blocked")}
         >
-          Blocked ({counts.blocked})
+          {t("catalog.blocked")} ({counts.blocked})
         </button>
       </div>
 
@@ -353,13 +355,13 @@ export default function SupplierLinkRequests() {
             <div className="request-content">
               <div className="request-header-info">
                 <h3 className="consumer-name">
-                  {request.consumer_name || "Unknown Consumer"}
+                  {request.consumer_name || t("catalog.unknownConsumer")}
                 </h3>
                 <span className={`request-status-badge ${request.status}`}>
-                  {request.status === "pending" && "⏳ Pending"}
-                  {request.status === "linked" && "✔ Linked"}
-                  {request.status === "rejected" && "X Rejected"}
-                  {request.status === "blocked" && "🫸 Blocked"}
+                  {request.status === "pending" && `⏳ ${t("catalog.pending")}`}
+                  {request.status === "linked" && `✔ ${t("catalog.linked")}`}
+                  {request.status === "rejected" && `X ${t("catalog.rejected")}`}
+                  {request.status === "blocked" && `🫸 ${t("catalog.blocked")}`}
                 </span>
               </div>
 
@@ -367,14 +369,14 @@ export default function SupplierLinkRequests() {
                 <div className="detail-row">
                   <span className="detail-icon">📅</span>
                   <span className="detail-text">
-                    Request Date:{" "}
+                    {t("catalog.requestDate")}{" "}
                     {new Date(request.created_at).toLocaleDateString()}
                   </span>
                 </div>
                 <div className="detail-row">
                   <span className="detail-icon">🆔</span>
                   <span className="detail-text">
-                    Consumer ID: {request.consumer}
+                    {t("catalog.consumerId")} {request.consumer}
                   </span>
                 </div>
               </div>
@@ -388,8 +390,8 @@ export default function SupplierLinkRequests() {
                       disabled={actionLoading === request.id}
                     >
                       {actionLoading === request.id
-                        ? "Processing..."
-                        : "✔ Accept"}
+                        ? t("common.processing")
+                        : `✔ ${t("catalog.accept")}`}
                     </button>
 
                     <button
@@ -397,7 +399,7 @@ export default function SupplierLinkRequests() {
                       onClick={() => handleReject(request.id)}
                       disabled={actionLoading === request.id}
                     >
-                      X Reject
+                      X {t("catalog.reject")}
                     </button>
 
                     <button
@@ -405,7 +407,7 @@ export default function SupplierLinkRequests() {
                       onClick={() => handleBlock(request.id)}
                       disabled={actionLoading === request.id}
                     >
-                      🫸 Block
+                      🫸 {t("catalog.block")}
                     </button>
                   </>
                 )}
@@ -420,7 +422,7 @@ export default function SupplierLinkRequests() {
                         })
                       }
                     >
-                      View Orders
+                      {t("catalog.viewOrders")}
                     </button>
                     <button
                       className="action-btn message-btn"
@@ -430,7 +432,7 @@ export default function SupplierLinkRequests() {
                         })
                       }
                     >
-                      Message
+                      {t("catalog.message")}
                     </button>
                     <button
                       className="action-btn unlink-btn"
@@ -438,15 +440,15 @@ export default function SupplierLinkRequests() {
                       disabled={actionLoading === request.id}
                     >
                       {actionLoading === request.id
-                        ? "Unlinking..."
-                        : "Unlink"}
+                        ? t("common.processing")
+                        : t("catalog.unlink")}
                     </button>
                   </>
                 )}
 
                 {request.status === "rejected" && (
                   <>
-                    <span className="status-message">Request was rejected</span>
+                    <span className="status-message">{t("catalog.requestWasRejected")}</span>
 
                     <button
                       className="action-btn accept-btn"
@@ -454,8 +456,8 @@ export default function SupplierLinkRequests() {
                       disabled={actionLoading === request.id}
                     >
                       {actionLoading === request.id
-                        ? "Processing..."
-                        : "Accept Now"}
+                        ? t("common.processing")
+                        : t("catalog.acceptNow")}
                     </button>
 
                     <button
@@ -463,7 +465,7 @@ export default function SupplierLinkRequests() {
                       onClick={() => handleBlock(request.id)}
                       disabled={actionLoading === request.id}
                     >
-                      Block
+                      {t("catalog.block")}
                     </button>
                   </>
                 )}
@@ -471,7 +473,7 @@ export default function SupplierLinkRequests() {
                 {request.status === "blocked" && (
                   <>
                     <span className="status-message blocked">
-                      Consumer is blocked
+                      {t("catalog.consumerIsBlocked")}
                     </span>
 
                     <button
@@ -480,8 +482,8 @@ export default function SupplierLinkRequests() {
                       disabled={actionLoading === request.id}
                     >
                       {actionLoading === request.id
-                        ? "Unblocking..."
-                        : "Unblock"}
+                        ? t("common.processing")
+                        : t("catalog.unblock")}
                     </button>
                   </>
                 )}
@@ -493,22 +495,22 @@ export default function SupplierLinkRequests() {
 
       {filteredRequests.length === 0 && (
         <div className="empty-state">
-          <p>No requests found with status: {filterStatus}</p>
+          <p>{t("catalog.noRequestsFound")} {filterStatus}</p>
         </div>
       )}
 
       {modalData.visible && (
         <div className="modal-overlay">
           <div className="modal-window">
-            <h3 className="modal-title">Confirm Action</h3>
+            <h3 className="modal-title">{t("catalog.confirmAction")}</h3>
             <p className="modal-message">{modalData.message}</p>
 
             <div className="modal-buttons">
               <button className="modal-btn cancel" onClick={closeModal}>
-                Cancel
+                {t("common.cancel")}
               </button>
               <button className="modal-btn confirm" onClick={confirmModalAction}>
-                Confirm
+                {t("common.confirm")}
               </button>
             </div>
           </div>

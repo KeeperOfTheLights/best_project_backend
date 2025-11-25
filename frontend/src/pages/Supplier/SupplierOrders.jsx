@@ -1,5 +1,6 @@
 import "./SupplierOrders.css";
 import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 import { is_catalog_manager } from "../../utils/roleUtils";
@@ -7,22 +8,18 @@ import OrderDetailModal from "../../components/OrderDetailModal";
 
 const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
-const STATUS_CONFIG = {
-  pending: { label: "Pending", class: "status-pending", display: "pending" },
-  approved: { label: "Processing", class: "status-processing", display: "processing" },
-  delivered: { label: "Completed", class: "status-completed", display: "completed" },
-  cancelled: { label: "Cancelled", class: "status-cancelled", display: "cancelled" },
-};
-
 const getStatusColor = (status) => {
-  return STATUS_CONFIG[status]?.class || "";
-};
-
-const getStatusText = (status) => {
-  return STATUS_CONFIG[status]?.label || status;
+  const statusMap = {
+    pending: "status-pending",
+    approved: "status-processing",
+    delivered: "status-completed",
+    cancelled: "status-cancelled",
+  };
+  return statusMap[status] || "";
 };
 
 export default function SupplierOrders() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { token, logout, role, loading: authLoading } = useAuth();
@@ -59,13 +56,13 @@ export default function SupplierOrders() {
 
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(text || "Failed to load orders");
+        throw new Error(text || t("orders.failedToLoad"));
       }
 
       const data = await res.json();
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message || "Failed to load orders");
+      setError(err.message || t("orders.failedToLoad"));
       setOrders([]);
     } finally {
       setLoading(false);
@@ -141,7 +138,7 @@ export default function SupplierOrders() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Failed to accept order");
+        throw new Error(errorData.detail || t("orders.failedToAccept"));
       }
 
       await fetchOrders();
@@ -180,7 +177,7 @@ export default function SupplierOrders() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Failed to reject order");
+        throw new Error(errorData.detail || t("orders.failedToReject"));
       }
 
       await fetchOrders();
@@ -219,7 +216,7 @@ export default function SupplierOrders() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Failed to mark order as delivered");
+        throw new Error(errorData.detail || t("orders.failedToDeliver"));
       }
 
       await fetchOrders();
@@ -233,7 +230,7 @@ export default function SupplierOrders() {
   return (
     <div className="supplier-orders-container">
       <div className="orders-header">
-        <h2>Order Management</h2>
+        <h2>{t("orders.orderManagement")}</h2>
         <div style={{ display: "flex", gap: "1rem", alignItems: "center" }}>
           {filterConsumerId && (
             <button
@@ -241,11 +238,11 @@ export default function SupplierOrders() {
               onClick={() => setFilterConsumerId(null)}
               style={{ backgroundColor: "#f69606ff" }}
             >
-              Show All Orders
+              {t("orders.showAllOrders")}
             </button>
           )}
           <button className="refresh-button" onClick={fetchOrders} disabled={loading}>
-            {loading ? "Refreshing..." : "Refresh"}
+            {loading ? t("common.processing") : t("common.refresh")}
           </button>
         </div>
       </div>
@@ -257,47 +254,47 @@ export default function SupplierOrders() {
           <div className="stat-icon pending-icon">🗋</div>
           <div className="stat-info">
             <h3>{stats.pending}</h3>
-            <p>Pending Orders</p>
+            <p>{t("orders.pendingOrders")}</p>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon processing-icon">⚙</div>
           <div className="stat-info">
             <h3>{stats.processing}</h3>
-            <p>Processing</p>
+            <p>{t("orders.processing")}</p>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon completed-icon">✔</div>
           <div className="stat-info">
             <h3>{stats.completed}</h3>
-            <p>Completed</p>
+            <p>{t("orders.completed")}</p>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon revenue-icon">🤑</div>
           <div className="stat-info">
             <h3>{formatCurrency(stats.revenue)}</h3>
-            <p>Total Revenue</p>
+            <p>{t("orders.totalRevenue")}</p>
           </div>
         </div>
       </div>
 
       {filterConsumerId && (
         <div className="filter-message">
-          <strong>Filtered:</strong> Showing orders from consumer ID {filterConsumerId}
+          <strong>{t("orders.filtered")}</strong> {t("orders.showingOrdersFrom")} {filterConsumerId}
         </div>
       )}
 
       {loading && filteredOrders.length === 0 && (
-        <div className="loading-state">Loading orders...</div>
+        <div className="loading-state">{t("orders.loadingOrders")}</div>
       )}
 
       {!loading && filteredOrders.length === 0 && !error && (
         <div className="empty-state">
           {filterConsumerId 
-            ? `No orders found for consumer ID ${filterConsumerId}.` 
-            : "No orders found."}
+            ? `${t("orders.noOrdersForConsumer")} ${filterConsumerId}.` 
+            : t("orders.noOrdersFound")}
         </div>
       )}
 
@@ -306,14 +303,14 @@ export default function SupplierOrders() {
           <div key={order.id} className="supplier-order-card">
             <div className="order-header-section">
               <div className="order-main-info">
-                <h3 className="order-id">Order #{order.id}</h3>
+                <h3 className="order-id">{t("orders.orderNumber", { id: order.id })}</h3>
                 <span className={`order-status ${getStatusColor(order.status)}`}>
-                  {getStatusText(order.status)}
+                  {t(`orders.${order.status === "approved" ? "processing" : order.status}`)}
                 </span>
               </div>
               <div className="order-customer">
-                <span className="customer-name">{order.consumer_name || "Unknown Consumer"}</span>
-                <span className="customer-type">Consumer</span>
+                <span className="customer-name">{order.consumer_name || t("orders.consumer")}</span>
+                <span className="customer-type">{t("orders.consumer")}</span>
               </div>
             </div>
 
@@ -321,7 +318,7 @@ export default function SupplierOrders() {
               <div className="info-item">
                 <span className="info-icon">📅</span>
                 <div className="info-content">
-                  <span className="info-label">Order Date</span>
+                  <span className="info-label">{t("orders.orderDate")}</span>
                   <span className="info-value">{formatDate(order.created_at)}</span>
                 </div>
               </div>
@@ -329,7 +326,7 @@ export default function SupplierOrders() {
                 <div className="info-item">
                   <span className="info-icon">🔄</span>
                   <div className="info-content">
-                    <span className="info-label">Last Updated</span>
+                    <span className="info-label">{t("orders.lastUpdate")}</span>
                     <span className="info-value">{formatDate(order.updated_at)}</span>
                   </div>
                 </div>
@@ -337,12 +334,12 @@ export default function SupplierOrders() {
             </div>
 
             <div className="order-items">
-              <h4 className="items-title">Order Items</h4>
+              <h4 className="items-title">{t("orders.orderItems")}</h4>
               <div className="items-table">
                 <div className="table-header">
-                  <span>Product</span>
-                  <span>Quantity</span>
-                  <span>Price</span>
+                  <span>{t("products.productName")}</span>
+                  <span>{t("catalog.quantity")}</span>
+                  <span>{t("products.price")}</span>
                 </div>
                 {(order.items || []).map((item) => (
                   <div key={item.id} className="table-row">
@@ -356,7 +353,7 @@ export default function SupplierOrders() {
 
             <div className="order-footer">
               <div className="order-total">
-                <span className="total-label">Total Amount:</span>
+                <span className="total-label">{t("orders.totalAmount")}</span>
                 <span className="total-amount">{formatCurrency(order.total_price)}</span>
               </div>
               <div className="order-actions">
@@ -367,14 +364,14 @@ export default function SupplierOrders() {
                       onClick={() => handleAcceptOrder(order.id)}
                       disabled={actionLoading === order.id}
                     >
-                      {actionLoading === order.id ? "Processing..." : "Accept Order"}
+                      {actionLoading === order.id ? t("common.processing") : t("orders.acceptOrder")}
                     </button>
                     <button
                       className="action-btn reject-btn"
                       onClick={() => handleRejectOrder(order.id)}
                       disabled={actionLoading === order.id}
                     >
-                      {actionLoading === order.id ? "Processing..." : "Reject"}
+                      {actionLoading === order.id ? t("common.processing") : t("orders.reject")}
                     </button>
                   </>
                 )}
@@ -384,19 +381,19 @@ export default function SupplierOrders() {
                     onClick={() => handleDeliverOrder(order.id)}
                     disabled={actionLoading === order.id}
                   >
-                    {actionLoading === order.id ? "Processing..." : "Mark as Delivered"}
+                    {actionLoading === order.id ? t("common.processing") : t("orders.markAsDelivered")}
                   </button>
                 )}
                 {is_catalog_manager(role) && order.status === "delivered" && (
                   <button className="action-btn invoice-btn" disabled>
-                    Generate Invoice
+                    {t("orders.generateInvoice")}
                   </button>
                 )}
                 <button
                   className="action-btn details-btn"
                   onClick={() => setSelectedOrderId(order.id)}
                 >
-                  View Details
+                  {t("orders.viewDetails")}
                 </button>
               </div>
             </div>

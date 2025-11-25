@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 import "./Search.css";
@@ -6,6 +7,7 @@ import "./Search.css";
 const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
 export default function Search() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const [searchParams, setSearchParams] = useSearchParams();
   const { token, logout, role, loading: authLoading } = useAuth();
@@ -65,7 +67,7 @@ export default function Search() {
 
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(text || "Failed to search");
+        throw new Error(text || t("search.failedToSearch"));
       }
 
       const data = await res.json();
@@ -75,7 +77,7 @@ export default function Search() {
         products: Array.isArray(data.products) ? data.products : [],
       });
     } catch (err) {
-      setError(err.message || "Failed to perform search");
+      setError(err.message || t("search.failedToSearch"));
       setResults({ suppliers: [], categories: [], products: [] });
     } finally {
       setLoading(false);
@@ -119,24 +121,24 @@ export default function Search() {
   return (
     <div className="search-page-container">
       <div className="search-header">
-        <h1>Search</h1>
+        <h1>{t("search.search")}</h1>
         <form onSubmit={handleSearch} className="search-form">
           <input
             type="text"
-            placeholder="Search for suppliers, products, categories..."
+            placeholder={t("search.searchPlaceholder")}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="search-input-large"
           />
           <button type="submit" className="search-btn">
-            Search
+            {t("search.search")}
           </button>
         </form>
       </div>
 
       {loading && (
         <div className="search-loading">
-          <p>Searching...</p>
+          <p>{t("search.searching")}</p>
         </div>
       )}
 
@@ -148,7 +150,7 @@ export default function Search() {
 
       {!loading && !error && query.trim() && !hasResults && (
         <div className="search-empty">
-          <p>No results found for "{query}"</p>
+          <p>{t("search.noResults")} "{query}"</p>
         </div>
       )}
 
@@ -156,7 +158,7 @@ export default function Search() {
         <div className="search-results">
           {results.suppliers.length > 0 && (
             <div className="search-section">
-              <h2>Suppliers ({results.suppliers.length})</h2>
+              <h2>{t("search.suppliers")} ({results.suppliers.length})</h2>
               <div className="suppliers-grid">
                 {results.suppliers.map((supplier) => (
                   <div
@@ -186,7 +188,7 @@ export default function Search() {
 
           {results.categories.length > 0 && (
             <div className="search-section">
-              <h2>Categories ({results.categories.length})</h2>
+              <h2>{t("search.categories")} ({results.categories.length})</h2>
               <div className="categories-list">
                 {results.categories.map((category, index) => (
                   <button
@@ -203,7 +205,7 @@ export default function Search() {
 
           {results.products.length > 0 && (
             <div className="search-section">
-              <h2>Products ({results.products.length})</h2>
+              <h2>{t("search.products")} ({results.products.length})</h2>
               <div className="products-grid">
                 {results.products.map((product) => (
                   <div

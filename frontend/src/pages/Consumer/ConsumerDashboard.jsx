@@ -1,12 +1,14 @@
 import "./ConsumerDashboard.css";
 import { Link } from "react-router-dom";
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 
 const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
 export default function ConsumerDashboard() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { token, logout, loading: authLoading } = useAuth();
   const [stats, setStats] = useState({
@@ -48,7 +50,7 @@ export default function ConsumerDashboard() {
 
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(text || "Failed to load statistics");
+        throw new Error(text || t("dashboard.failedToLoad"));
       }
 
       const data = await res.json();
@@ -59,7 +61,7 @@ export default function ConsumerDashboard() {
         total_spent: data.total_spent || 0,
       });
     } catch (err) {
-      setError(err.message || "Failed to load statistics");
+      setError(err.message || t("dashboard.failedToLoad"));
     } finally {
       setLoading(false);
     }
@@ -69,49 +71,49 @@ export default function ConsumerDashboard() {
     <div className="consumer-dashboard-container">
       <h2></h2>
       <header className="dashboard-header">
-        <h2>Welcome back!</h2>
-        <p>Here's an overview of your order activity.</p>
+        <h2>{t("dashboard.welcomeBack")}</h2>
+        <p>{t("dashboard.overview")}</p>
       </header>
 
       {error && (
         <div className="error-banner">
           {error}
           <button onClick={fetchStats} style={{ marginLeft: "1rem", padding: "0.5rem 1rem" }}>
-            Retry
+            {t("common.retry")}
           </button>
         </div>
       )}
 
       {loading ? (
-        <div className="loading-state">Loading statistics...</div>
+        <div className="loading-state">{t("dashboard.loadingStatistics")}</div>
       ) : (
         <section className="dashboard-stats">
           <div className="stat-card completed">
             <h3>{stats.completed_orders}</h3>
-            <p>Completed Orders</p>
+            <p>{t("dashboard.completedOrders")}</p>
           </div>
           <div className="stat-card in-progress">
             <h3>{stats.in_progress_orders}</h3>
-            <p>Orders in Progress</p>
+            <p>{t("dashboard.ordersInProgress")}</p>
           </div>
           <div className="stat-card cancelled">
             <h3>{stats.cancelled_orders}</h3>
-            <p>Cancelled Orders</p>
+            <p>{t("dashboard.cancelledOrders")}</p>
           </div>
           <div className="stat-card total">
             <h3>{Number(stats.total_spent || 0).toLocaleString()} ₸</h3>
-            <p>Total Spent</p>
+            <p>{t("dashboard.totalSpent")}</p>
           </div>
         </section>
       )}
 
       <section className="quick-actions">
-        <h3>Quick Actions</h3>
+        <h3>{t("dashboard.quickActions")}</h3>
         <div className="actions-grid">
-          <Link to="/ConsumerCatalog" className="action-btn browse-btn">Browse Catalog</Link>
+          <Link to="/ConsumerCatalog" className="action-btn browse-btn">{t("dashboard.browseCatalog")}</Link>
          
-          <Link to="/Chat" className="action-btn support-btn">Open Chat</Link>
-          <Link to="/ConsumerOrders" className="action-btn orders-btn">View All Orders</Link>
+          <Link to="/Chat" className="action-btn support-btn">{t("dashboard.openChat")}</Link>
+          <Link to="/ConsumerOrders" className="action-btn orders-btn">{t("dashboard.viewAllOrders")}</Link>
         </div>
       </section>
     </div>

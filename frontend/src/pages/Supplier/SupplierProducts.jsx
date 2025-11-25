@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import "./SupplierProducts.css";
 import { useAuth } from "../../context/Auth-Context";
 import { is_catalog_manager } from "../../utils/roleUtils";
 
 export default function SupplierProducts() {
+  const { t } = useTranslation();
   const { token, role, loading: authLoading } = useAuth();
   const navigate = useNavigate();
   const [products, setProducts] = useState([]);
@@ -54,7 +56,7 @@ export default function SupplierProducts() {
       const response = await fetch("http://127.0.0.1:8000/api/accounts/products/", {
         headers: { Authorization: `Bearer ${token}` },
       });
-      if (!response.ok) throw new Error("Failed to fetch products");
+      if (!response.ok) throw new Error(t("products.failedToFetch"));
       const data = await response.json();
       setProducts(data);
     } catch (err) {
@@ -120,7 +122,7 @@ export default function SupplierProducts() {
         const errorData = await response.json().catch(() => ({}));
         console.error("Server error:", errorData);
         
-        let errorMessage = "Failed to save product";
+        let errorMessage = t("products.failedToSave");
         if (errorData.detail) {
           errorMessage = errorData.detail;
         } else if (errorData.message) {
@@ -144,7 +146,7 @@ export default function SupplierProducts() {
       setErrorModal({ visible: false, message: "" });
     } catch (err) {
       console.error("Save error:", err);
-      setErrorModal({ visible: true, message: err.message || "Failed to save product" });
+      setErrorModal({ visible: true, message: err.message || t("products.failedToSave") });
     }
   };
 
@@ -166,7 +168,7 @@ export default function SupplierProducts() {
   };
 
   const handleDelete = (productId) => {
-    openActionModal(productId, "delete", "Are you sure you want to delete this product?");
+    openActionModal(productId, "delete", t("products.areYouSureDelete"));
   };
 
   const handleDeleteConfirmed = async (productId) => {
@@ -178,7 +180,7 @@ export default function SupplierProducts() {
           headers: { Authorization: `Bearer ${token}` },
         }
       );
-      if (!response.ok) throw new Error("Failed to delete product");
+      if (!response.ok) throw new Error(t("products.failedToDelete"));
       setProducts(products.filter((p) => p.id !== productId));
     } catch (err) {
       alert(err.message);
@@ -201,7 +203,7 @@ export default function SupplierProducts() {
       if (!response.ok) {
         const errorData = await response.json();
         console.error("Toggle status error:", errorData);
-        throw new Error("Failed to update status");
+        throw new Error(t("products.failedToUpdateStatus"));
       }
 
       await fetchProducts();
@@ -215,25 +217,25 @@ export default function SupplierProducts() {
     return (
       <div className="products-container">
         <div className="error-message" style={{ padding: "2rem", textAlign: "center" }}>
-          <h2>Access Denied</h2>
-          <p>Only Owners and Managers can manage products.</p>
+          <h2>{t("common.error")}</h2>
+          <p>{t("products.accessDenied")}</p>
           <button onClick={() => navigate("/SupplierDashboard")} style={{ marginTop: "1rem", padding: "0.5rem 1rem" }}>
-            Go to Dashboard
+            {t("dashboard.viewOrders")}
           </button>
         </div>
       </div>
     );
   }
 
-  if (loading) return <p>Loading products...</p>;
-  if (error) return <p>Error: {error}</p>;
+  if (loading) return <p>{t("products.loadingProducts")}</p>;
+  if (error) return <p>{t("common.error")}: {error}</p>;
 
   return (
     <div className="products-container">
       <div className="products-header">
-        <h2>Product Catalog</h2>
+        <h2>{t("products.productCatalog")}</h2>
         <button className="add-product-btn" onClick={handleAddClick}>
-          + Add New Product
+          + {t("products.addProduct")}
         </button>
       </div>
 
@@ -255,10 +257,12 @@ export default function SupplierProducts() {
                     color: "#6a6666ff",
                   }}
                 >
-                  No Image
+                  {t("products.noImage")}
                 </div>
               )}
-              <span className={`status-badge ${product.status}`}>{product.status}</span>
+              <span className={`status-badge ${product.status}`}>
+                {product.status === "active" ? t("products.active") : t("products.inactive")}
+              </span>
             </div>
 
             <div className="product-content">
@@ -284,7 +288,7 @@ export default function SupplierProducts() {
               <p className="product-description">{product.description}</p>
               <div className="product-actions">
                 <button className="action-btn edit-btn" onClick={() => handleEditClick(product)}>
-                  Edit
+                  {t("common.edit")}
                 </button>
                 <button
                   className="action-btn toggle-btn"
@@ -292,19 +296,19 @@ export default function SupplierProducts() {
                     openActionModal(
                       product.id,
                       "toggleStatus",
-                      `Are you sure you want to ${
-                        product.status === "active" ? "deactivate" : "activate"
-                      } this product?`
+                      product.status === "active" 
+                        ? t("products.areYouSureDeactivate")
+                        : t("products.areYouSureActivate")
                     )
                   }
                 >
-                  {product.status === "active" ? "Deactivate" : "Activate"}
+                  {product.status === "active" ? t("products.deactivate") : t("products.activate")}
                 </button>
                 <button
                   className="action-btn delete-btn"
                   onClick={() => handleDelete(product.id)}
                 >
-                  Delete
+                  {t("common.delete")}
                 </button>
               </div>
             </div>
@@ -316,22 +320,22 @@ export default function SupplierProducts() {
         <div className="modal-overlay">
           <div className="modal-content">
             <div className="modal-header">
-              <h2>{modalMode === "add" ? "Add Product" : "Edit Product"}</h2>
+              <h2>{modalMode === "add" ? t("products.addProduct") : t("products.editProduct")}</h2>
               <button className="close-btn" onClick={() => setShowModal(false)}>
                 &times;
               </button>
             </div>
             <div className="product-form">
               <div className="form-group">
-                <label>Name</label>
+                <label>{t("products.productName")}</label>
                 <input name="name" value={formData.name} onChange={handleInputChange} required />
               </div>
               <div className="form-group">
-                <label>Category</label>
+                <label>{t("products.category")}</label>
                 <input name="category" value={formData.category} onChange={handleInputChange} />
               </div>
               <div className="form-group">
-                <label>Price</label>
+                <label>{t("products.price")}</label>
                 <input
                   type="number"
                   step="0.01"
@@ -342,7 +346,7 @@ export default function SupplierProducts() {
                 />
               </div>
               <div className="form-group">
-                <label>Discount (%)</label>
+                <label>{t("products.discount")}</label>
                 <input
                   type="number"
                   step="0.01"
@@ -354,44 +358,44 @@ export default function SupplierProducts() {
                   placeholder="0"
                 />
                 <small style={{ color: "#666", fontSize: "0.85rem" }}>
-                  Enter discount percentage (0-100). Example: 16 for 16% off
+                  {t("products.enterDiscount")}
                 </small>
               </div>
               <div className="form-group">
-                <label>Unit</label>
+                <label>{t("products.unit")}</label>
                 <select name="unit" value={formData.unit} onChange={handleInputChange}>
-                  <option value="kg">kg</option>
-                  <option value="pcs">piece</option>
-                  <option value="litre">litre</option>
-                  <option value="pack">pack</option>
+                  <option value="kg">{t("products.kg")}</option>
+                  <option value="pcs">{t("products.pcs")}</option>
+                  <option value="litre">{t("products.litre")}</option>
+                  <option value="pack">{t("products.pack")}</option>
                 </select>
               </div>
               <div className="form-group">
-                <label>Stock</label>
+                <label>{t("products.stock")}</label>
                 <input type="number" name="stock" value={formData.stock} onChange={handleInputChange} />
               </div>
               <div className="form-group">
-                <label>Minimum Order</label>
+                <label>{t("products.minOrder")}</label>
                 <input type="number" name="minOrder" value={formData.minOrder} onChange={handleInputChange} />
               </div>
               <div className="form-group">
-                <label>Image URL</label>
+                <label>{t("products.imageUrl")}</label>
                 <input name="image" value={formData.image} onChange={handleInputChange} />
               </div>
               <div className="form-group">
-                <label>Description</label>
+                <label>{t("products.description")}</label>
                 <textarea name="description" value={formData.description} onChange={handleInputChange} />
               </div>
               <div className="form-group">
-                <label>Delivery Option</label>
+                <label>{t("products.deliveryOption")}</label>
                 <select name="delivery_option" value={formData.delivery_option} onChange={handleInputChange}>
-                  <option value="delivery">Delivery Only</option>
-                  <option value="pickup">Pickup Only</option>
-                  <option value="both">Both</option>
+                  <option value="delivery">{t("products.deliveryOnly")}</option>
+                  <option value="pickup">{t("products.pickupOnly")}</option>
+                  <option value="both">{t("products.both")}</option>
                 </select>
               </div>
               <div className="form-group">
-                <label>Lead Time (days)</label>
+                <label>{t("products.leadTimeDays")}</label>
                 <input
                   type="number"
                   min="0"
@@ -402,18 +406,18 @@ export default function SupplierProducts() {
                 />
               </div>
               <div className="form-group">
-                <label>Status</label>
+                <label>{t("products.status")}</label>
                 <select name="status" value={formData.status} onChange={handleInputChange}>
-                  <option value="active">active</option>
-                  <option value="inactive">inactive</option>
+                  <option value="active">{t("products.active")}</option>
+                  <option value="inactive">{t("products.inactive")}</option>
                 </select>
               </div>
               <div className="modal-actions">
                 <button type="button" className="cancel-btn" onClick={() => setShowModal(false)}>
-                  Cancel
+                  {t("common.cancel")}
                 </button>
                 <button type="button" className="save-btn" onClick={handleSave}>
-                  Save
+                  {t("common.save")}
                 </button>
               </div>
             </div>
@@ -424,17 +428,17 @@ export default function SupplierProducts() {
       {actionModal.visible && (
         <div className="modal-overlay">
           <div className="modal-window">
-            <h3>Confirm Action</h3>
+            <h3>{t("common.confirm")}</h3>
             <p>{actionModal.message}</p>
             <div className="modal-buttons">
               <button
                 className="modal-btn cancel"
                 onClick={() => setActionModal({ ...actionModal, visible: false })}
               >
-                Cancel
+                {t("common.cancel")}
               </button>
               <button className="modal-btn confirm" onClick={confirmAction}>
-                Confirm
+                {t("common.confirm")}
               </button>
             </div>
           </div>
@@ -444,14 +448,14 @@ export default function SupplierProducts() {
       {errorModal.visible && (
         <div className="modal-overlay">
           <div className="modal-window error-modal">
-            <h3>Error</h3>
+            <h3>{t("common.error")}</h3>
             <p>{errorModal.message}</p>
             <div className="modal-buttons">
               <button
                 className="modal-btn confirm"
                 onClick={() => setErrorModal({ visible: false, message: "" })}
               >
-                OK okok
+                {t("common.close")}
               </button>
             </div>
           </div>

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 import "./ConsumerComplaints.css";
@@ -6,6 +7,7 @@ import "./ConsumerComplaints.css";
 const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
 export default function ConsumerComplaints() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const { token, logout, loading: authLoading } = useAuth();
@@ -45,13 +47,13 @@ export default function ConsumerComplaints() {
 
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(text || "Failed to load complaints");
+        throw new Error(text || t("complaints.failedToLoad"));
       }
 
       const data = await res.json();
       setComplaints(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message || "Failed to load complaints");
+      setError(err.message || t("complaints.failedToLoad"));
       setComplaints([]);
     }
   };
@@ -82,13 +84,13 @@ export default function ConsumerComplaints() {
 
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(text || "Failed to load orders");
+        throw new Error(text || t("orders.failedToLoad"));
       }
 
       const data = await res.json();
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message || "Failed to load orders");
+      setError(err.message || t("orders.failedToLoad"));
       setOrders([]);
     } finally {
       setLoading(false);
@@ -124,12 +126,12 @@ export default function ConsumerComplaints() {
     if (authLoading) return;
     
     if (!selectedOrderId) {
-      setError("Please select an order");
+      setError(t("complaints.pleaseSelectOrder"));
       return;
     }
 
     if (!newComplaint.title.trim() || !newComplaint.description.trim()) {
-      setError("Please fill all fields");
+      setError(t("complaints.pleaseFillAllFields"));
       return;
     }
 
@@ -145,7 +147,7 @@ export default function ConsumerComplaints() {
     try {
       const orderId = Number(selectedOrderId);
       if (!orderId || isNaN(orderId)) {
-        setError("Please select a valid order");
+        setError(t("complaints.pleaseSelectValidOrder"));
         setSubmitting(false);
         return;
       }
@@ -184,7 +186,7 @@ export default function ConsumerComplaints() {
         } catch (e) {
           errorMessage = `Server error: ${res.status} ${res.statusText}`;
         }
-        throw new Error(errorMessage);
+        throw new Error(errorMessage || t("complaints.failedToSubmit"));
       }
 
       await res.json();
@@ -194,7 +196,7 @@ export default function ConsumerComplaints() {
       setShowForm(false);
       setError("");
     } catch (err) {
-      setError(err.message || "Failed to submit complaint");
+      setError(err.message || t("complaints.failedToSubmit"));
     } finally {
       setSubmitting(false);
     }
@@ -218,10 +220,10 @@ export default function ConsumerComplaints() {
 
   const getStatusLabel = (status) => {
     const statusMap = {
-      pending: "Pending",
-      resolved: "Resolved",
-      rejected: "Rejected",
-      escalated: "Escalated",
+      pending: t("complaints.pending"),
+      resolved: t("complaints.resolved"),
+      rejected: t("complaints.rejected"),
+      escalated: t("complaints.escalated"),
     };
     return statusMap[status?.toLowerCase()] || status;
   };
@@ -231,7 +233,7 @@ export default function ConsumerComplaints() {
   if (loading) {
     return (
       <div className="complaints-container">
-        <p>Loading...</p>
+        <p>{t("common.loading")}</p>
       </div>
     );
   }
@@ -239,9 +241,9 @@ export default function ConsumerComplaints() {
   return (
     <div className="complaints-container">
       <div className="complaints-header-card">
-        <h2>My Complaints</h2>
+        <h2>{t("complaints.myComplaints")}</h2>
         <button className="new-complaint-btn" onClick={() => setShowForm(!showForm)}>
-          {showForm ? "Cancel" : "New Complaint"}
+          {showForm ? t("common.cancel") : t("complaints.createComplaint")}
         </button>
       </div>
 
@@ -256,48 +258,48 @@ export default function ConsumerComplaints() {
 
       {showForm && (
         <div className="complaint-form">
-          <h3>Submit a New Complaint</h3>
+          <h3>{t("complaints.createComplaintFromOrder")}</h3>
           <form onSubmit={handleSubmitComplaint}>
             <div className="form-group">
-              <label htmlFor="order-select">Select Order:</label>
+              <label htmlFor="order-select">{t("complaints.selectOrder")}:</label>
               <select
                 id="order-select"
                 value={selectedOrderId ? String(selectedOrderId) : ""}
                 onChange={(e) => setSelectedOrderId(e.target.value ? Number(e.target.value) : null)}
                 required
               >
-                <option value="">-- Select an order --</option>
+                <option value="">-- {t("complaints.selectOrder")} --</option>
                 {orders.map((order) => (
                   <option key={order.id} value={order.id}>
-                    Order #{order.id} - {order.supplier_name || "Unknown Supplier"} - {formatDate(order.created_at)}
+                    {t("orders.orderNumber", { id: order.id })} - {order.supplier_name || t("orders.supplier")} - {formatDate(order.created_at)}
                   </option>
                 ))}
               </select>
               {selectedOrder && (
                 <div className="order-preview">
-                  <p><strong>Supplier:</strong> {selectedOrder.supplier_name}</p>
-                  <p><strong>Total:</strong> {Number(selectedOrder.total_price || 0).toLocaleString()} ₸</p>
+                  <p><strong>{t("orders.supplier")}:</strong> {selectedOrder.supplier_name}</p>
+                  <p><strong>{t("orders.total")}:</strong> {Number(selectedOrder.total_price || 0).toLocaleString()} ₸</p>
                 </div>
               )}
             </div>
             <div className="form-group">
-              <label htmlFor="complaint-title">Complaint Title:</label>
+              <label htmlFor="complaint-title">{t("complaints.title")}:</label>
               <input
                 id="complaint-title"
                 type="text"
                 name="title"
-                placeholder="e.g., Late delivery, Wrong product, etc."
+                placeholder={t("complaints.titlePlaceholder")}
                 value={newComplaint.title}
                 onChange={handleInputChange}
                 required
               />
             </div>
             <div className="form-group">
-              <label htmlFor="complaint-description">Description:</label>
+              <label htmlFor="complaint-description">{t("complaints.description")}:</label>
               <textarea
                 id="complaint-description"
                 name="description"
-                placeholder="Describe your complaint in detail..."
+                placeholder={t("complaints.descriptionPlaceholder")}
                 value={newComplaint.description}
                 onChange={handleInputChange}
                 rows="5"
@@ -306,7 +308,7 @@ export default function ConsumerComplaints() {
             </div>
             <div className="form-actions">
               <button type="submit" disabled={submitting}>
-                {submitting ? "Submitting..." : "Submit Complaint"}
+                {submitting ? t("common.processing") : t("complaints.createComplaint")}
               </button>
               <button type="button" onClick={() => {
                 setShowForm(false);
@@ -314,7 +316,7 @@ export default function ConsumerComplaints() {
                 setSelectedOrderId(null);
                 setError("");
               }}>
-                Cancel
+                {t("common.cancel")}
               </button>
             </div>
           </form>
@@ -326,40 +328,40 @@ export default function ConsumerComplaints() {
           className={filterStatus === "all" ? "active" : ""}
           onClick={() => handleFilterChange("all")}
         >
-          All
+          {t("common.all")}
         </button>
         <button
           className={filterStatus === "pending" ? "active" : ""}
           onClick={() => handleFilterChange("pending")}
         >
-          Pending
+          {t("complaints.pending")}
         </button>
         <button
           className={filterStatus === "resolved" ? "active" : ""}
           onClick={() => handleFilterChange("resolved")}
         >
-          Resolved
+          {t("complaints.resolved")}
         </button>
         <button
           className={filterStatus === "rejected" ? "active" : ""}
           onClick={() => handleFilterChange("rejected")}
         >
-          Rejected
+          {t("complaints.rejected")}
         </button>
         <button
           className={filterStatus === "escalated" ? "active" : ""}
           onClick={() => handleFilterChange("escalated")}
         >
-          Escalated
+          {t("complaints.escalated")}
         </button>
       </div>
 
       <div className="complaints-list">
         {filteredComplaints.length === 0 ? (
           <div className="no-complaints">
-            <p>No complaints found for this status.</p>
+            <p>{t("complaints.noComplaints")}</p>
             {complaints.length === 0 && (
-              <p>Create a complaint by clicking "New Complaint" above.</p>
+              <p>{t("complaints.createComplaintHint")}</p>
             )}
           </div>
         ) : (
@@ -373,20 +375,20 @@ export default function ConsumerComplaints() {
               </div>
               <div className="complaint-info">
                 <p>
-                  <strong>Supplier:</strong> {c.supplier_name || `Supplier #${c.supplier}`}
+                  <strong>{t("orders.supplier")}:</strong> {c.supplier_name || t("orders.supplier")} #{c.supplier}
                 </p>
                 <p>
-                  <strong>Order ID:</strong> #{c.order}
+                  <strong>{t("orders.orderNumber", { id: "" }).replace("#", "")} ID:</strong> #{c.order}
                 </p>
                 <p className="complaint-description">{c.description}</p>
               </div>
               <div className="complaint-dates">
                 <p>
-                  <small>Created: {formatDate(c.created_at)}</small>
+                  <small>{t("complaints.created")}: {formatDate(c.created_at)}</small>
                 </p>
                 {c.resolved_at && (
                   <p>
-                    <small>Resolved: {formatDate(c.resolved_at)}</small>
+                    <small>{t("complaints.resolved")}: {formatDate(c.resolved_at)}</small>
                   </p>
                 )}
               </div>
@@ -395,7 +397,7 @@ export default function ConsumerComplaints() {
                   className="open-chat-btn"
                   onClick={() => navigate("/chat", { state: { selectSupplierId: c.supplier } })}
                 >
-                  Open Chat
+                  {t("complaints.openChat")}
                 </button>
               </div>
             </div>

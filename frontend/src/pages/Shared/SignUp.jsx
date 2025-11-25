@@ -1,10 +1,12 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate, Link } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 import { is_supplier_side } from "../../utils/roleUtils";
 import './AuthPossibilities.css'
 
 export default function SignUp() {
+  const { t } = useTranslation();
   const [role, setRole] = useState("consumer");
   const [fullName, setFullName] = useState("");
   const [username, setUsername] = useState("");
@@ -16,10 +18,10 @@ export default function SignUp() {
   const navigate = useNavigate();
 
   const checkPasswordStrength = (pwd) => {
-    if (pwd.length < 6) return "Password is too short";
-    if (!/[A-Z]/.test(pwd)) return "Add at least one uppercase letter";
-    if (!/[0-9]/.test(pwd)) return "Add at least one number";
-    if (!/[^A-Za-z0-9]/.test(pwd)) return "Add at least one special character";
+    if (pwd.length < 6) return t("auth.passwordTooShort");
+    if (!/[A-Z]/.test(pwd)) return t("auth.passwordUppercase");
+    if (!/[0-9]/.test(pwd)) return t("auth.passwordNumber");
+    if (!/[^A-Za-z0-9]/.test(pwd)) return t("auth.passwordSpecial");
     return "";
   };
 
@@ -30,7 +32,7 @@ export default function SignUp() {
     e.preventDefault();
 
     if (password !== repeatPassword) {
-      setErrorMessage("Passwords do not match! :(");
+      setErrorMessage(t("auth.passwordsDontMatch"));
       return;
     }
 
@@ -60,46 +62,46 @@ export default function SignUp() {
           navigate(is_supplier_side(data.role) ? "/SupplierDashboard" : "/ConsumerDashboard");
         }, 50);
       } else {
-        setErrorMessage(data.detail || "Registration failed");
+        setErrorMessage(data.detail || t("auth.registrationFailed"));
       }
     } catch (error) {
-      setErrorMessage("Could not connect to server");
+      setErrorMessage(t("auth.connectionError"));
     }
   };
 
   return (
     <div className="signup-container">
       <div className="signup-card">
-        <h2>Create an Account</h2>
-        <p className="signup-subtext">Join DV today</p>
+        <h2>{t("auth.createAccount")}</h2>
+        <p className="signup-subtext">{t("auth.signUpToContinue")}</p>
 
         <form className="signup-form" onSubmit={handleSubmit}>
-          <input type="text" placeholder="Full Name" value={fullName} onChange={(e) => setFullName(e.target.value)} required />
-          <input type="text" placeholder="Username" value={username} onChange={(e) => setUsername(e.target.value)} required />
-          <input type="email" placeholder="Email Address" value={email} onChange={(e) => setEmail(e.target.value)} required />
-          <input type="password" placeholder="Password" value={password} onChange={handlePasswordChange} required />
-          <input type="password" placeholder="Repeat Password" value={repeatPassword} onChange={handleRepeatPasswordChange} required />
+          <input type="text" placeholder={t("auth.fullName")} value={fullName} onChange={(e) => setFullName(e.target.value)} required />
+          <input type="text" placeholder={t("auth.username")} value={username} onChange={(e) => setUsername(e.target.value)} required />
+          <input type="email" placeholder={t("auth.emailAddress")} value={email} onChange={(e) => setEmail(e.target.value)} required />
+          <input type="password" placeholder={t("auth.password")} value={password} onChange={handlePasswordChange} required />
+          <input type="password" placeholder={t("auth.confirmPassword")} value={repeatPassword} onChange={handleRepeatPasswordChange} required />
 
           <div className="role-toggle">
             <button type="button" className={`role-btn ${role === "consumer" ? "active" : ""}`} onClick={() => setRole("consumer")}>
-              Consumer
+              {t("auth.consumer")}
             </button>
             <button type="button" className={`role-btn ${role === "owner" ? "active" : ""}`} onClick={() => setRole("owner")}>
-              Owner
+              {t("auth.owner")}
             </button>
             <button type="button" className={`role-btn ${role === "manager" ? "active" : ""}`} onClick={() => setRole("manager")}>
-              Manager
+              {t("auth.manager")}
             </button>
             <button type="button" className={`role-btn ${role === "sales" ? "active" : ""}`} onClick={() => setRole("sales")}>
-              Sales Rep
+              {t("auth.sales")}
             </button>
           </div>
 
           {errorMessage && <p className="form-error">{errorMessage}</p>}
 
-          <button type="submit">Sign Up</button>
+          <button type="submit">{t("common.signup")}</button>
           <p className="signup-subtext">
-            Do you have an account? <Link to="/login">Login</Link>
+            {t("auth.haveAccount")} <Link to="/login">{t("common.login")}</Link>
           </p>
         </form>
       </div>

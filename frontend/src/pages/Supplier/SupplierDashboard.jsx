@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 import { is_catalog_manager, is_owner, is_sales } from "../../utils/roleUtils";
@@ -7,6 +8,7 @@ import "./SupplierDashboard.css";
 const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
 export default function SupplierDashboard() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { token, logout, role, loading: authLoading } = useAuth();
   const [stats, setStats] = useState({
@@ -53,7 +55,7 @@ export default function SupplierDashboard() {
 
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(text || "Failed to load statistics");
+        throw new Error(text || t("dashboard.failedToLoad"));
       }
 
       const data = await res.json();
@@ -64,22 +66,22 @@ export default function SupplierDashboard() {
         total_revenue: data.total_revenue || 0,
       });
     } catch (err) {
-      setError(err.message || "Failed to load statistics");
+      setError(err.message || t("dashboard.failedToLoad"));
     } finally {
       setLoading(false);
     }
   };
 
   const getGreeting = () => {
-    if (role === "owner") return "Hello, Owner!";
-    if (role === "manager") return "Hello, Manager!";
-    if (role === "sales") return "Hello, Sales Representative!";
-    return "Welcome Back!";
+    if (role === "owner") return t("dashboard.helloOwner");
+    if (role === "manager") return t("dashboard.helloManager");
+    if (role === "sales") return t("dashboard.helloSales");
+    return t("dashboard.welcomeBack");
   };
 
   const getSubtitle = () => {
-    if (is_sales(role)) return "Manage your communications and handle customer inquiries.";
-    return "Here's an overview of your performance and current activity.";
+    if (is_sales(role)) return t("dashboard.manageCommunications");
+    return t("dashboard.overview");
   };
 
   return (
@@ -93,7 +95,7 @@ export default function SupplierDashboard() {
         <div className="error-banner">
           {error}
           <button onClick={fetchStats} style={{ marginLeft: "1rem", padding: "0.5rem 1rem" }}>
-            Retry
+            {t("common.retry")}
           </button>
         </div>
       )}
@@ -101,24 +103,24 @@ export default function SupplierDashboard() {
       {!is_sales(role) && (
         <>
           {loading ? (
-            <div className="loading-state">Loading statistics...</div>
+            <div className="loading-state">{t("dashboard.loadingStatistics")}</div>
           ) : (
             <section className="dashboard-stats">
               <div className="stat-card active">
                 <h3>{stats.active_orders}</h3>
-                <p>Active Orders</p>
+                <p>{t("dashboard.activeOrders")}</p>
               </div>
               <div className="stat-card completed">
                 <h3>{stats.completed_orders}</h3>
-                <p>Completed Orders</p>
+                <p>{t("dashboard.completedOrders")}</p>
               </div>
               <div className="stat-card pending">
                 <h3>{stats.pending_deliveries}</h3>
-                <p>Pending Deliveries</p>
+                <p>{t("dashboard.pendingDeliveries")}</p>
               </div>
               <div className="stat-card revenue">
                 <h3>{Number(stats.total_revenue || 0).toLocaleString()} ₸</h3>
-                <p>Total Revenue</p>
+                <p>{t("dashboard.totalRevenue")}</p>
               </div>
             </section>
           )}
@@ -126,31 +128,31 @@ export default function SupplierDashboard() {
       )}
 
       <section className="quick-actions">
-        <h3>Quick Actions</h3>
+        <h3>{t("dashboard.quickActions")}</h3>
         <div className="actions-grid">
           <Link to="/SupplierOrders" className="action-btn orders-btn">
-            View Orders
+            {t("dashboard.viewOrders")}
           </Link>
           <Link to="/supplier/complaints" className="action-btn complaints-btn">
-            Manage Complaints
+            {t("dashboard.manageComplaints")}
           </Link>
           {is_catalog_manager(role) && (
             <Link to="/SupplierCatalog" className="action-btn catalog-btn">
-              Manage Links
+              {t("dashboard.manageLinks")}
             </Link>
           )}
           {is_catalog_manager(role) && (
             <Link to="/supplier/products" className="action-btn catalog-btn">
-              Edit Catalog
+              {t("dashboard.editCatalog")}
             </Link>
           )}
           {is_owner(role) && (
             <Link to="/supplier/company" className="action-btn company-btn">
-              Manage Company
+              {t("dashboard.manageCompany")}
             </Link>
           )}
           <Link to="/Chat" className="action-btn support-btn">
-            Open Chat
+            {t("dashboard.openChat")}
           </Link>
         </div>
       </section>

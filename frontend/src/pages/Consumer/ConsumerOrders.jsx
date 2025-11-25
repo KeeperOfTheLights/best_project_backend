@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 import OrderDetailModal from "../../components/OrderDetailModal";
@@ -6,15 +7,8 @@ import "./ConsumerOrders.css";
 
 const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
-const STATUS_CONFIG = {
-  pending: { label: "Pending", class: "status-pending" },
-  "in-transit": { label: "In Transit", class: "status-transit" },
-  approved: { label: "Approved", class: "status-transit" },
-  delivered: { label: "Delivered", class: "status-delivered" },
-  cancelled: { label: "Cancelled", class: "status-cancelled" },
-};
-
 export default function ConsumerOrders() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { token, logout, loading: authLoading } = useAuth();
   const [orders, setOrders] = useState([]);
@@ -46,13 +40,13 @@ export default function ConsumerOrders() {
 
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(text || "Failed to load orders");
+        throw new Error(text || t("orders.failedToLoad"));
       }
 
       const data = await res.json();
       setOrders(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message || "Failed to load orders");
+      setError(err.message || t("orders.failedToLoad"));
       setOrders([]);
     } finally {
       setLoading(false);
@@ -91,19 +85,26 @@ export default function ConsumerOrders() {
   };
 
   const getStatusInfo = (status) => {
-    return STATUS_CONFIG[status] || { label: status, class: "" };
+    const statusMap = {
+      pending: { label: t("orders.pending"), class: "status-pending" },
+      "in-transit": { label: t("orders.inTransit"), class: "status-transit" },
+      approved: { label: t("orders.approved"), class: "status-transit" },
+      delivered: { label: t("orders.delivered"), class: "status-delivered" },
+      cancelled: { label: t("orders.cancelled"), class: "status-cancelled" },
+    };
+    return statusMap[status] || { label: status, class: "" };
   };
 
   return (
     <div className="orders-page">
       <div className="orders-page-header">
-        <h1>My Orders</h1>
+        <h1>{t("orders.myOrders")}</h1>
         <button
           className="refresh-button"
           onClick={fetchOrders}
           disabled={loading}
         >
-          {loading ? "Refreshing..." : "Refresh"}
+          {loading ? t("common.processing") : t("common.refresh")}
         </button>
       </div>
 
@@ -114,38 +115,38 @@ export default function ConsumerOrders() {
           <div className="stat-icon stat-icon-pending">⏳</div>
           <div className="stat-content">
             <div className="stat-number">{stats.pending}</div>
-            <div className="stat-label">Pending</div>
+            <div className="stat-label">{t("orders.pending")}</div>
           </div>
         </div>
         <div className="stat-box">
           <div className="stat-icon stat-icon-transit">🏎</div>
           <div className="stat-content">
             <div className="stat-number">{stats.transit}</div>
-            <div className="stat-label">In Transit</div>
+            <div className="stat-label">{t("orders.inTransit")}</div>
           </div>
         </div>
         <div className="stat-box">
           <div className="stat-icon stat-icon-delivered">✔</div>
           <div className="stat-content">
             <div className="stat-number">{stats.delivered}</div>
-            <div className="stat-label">Delivered</div>
+            <div className="stat-label">{t("orders.delivered")}</div>
           </div>
         </div>
         <div className="stat-box">
           <div className="stat-icon stat-icon-total">🍱</div>
           <div className="stat-content">
             <div className="stat-number">{stats.total}</div>
-            <div className="stat-label">Total Orders</div>
+            <div className="stat-label">{t("orders.totalOrders")}</div>
           </div>
         </div>
       </div>
 
       {loading && orders.length === 0 && (
-        <div className="loading-state">Loading orders...</div>
+        <div className="loading-state">{t("orders.loadingOrders")}</div>
       )}
 
       {!loading && orders.length === 0 && !error && (
-        <div className="empty-state">You haven't placed any orders yet.</div>
+        <div className="empty-state">{t("orders.haventPlacedOrders")}</div>
       )}
 
       <div className="orders-grid">
@@ -155,32 +156,32 @@ export default function ConsumerOrders() {
             <div key={order.id} className="order-box">
               <div className="order-top">
                 <div className="order-id-section">
-                  <h3 className="order-number">Order #{order.id}</h3>
+                  <h3 className="order-number">{t("orders.orderNumber", { id: order.id })}</h3>
                   <span className={`status-badge ${statusInfo.class}`}>
                     {statusInfo.label}
                   </span>
                 </div>
                 <div className="supplier-info">
-                  <span className="supplier-text">Supplier:</span>
-                  <span className="supplier-name">{order.supplier_name || "Unknown"}</span>
+                  <span className="supplier-text">{t("orders.supplier")}:</span>
+                  <span className="supplier-name">{order.supplier_name || t("orders.supplier")}</span>
                 </div>
               </div>
 
               <div className="order-dates-section">
                 <div className="date-box">
-                  <span className="date-label">Order Date:</span>
+                  <span className="date-label">{t("orders.orderDateLabel")}</span>
                   <span className="date-value">{formatDate(order.created_at)}</span>
                 </div>
                 {order.updated_at && (
                   <div className="date-box">
-                    <span className="date-label">Last Update:</span>
+                    <span className="date-label">{t("orders.lastUpdateLabel")}</span>
                     <span className="date-value">{formatDate(order.updated_at)}</span>
                   </div>
                 )}
               </div>
 
               <div className="order-items-section">
-                <h4 className="items-heading">Order Items:</h4>
+                <h4 className="items-heading">{t("orders.orderItems")}:</h4>
                 <div className="items-list">
                   {(order.items || []).map((item) => (
                     <div key={`${order.id}-${item.id}`} className="item-line">
@@ -194,7 +195,7 @@ export default function ConsumerOrders() {
 
               <div className="order-bottom">
                 <div className="total-section">
-                  <span className="total-label-text">Total:</span>
+                  <span className="total-label-text">{t("orders.total")}:</span>
                   <span className="total-value">{formatCurrency(order.total_price)}</span>
                 </div>
                 <div className="action-buttons">
@@ -206,23 +207,23 @@ export default function ConsumerOrders() {
                       })
                     }
                   >
-                    File Complaint
+                    {t("orders.fileComplaint")}
                   </button>
                   {order.status === "pending" && (
                     <button className="btn btn-disabled" disabled>
-                      Awaiting approval
+                      {t("orders.awaitingApproval")}
                     </button>
                   )}
                   {order.status === "delivered" && (
                     <button className="btn btn-disabled" disabled>
-                      Reorder
+                      {t("orders.reorder")}
                     </button>
                   )}
                   <button
                     className="btn details-btn"
                     onClick={() => setSelectedOrderId(order.id)}
                   >
-                    View Details
+                    {t("orders.viewDetails")}
                   </button>
                 </div>
               </div>

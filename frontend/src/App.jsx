@@ -2,6 +2,7 @@ import React from 'react';
 import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./context/Auth-Context";
 import { is_supplier_side } from "./utils/roleUtils";
+import './i18n'; // Initialize i18n
 
 import Navbar from "./components/common/Navbar";
 import Login from "./pages/Shared/Login";

@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/Auth-Context";
 import { useNavigate } from "react-router-dom";
 import "./ConsumerCatalog.css";
 import Modal from "../../components/common/modal";
 
 export default function ConsumerLinkManagement() {
+  const { t } = useTranslation();
   const { token, logout, loading: authLoading } = useAuth();
   const navigate = useNavigate();
 
@@ -39,10 +41,10 @@ export default function ConsumerLinkManagement() {
 
   const parseErrorResponse = async (response) => {
     const text = await response.text();
-    if (!text) return "Request failed";
+    if (!text) return t("common.failed");
     try {
       const data = JSON.parse(text);
-      return data.detail || data.message || data.error || "Request failed";
+      return data.detail || data.message || data.error || t("common.failed");
     } catch {
       return text;
     }
@@ -66,7 +68,7 @@ export default function ConsumerLinkManagement() {
       const data = await res.json();
       setCartItems(Array.isArray(data) ? data : []);
     } catch (err) {
-      setCartError(err.message || "Failed to load cart");
+      setCartError(err.message || t("catalog.failedToLoadCart"));
       setCartItems([]);
     } finally {
       setCartLoading(false);
@@ -94,7 +96,7 @@ export default function ConsumerLinkManagement() {
         navigate("/login");
         return;
       }
-      if (!resSuppliers.ok) throw new Error("Failed to fetch suppliers");
+      if (!resSuppliers.ok) throw new Error(t("catalog.failedToFetchSuppliers"));
       const allSuppliers = await resSuppliers.json();
 
       const resLinks = await fetch(`${API_BASE}/consumer/links/`, {
@@ -105,7 +107,7 @@ export default function ConsumerLinkManagement() {
         navigate("/login");
         return;
       }
-      if (!resLinks.ok) throw new Error("Failed to fetch links");
+      if (!resLinks.ok) throw new Error(t("catalog.failedToFetchLinks"));
       const linksData = await resLinks.json();
 
       const mapped = allSuppliers.map((sup) => {
@@ -145,7 +147,7 @@ export default function ConsumerLinkManagement() {
     if (!supplier) return;
 
     if (supplier.linkStatus !== "not_linked" && supplier.linkStatus !== "rejected") {
-      setErrorMsg(`Cannot send request - link already exists: ${supplier.linkStatus}`);
+      setErrorMsg(t("catalog.cannotSendRequest"));
       return;
     }
 
@@ -176,7 +178,7 @@ export default function ConsumerLinkManagement() {
         const responseText = await res.text();
         let data;
         try { data = JSON.parse(responseText); } catch { data = { detail: responseText }; }
-        throw new Error(data.detail || data.message || "Failed to send link request");
+        throw new Error(data.detail || data.message || t("catalog.failedToSendRequest"));
       }
 
       await fetchSuppliers();
@@ -190,7 +192,7 @@ export default function ConsumerLinkManagement() {
   const handleDeleteLink = (supplierId) => {
     const supplier = suppliers.find((s) => s.id === supplierId);
     if (!supplier || !supplier.linkId) {
-      setErrorMsg("No link found. Please refresh and try again.");
+      setErrorMsg(t("catalog.noLinkFound"));
       return;
     }
 
@@ -200,11 +202,11 @@ export default function ConsumerLinkManagement() {
       ...getInitialModalState(),
       show: true,
       type: "confirm",
-      title: type === "cancel" ? "Cancel Request" : "Unlink Supplier",
+      title: type === "cancel" ? t("catalog.cancelRequest") : t("catalog.unlinkSupplier"),
       text:
         type === "cancel"
-          ? "Are you sure you want to cancel this request?"
-          : "Are you sure you want to unlink this supplier?",
+          ? t("catalog.confirmCancelRequest")
+          : t("catalog.confirmUnlinkSupplier"),
       supplierId: supplier.id,
     });
   };
@@ -234,12 +236,12 @@ export default function ConsumerLinkManagement() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.detail || `Failed: ${res.status}`);
+        throw new Error(errorData.detail || t("common.failed"));
       }
 
       await fetchSuppliers();
     } catch (err) {
-      setErrorMsg(err.message || "Error deleting link");
+      setErrorMsg(err.message || t("catalog.failedToDeleteLink"));
     } finally {
       setActionLoading(null);
     }
@@ -254,7 +256,7 @@ export default function ConsumerLinkManagement() {
       ...getInitialModalState(),
       show: true,
       type: "catalog",
-      title: `${supplier.name}'s Catalog`,
+      title: t("catalog.supplierCatalog", { name: supplier.name }),
       text: "",
       supplierId: supplier.id,
       supplierName: supplier.name,
@@ -272,7 +274,7 @@ export default function ConsumerLinkManagement() {
         setModalConfig((prev) => ({
           ...prev,
           loading: false,
-          error: "You are not linked to this supplier.",
+          error: t("catalog.notLinkedToSupplier"),
           items: [],
         }));
         return;
@@ -301,7 +303,7 @@ export default function ConsumerLinkManagement() {
       setModalConfig((prev) => ({
         ...prev,
         loading: false,
-        error: err.message || "Failed to load catalog",
+          error: err.message || t("catalog.failedToLoadCatalog"),
       }));
     }
   };
@@ -323,7 +325,7 @@ export default function ConsumerLinkManagement() {
     const activeSupplierId = cartItems.length ? cartItems[0].product_supplier_id : null;
 
     if (activeSupplierId && activeSupplierId !== modalConfig.supplierId) {
-      setCartError("Cart already contains products from another supplier. Please checkout or clear it first.");
+      setCartError(t("catalog.cartContainsOtherSupplier"));
       return;
     }
 
@@ -355,9 +357,9 @@ export default function ConsumerLinkManagement() {
       }
 
       await fetchCart();
-      setCheckoutMessage(`Added ${quantity} ${product.unit || ""} of ${product.name} to cart.`);
+      setCheckoutMessage(t("catalog.addedToCart", { quantity, unit: product.unit || "", name: product.name }));
     } catch (err) {
-      setCartError(err.message || "Failed to add product to cart");
+      setCartError(err.message || t("catalog.failedToAddToCart"));
     } finally {
       setCartActionLoading(null);
     }
@@ -390,7 +392,7 @@ export default function ConsumerLinkManagement() {
 
       await fetchCart();
     } catch (err) {
-      setCartError(err.message || "Failed to update cart");
+      setCartError(err.message || t("catalog.failedToUpdateCart"));
     } finally {
       setCartActionLoading(null);
     }
@@ -421,7 +423,7 @@ export default function ConsumerLinkManagement() {
 
       await fetchCart();
     } catch (err) {
-      setCartError(err.message || "Failed to remove item");
+      setCartError(err.message || t("catalog.failedToRemoveItem"));
     } finally {
       setCartActionLoading(null);
     }
@@ -433,7 +435,7 @@ export default function ConsumerLinkManagement() {
     );
 
     if (!hasSupplierItems) {
-      setCartError("Add items from this supplier before checking out.");
+      setCartError(t("catalog.addItemsBeforeCheckout"));
       return;
     }
 
@@ -460,10 +462,10 @@ export default function ConsumerLinkManagement() {
       }
 
       const data = await res.json();
-      setCheckoutMessage(`Order #${data.id} placed successfully.`);
+      setCheckoutMessage(t("catalog.orderPlacedSuccessfully", { id: data.id }));
       await fetchCart();
     } catch (err) {
-      setCartError(err.message || "Checkout failed");
+      setCartError(err.message || t("catalog.checkoutFailed"));
     } finally {
       setCheckoutLoading(false);
     }
@@ -511,7 +513,7 @@ export default function ConsumerLinkManagement() {
 
   const renderCatalogCards = () => {
     if (modalConfig.loading) {
-      return <p className="catalog-loading">Loading catalog...</p>;
+      return <p className="catalog-loading">{t("catalog.loadingCatalog")}</p>;
     }
 
     if (modalConfig.error) {
@@ -519,7 +521,7 @@ export default function ConsumerLinkManagement() {
     }
 
     if (!modalConfig.items.length) {
-      return <p className="empty-catalog">No products available in this catalog</p>;
+      return <p className="empty-catalog">{t("catalog.noProductsAvailable")}</p>;
     }
 
     return (
@@ -544,20 +546,20 @@ export default function ConsumerLinkManagement() {
                 <div className="catalog-card-header">
                   <h4>{item.name}</h4>
                   <p className="catalog-card-category">{item.category}</p>
-                  <p className="catalog-card-description">{item.description || "No description"}</p>
+                  <p className="catalog-card-description">{item.description || t("products.noDescription")}</p>
                 </div>
                 <div className="catalog-card-meta">
-                  <span> Stock: {item.stock} {item.unit}</span>
-                  <span> Min Order: {item.minOrder} {item.unit}</span>
+                  <span> {t("products.stock")}: {item.stock} {item.unit}</span>
+                  <span> {t("products.minOrder")}: {item.minOrder} {item.unit}</span>
                   {item.delivery_option && (
                     <span>
-                      {item.delivery_option === "delivery" && "🏎 Delivery"}
-                      {item.delivery_option === "pickup" && "🏬 Pickup"}
-                      {item.delivery_option === "both" && "🚚 Delivery & Pickup"}
+                      {item.delivery_option === "delivery" && `🏎 ${t("products.deliveryOnly")}`}
+                      {item.delivery_option === "pickup" && `🏬 ${t("products.pickupOnly")}`}
+                      {item.delivery_option === "both" && `🚚 ${t("products.both")}`}
                     </span>
                   )}
                   {item.lead_time_days > 0 && (
-                    <span>⌚ {item.lead_time_days} {item.lead_time_days === 1 ? "day" : "days"}</span>
+                    <span>⌚ {item.lead_time_days} {item.lead_time_days === 1 ? t("catalog.day") : t("catalog.days")}</span>
                   )}
                 </div>
                 <div className="catalog-card-price">
@@ -570,7 +572,7 @@ export default function ConsumerLinkManagement() {
                         {formatCurrency(item.discounted_price)}
                       </span>
                       <span style={{ color: "#e24938ff", marginLeft: "4px", fontSize: "0.85rem" }}>
-                        ({item.discount}% off)
+                        ({item.discount}% {t("catalog.off")})
                       </span>
                     </>
                   ) : (
@@ -616,7 +618,7 @@ export default function ConsumerLinkManagement() {
                     onClick={() => handleAddToCart(item)}
                     disabled={item.stock === 0 || isAddLoading}
                   >
-                    {item.stock === 0 ? "Out of Stock" : isAddLoading ? "Adding..." : "Add to Cart"}
+                    {item.stock === 0 ? t("catalog.outOfStock") : isAddLoading ? t("common.processing") : t("catalog.addToCart")}
                   </button>
                 </div>
               </div>
@@ -630,9 +632,9 @@ export default function ConsumerLinkManagement() {
   const renderCartPanel = () => (
     <div className="catalog-cart-panel">
       <div className="cart-panel-header">
-        <h3>Cart ({supplierCartItems.length} items)</h3>
+        <h3>{t("catalog.cart")} ({supplierCartItems.length} {t("catalog.items")})</h3>
         <div style={{ display: "flex", gap: "0.5rem", alignItems: "center" }}>
-          {cartLoading && <span className="cart-loading">Refreshing...</span>}
+          {cartLoading && <span className="cart-loading">{t("common.refresh")}...</span>}
           <button
             className="cart-close-btn"
             onClick={closeModal}
@@ -647,7 +649,7 @@ export default function ConsumerLinkManagement() {
               fontSize: "0.9rem",
             }}
           >
-            Close
+            {t("common.close")}
           </button>
         </div>
       </div>
@@ -658,7 +660,7 @@ export default function ConsumerLinkManagement() {
       )}
 
       {supplierCartItems.length === 0 ? (
-        <p className="cart-empty">No items from this supplier yet.</p>
+        <p className="cart-empty">{t("catalog.noItemsFromSupplier")}</p>
       ) : (
         <>
           <div className="cart-panel-list">
@@ -732,7 +734,7 @@ export default function ConsumerLinkManagement() {
 
           <div className="checkout-bar">
             <div className="cart-total">
-              <span>Total</span>
+              <span>{t("orders.total")}</span>
               <strong>{formatCurrency(cartSubtotal)}</strong>
             </div>
             <button
@@ -740,7 +742,7 @@ export default function ConsumerLinkManagement() {
               onClick={handleCheckout}
               disabled={checkoutLoading || supplierCartItems.length === 0}
             >
-              {checkoutLoading ? "Placing order..." : "Proceed to Checkout"}
+              {checkoutLoading ? t("catalog.placingOrder") : t("catalog.proceedToCheckout")}
             </button>
           </div>
         </>
@@ -748,13 +750,13 @@ export default function ConsumerLinkManagement() {
     </div>
   );
 
-  if (loading) return <p>Loading suppliers...</p>;
+  if (loading) return <p>{t("catalog.loadingSuppliers")}</p>;
 
   return (
     <div className="link-management-container">
       <div className="link-header">
-        <h2>Supplier Connections</h2>
-        <p className="link-subtitle">Manage your supplier relationships</p>
+        <h2>{t("catalog.supplierConnections")}</h2>
+        <p className="link-subtitle">{t("catalog.manageSupplierRelationships")}</p>
       </div>
 
       {errorMsg && (
@@ -769,35 +771,56 @@ export default function ConsumerLinkManagement() {
           <div className="stat-icon approved-icon">✔</div>
           <div className="stat-info">
             <h3>{counts.linked}</h3>
-            <p>Linked</p>
+            <p>{t("catalog.linked")}</p>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon pending-icon">⏳</div>
           <div className="stat-info">
             <h3>{counts.pending}</h3>
-            <p>Pending</p>
+            <p>{t("catalog.pending")}</p>
           </div>
         </div>
         <div className="stat-card">
           <div className="stat-icon available-icon">🕵🏽</div>
           <div className="stat-info">
             <h3>{counts.not_linked}</h3>
-            <p>Available</p>
+            <p>{t("catalog.available")}</p>
           </div>
         </div>
       </div>
 
       <div className="link-filters">
-        {["all", "linked", "pending", "not_linked", "rejected"].map((status) => (
-          <button
-            key={status}
-            className={`filter-btn ${filterStatus === status ? "active" : ""}`}
-            onClick={() => setFilterStatus(status)}
-          >
-            {status.replace("_", " ")} ({counts[status] || 0})
-          </button>
-        ))}
+        <button
+          className={`filter-btn ${filterStatus === "all" ? "active" : ""}`}
+          onClick={() => setFilterStatus("all")}
+        >
+          {t("common.all")} ({counts.all})
+        </button>
+        <button
+          className={`filter-btn ${filterStatus === "linked" ? "active" : ""}`}
+          onClick={() => setFilterStatus("linked")}
+        >
+          {t("catalog.linked")} ({counts.linked})
+        </button>
+        <button
+          className={`filter-btn ${filterStatus === "pending" ? "active" : ""}`}
+          onClick={() => setFilterStatus("pending")}
+        >
+          {t("catalog.pending")} ({counts.pending})
+        </button>
+        <button
+          className={`filter-btn ${filterStatus === "not_linked" ? "active" : ""}`}
+          onClick={() => setFilterStatus("not_linked")}
+        >
+          {t("catalog.notLinked")} ({counts.not_linked})
+        </button>
+        <button
+          className={`filter-btn ${filterStatus === "rejected" ? "active" : ""}`}
+          onClick={() => setFilterStatus("rejected")}
+        >
+          {t("catalog.rejected")} ({counts.rejected})
+        </button>
       </div>
 
       <div className="suppliers-grid">
@@ -815,7 +838,7 @@ export default function ConsumerLinkManagement() {
                     onClick={() => handleSendRequest(supplier.id)}
                     disabled={actionLoading === supplier.id}
                   >
-                    {actionLoading === supplier.id ? "Sending..." : "Send Link Request"}
+                    {actionLoading === supplier.id ? t("common.processing") : t("catalog.sendRequest")}
                   </button>
                 )}
 
@@ -825,7 +848,7 @@ export default function ConsumerLinkManagement() {
                     onClick={() => handleDeleteLink(supplier.id)}
                     disabled={actionLoading === supplier.id}
                   >
-                    {actionLoading === supplier.id ? "Cancelling..." : "Cancel Request"}
+                    {actionLoading === supplier.id ? t("common.processing") : t("catalog.cancelRequest")}
                   </button>
                 )}
 
@@ -835,27 +858,27 @@ export default function ConsumerLinkManagement() {
                       className="link-btn view-catalog-btn"
                       onClick={() => handleViewCatalog(supplier)}
                     >
-                      View Catalog
+                      {t("catalog.viewCatalog")}
                     </button>
                     <button
                       className="link-btn unlink-btn"
                       onClick={() => handleDeleteLink(supplier.id)}
                       disabled={actionLoading === supplier.id}
                     >
-                      {actionLoading === supplier.id ? "Unlinking..." : "Unlink"}
+                      {actionLoading === supplier.id ? t("common.processing") : t("catalog.unlink")}
                     </button>
                   </>
                 )}
 
                 {supplier.linkStatus === "rejected" && (
                   <>
-                    <span className="rejected-message">Request was rejected</span>
+                    <span className="rejected-message">{t("catalog.requestWasRejected")}</span>
                     <button
                       className="link-btn send-request-btn"
                       onClick={() => handleSendRequest(supplier.id)}
                       disabled={actionLoading === supplier.id}
                     >
-                      {actionLoading === supplier.id ? "Sending..." : "Send Again"}
+                      {actionLoading === supplier.id ? t("common.processing") : t("catalog.sendAgain")}
                     </button>
                   </>
                 )}
@@ -867,7 +890,7 @@ export default function ConsumerLinkManagement() {
 
       {filteredSuppliers.length === 0 && (
         <div className="empty-state">
-          <p>No suppliers found with the status: {filterStatus}</p>
+          <p>{t("catalog.noSuppliersFound")} {filterStatus}</p>
         </div>
       )}
 

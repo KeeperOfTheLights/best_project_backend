@@ -1,10 +1,12 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/Auth-Context";
 import { is_supplier_side } from "../../utils/roleUtils";
 import "./AuthPossibilities.css";
 
 export default function Login() {
+  const { t } = useTranslation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
@@ -29,27 +31,27 @@ export default function Login() {
         login({ token: data.access, refreshToken: data.refresh, role: data.role, id: data.id });
         navigate(is_supplier_side(data.role) ? "/SupplierDashboard" : "/ConsumerDashboard");
       } else {
-        let message = data?.non_field_errors?.[0] || "Invalid email or password :)";
+        let message = data?.non_field_errors?.[0] || t("auth.invalidCredentials");
         setErrorMsg(message);
       }
     } catch (error) {
       console.error("Network error :(", error);
-      setErrorMsg("Could not connect to server :(");
+      setErrorMsg(t("auth.connectionError"));
     }
   };
 
   return (
     <div className="signup-container">
       <div className="signup-card">
-        <h2>Welcome Back</h2>
-        <p className="signup-subtext">Log in to continue</p>
+        <h2>{t("auth.welcomeBack")}</h2>
+        <p className="signup-subtext">{t("auth.loginToContinue")}</p>
 
         {errorMsg && <p className="error-message">{errorMsg}</p>}
 
         <form className="signup-form" onSubmit={handleSubmit}>
           <input
             type="email"
-            placeholder="Email Address"
+            placeholder={t("auth.emailAddress")}
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             required
@@ -57,16 +59,16 @@ export default function Login() {
 
           <input
             type="password"
-            placeholder="Password"
+            placeholder={t("auth.password")}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
           />
 
-          <button type="submit">Log In</button>
+          <button type="submit">{t("auth.logIn")}</button>
 
           <p className="signup-subtext">
-            Don't have an account yet? <Link to="/signup">Sign Up</Link>
+            {t("auth.dontHaveAccount")} <Link to="/signup">{t("common.signup")}</Link>
           </p>
         </form>
       </div>

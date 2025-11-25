@@ -1,11 +1,14 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { useAuth } from "../../context/Auth-Context";
 import { is_supplier_side, is_catalog_manager, is_sales } from "../../utils/roleUtils";
+import LanguageSwitcher from "./LanguageSwitcher";
 import reactLogo from "../../assets/Logo.png";
 import "./Navbar.css";
 
 export default function Navbar() {
+  const { t } = useTranslation();
   const { isLoggedIn, role, logout, token, loading } = useAuth();
   const navigate = useNavigate();
   const [searchQuery, setSearchQuery] = useState("");
@@ -30,26 +33,27 @@ export default function Navbar() {
       <div className="navbar-right">
         {loading ? null : !isAuthenticated ? (
           <>
-            <Link to="/about" className="inter-btn">About</Link>
-            <Link to="/login" className="nav-btn login-btn">Login</Link>
-            <Link to="/signup" className="nav-btn signup-btn">Sign Up</Link>
+            <Link to="/about" className="inter-btn">{t("common.about")}</Link>
+            <Link to="/login" className="nav-btn login-btn">{t("common.login")}</Link>
+            <Link to="/signup" className="nav-btn signup-btn">{t("common.signup")}</Link>
+            <LanguageSwitcher />
           </>
         ) : (
           <>
-            {role === "consumer" && <Link to="/ConsumerCatalog" className="inter-btn">Catalog</Link>}
-            {is_catalog_manager(role) && <Link to="/SupplierCatalog" className="inter-btn">My Catalog</Link>}
+            {role === "consumer" && <Link to="/ConsumerCatalog" className="inter-btn">{t("navbar.catalog")}</Link>}
+            {is_catalog_manager(role) && <Link to="/SupplierCatalog" className="inter-btn">{t("navbar.myCatalog")}</Link>}
 
-            {is_catalog_manager(role) && <Link to="/supplier/products" className="inter-btn">Products</Link>}
-            {is_supplier_side(role) && <Link to="/SupplierOrders" className="inter-btn">Orders</Link>}
-            {role === "owner" && <Link to="/supplier/company" className="inter-btn">Company</Link>}
-            {role === "consumer" && <Link to="/ConsumerOrders" className="inter-btn">My Orders</Link>}
+            {is_catalog_manager(role) && <Link to="/supplier/products" className="inter-btn">{t("navbar.products")}</Link>}
+            {is_supplier_side(role) && <Link to="/SupplierOrders" className="inter-btn">{t("navbar.orders")}</Link>}
+            {role === "owner" && <Link to="/supplier/company" className="inter-btn">{t("navbar.company")}</Link>}
+            {role === "consumer" && <Link to="/ConsumerOrders" className="inter-btn">{t("navbar.myOrders")}</Link>}
 
             <div className="dropdown">
-              <button className="inter-btn dropdown-toggle">Communications ▾</button>
+              <button className="inter-btn dropdown-toggle">{t("navbar.communications")} ▾</button>
               <div className="dropdown-menu">
-                <Link to="/chat">Chat</Link>
-                {is_supplier_side(role) && <Link to="/supplier/complaints" className="inter-btn">Complaints</Link>}
-                {role === "consumer" && <Link to="/consumer/complaints" className="inter-btn">Complaints</Link>}
+                <Link to="/chat">{t("navbar.chat")}</Link>
+                {is_supplier_side(role) && <Link to="/supplier/complaints" className="inter-btn">{t("navbar.complaints")}</Link>}
+                {role === "consumer" && <Link to="/consumer/complaints" className="inter-btn">{t("navbar.complaints")}</Link>}
               </div>
             </div>
 
@@ -65,14 +69,15 @@ export default function Navbar() {
               >
                 <input
                   type="text"
-                  placeholder="Suppliers, managers, sr?..."
+                  placeholder={t("navbar.searchPlaceholder")}
                   className="search-input"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                 />
               </form>
             )}
-            <button className="nav-btn login-btn" onClick={() => { logout(); navigate("/login"); }}>Sign Out</button>
+            <LanguageSwitcher />
+            <button className="nav-btn login-btn" onClick={() => { logout(); navigate("/login"); }}>{t("common.logout")}</button>
           </>
         )}
       </div>

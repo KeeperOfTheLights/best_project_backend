@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/Auth-Context";
 import { is_sales } from "../../utils/roleUtils";
@@ -7,6 +8,7 @@ import "./SupplierComplaints.css";
 const API_BASE = "http://127.0.0.1:8000/api/accounts";
 
 export default function SupplierComplaints() {
+  const { t } = useTranslation();
   const navigate = useNavigate();
   const { token, logout, role, loading: authLoading } = useAuth();
   const [complaints, setComplaints] = useState([]);
@@ -41,13 +43,13 @@ export default function SupplierComplaints() {
 
       if (!res.ok) {
         const text = await res.text();
-        throw new Error(text || "Failed to load complaints");
+        throw new Error(text || t("complaints.failedToLoad"));
       }
 
       const data = await res.json();
       setComplaints(Array.isArray(data) ? data : []);
     } catch (err) {
-      setError(err.message || "Failed to load complaints");
+      setError(err.message || t("complaints.failedToLoad"));
       setComplaints([]);
     } finally {
       setLoading(false);
@@ -87,12 +89,12 @@ export default function SupplierComplaints() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Failed to resolve complaint");
+        throw new Error(errorData.detail || t("complaints.failedToResolve"));
       }
 
       await fetchComplaints();
     } catch (err) {
-      setError(err.message || "Failed to resolve complaint");
+      setError(err.message || t("complaints.failedToResolve"));
     } finally {
       setActionLoading(null);
     }
@@ -126,12 +128,12 @@ export default function SupplierComplaints() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Failed to reject complaint");
+        throw new Error(errorData.detail || t("complaints.failedToReject"));
       }
 
       await fetchComplaints();
     } catch (err) {
-      setError(err.message || "Failed to reject complaint");
+      setError(err.message || t("complaints.failedToReject"));
     } finally {
       setActionLoading(null);
     }
@@ -165,12 +167,12 @@ export default function SupplierComplaints() {
 
       if (!res.ok) {
         const errorData = await res.json().catch(() => ({}));
-        throw new Error(errorData.detail || "Failed to escalate complaint");
+        throw new Error(errorData.detail || t("complaints.failedToEscalate"));
       }
 
       await fetchComplaints();
     } catch (err) {
-      setError(err.message || "Failed to escalate complaint");
+      setError(err.message || t("complaints.failedToEscalate"));
     } finally {
       setActionLoading(null);
     }
@@ -194,10 +196,10 @@ export default function SupplierComplaints() {
 
   const getStatusLabel = (status) => {
     const statusMap = {
-      pending: "Pending",
-      resolved: "Resolved",
-      rejected: "Rejected",
-      escalated: "Escalated",
+      pending: t("complaints.pending"),
+      resolved: t("complaints.resolved"),
+      rejected: t("complaints.rejected"),
+      escalated: t("complaints.escalated"),
     };
     return statusMap[status?.toLowerCase()] || status;
   };
@@ -212,15 +214,15 @@ export default function SupplierComplaints() {
 
   const getComplaintDescription = () => {
     if (is_sales(role)) {
-      return "Handle customer complaints and escalate when manager review is needed.";
+      return t("complaints.salesDescription");
     }
-    return "Review escalated complaints and manage order-related issues.";
+    return t("complaints.managerDescription");
   };
 
   if (loading) {
     return (
       <div className="complaints-container">
-        <p>Loading complaints...</p>
+        <p>{t("complaints.loadingComplaints")}</p>
       </div>
     );
   }
@@ -229,13 +231,13 @@ export default function SupplierComplaints() {
     <div className="complaints-container">
       <div className="complaints-header-card">
         <div>
-          <h2>Complaints Management</h2>
+          <h2>{t("complaints.supplierComplaints")}</h2>
           <p style={{ color: "#6b6464ff", marginTop: "0.5rem", fontSize: "0.9rem" }}>
             {getComplaintDescription()}
           </p>
         </div>
         <button className="refresh-btn" onClick={fetchComplaints} disabled={loading}>
-          {loading ? "Refreshing..." : "Refresh"}
+          {loading ? t("common.processing") : t("common.refresh")}
         </button>
       </div>
 
@@ -255,21 +257,21 @@ export default function SupplierComplaints() {
               <div className="stat-icon pending-icon">⏳</div>
               <div className="stat-info">
                 <h3>{counts.pending}</h3>
-                <p>Pending</p>
+                <p>{t("complaints.pending")}</p>
               </div>
             </div>
             <div className="stat-card">
               <div className="stat-icon resolved-icon">✔</div>
               <div className="stat-info">
                 <h3>{counts.resolved}</h3>
-                <p>Resolved</p>
+                <p>{t("complaints.resolved")}</p>
               </div>
             </div>
             <div className="stat-card">
               <div className="stat-icon rejected-icon">X</div>
               <div className="stat-info">
                 <h3>{counts.rejected}</h3>
-                <p>Rejected</p>
+                <p>{t("complaints.rejected")}</p>
               </div>
             </div>
           </>
@@ -278,7 +280,7 @@ export default function SupplierComplaints() {
             <div className="stat-icon escalated-icon">💀</div>
             <div className="stat-info">
               <h3>{counts.escalated}</h3>
-              <p>Escalated</p>
+              <p>{t("complaints.escalated")}</p>
             </div>
           </div>
         )}
@@ -291,25 +293,25 @@ export default function SupplierComplaints() {
               className={filterStatus === "all" ? "active" : ""}
               onClick={() => handleFilterChange("all")}
             >
-              All ({counts.all})
+              {t("common.all")} ({counts.all})
             </button>
             <button
               className={filterStatus === "pending" ? "active" : ""}
               onClick={() => handleFilterChange("pending")}
             >
-              Pending ({counts.pending})
+              {t("complaints.pending")} ({counts.pending})
             </button>
             <button
               className={filterStatus === "resolved" ? "active" : ""}
               onClick={() => handleFilterChange("resolved")}
             >
-              Resolved ({counts.resolved})
+              {t("complaints.resolved")} ({counts.resolved})
             </button>
             <button
               className={filterStatus === "rejected" ? "active" : ""}
               onClick={() => handleFilterChange("rejected")}
             >
-              Rejected ({counts.rejected})
+              {t("complaints.rejected")} ({counts.rejected})
             </button>
           </>
         ) : (
@@ -318,13 +320,13 @@ export default function SupplierComplaints() {
               className={filterStatus === "all" ? "active" : ""}
               onClick={() => handleFilterChange("all")}
             >
-              All ({counts.all})
+              {t("common.all")} ({counts.all})
             </button>
             <button
               className={filterStatus === "escalated" ? "active" : ""}
               onClick={() => handleFilterChange("escalated")}
             >
-              Escalated ({counts.escalated})
+              {t("complaints.escalated")} ({counts.escalated})
             </button>
           </>
         )}
@@ -333,7 +335,7 @@ export default function SupplierComplaints() {
       <div className="complaints-list">
         {filteredComplaints.length === 0 ? (
           <div className="no-complaints">
-            <p>No complaints found for this status.</p>
+            <p>{t("complaints.noComplaints")}</p>
           </div>
         ) : (
           filteredComplaints.map((c) => (
@@ -346,20 +348,20 @@ export default function SupplierComplaints() {
               </div>
               <div className="complaint-info">
                 <p>
-                  <strong>Consumer:</strong> {c.consumer_name || `Consumer #${c.consumer}`}
+                  <strong>{t("orders.consumer")}:</strong> {c.consumer_name || t("orders.consumer")} #{c.consumer}
                 </p>
                 <p>
-                  <strong>Order ID:</strong> #{c.order}
+                  <strong>{t("orders.orderNumber", { id: "" }).replace("#", "")} ID:</strong> #{c.order}
                 </p>
                 <p className="complaint-description">{c.description}</p>
               </div>
               <div className="complaint-dates">
                 <p>
-                  <small>Created: {formatDate(c.created_at)}</small>
+                  <small>{t("complaints.created")}: {formatDate(c.created_at)}</small>
                 </p>
                 {c.resolved_at && (
                   <p>
-                    <small>Resolved: {formatDate(c.resolved_at)}</small>
+                    <small>{t("complaints.resolved")}: {formatDate(c.resolved_at)}</small>
                   </p>
                 )}
               </div>
@@ -369,7 +371,7 @@ export default function SupplierComplaints() {
                   className="open-chat-btn"
                   onClick={() => navigate("/chat", { state: { selectConsumerId: c.consumer } })}
                 >
-                  Open Chat
+                  {t("complaints.openChat")}
                 </button>
                 {c.status?.toLowerCase() === "pending" && (
                   <div className="action-btns">
@@ -380,21 +382,21 @@ export default function SupplierComplaints() {
                           onClick={() => handleResolve(c.id)}
                           disabled={actionLoading === c.id}
                         >
-                          {actionLoading === c.id ? "Processing..." : "Resolve"}
+                          {actionLoading === c.id ? t("common.processing") : t("complaints.resolve")}
                         </button>
                         <button
                           className="reject-btn"
                           onClick={() => handleReject(c.id)}
                           disabled={actionLoading === c.id}
                         >
-                          {actionLoading === c.id ? "Processing..." : "Reject"}
+                          {actionLoading === c.id ? t("common.processing") : t("complaints.reject")}
                         </button>
                         <button
                           className="escalate-btn"
                           onClick={() => handleEscalate(c.id)}
                           disabled={actionLoading === c.id}
                         >
-                          {actionLoading === c.id ? "Processing..." : "Escalate"}
+                          {actionLoading === c.id ? t("common.processing") : t("complaints.escalate")}
                         </button>
                       </>
                     ) : (
@@ -404,14 +406,14 @@ export default function SupplierComplaints() {
                           onClick={() => handleResolve(c.id)}
                           disabled={actionLoading === c.id}
                         >
-                          {actionLoading === c.id ? "Processing..." : "Resolve"}
+                          {actionLoading === c.id ? t("common.processing") : t("complaints.resolve")}
                         </button>
                         <button
                           className="reject-btn"
                           onClick={() => handleReject(c.id)}
                           disabled={actionLoading === c.id}
                         >
-                          {actionLoading === c.id ? "Processing..." : "Reject"}
+                          {actionLoading === c.id ? t("common.processing") : t("complaints.reject")}
                         </button>
                       </>
                     )}
@@ -424,14 +426,14 @@ export default function SupplierComplaints() {
                       onClick={() => handleResolve(c.id)}
                       disabled={actionLoading === c.id}
                     >
-                      {actionLoading === c.id ? "Processing..." : "Resolve"}
+                      {actionLoading === c.id ? t("common.processing") : t("complaints.resolve")}
                     </button>
                     <button
                       className="reject-btn"
                       onClick={() => handleReject(c.id)}
                       disabled={actionLoading === c.id}
                     >
-                      {actionLoading === c.id ? "Processing..." : "Reject"}
+                      {actionLoading === c.id ? t("common.processing") : t("complaints.reject")}
                     </button>
                   </div>
                 )}
