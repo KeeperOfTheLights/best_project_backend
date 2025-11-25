@@ -261,8 +261,16 @@ class ComplaintSerializer(serializers.ModelSerializer):
             "created_at",
             "resolved_at",
         ]
-        read_only_fields = ["consumer", "supplier", "status", "created_at", "resolved_at"]
-
+        read_only_fields = [
+            "order",
+            "consumer",
+            "supplier",
+            "consumer_name",
+            "supplier_name",
+            "status",
+            "created_at",
+            "resolved_at",
+        ]
 
 class CannedReplySerializer(serializers.ModelSerializer):
     class Meta:

@@ -6,6 +6,7 @@ from rest_framework.permissions import IsAuthenticated
 from django.db import transaction
 from django.db.models import Q, Sum
 from django.utils import timezone
+from rest_framework.exceptions import PermissionDenied
 
 from .models import (
     User,
@@ -94,8 +95,7 @@ class SupplierProductListCreateView(generics.ListCreateAPIView):
     def perform_create(self, serializer):
         user = self.request.user
         if not is_catalog_manager(user):
-            raise PermissionError("Only Owner and Manager can create products")
-        # Use company_owner so Manager's products appear in the list (which filters by company_owner)
+            raise PermissionDenied("Only Owner and Manager can create products")
         company_owner = get_company_owner(user)
         serializer.save(supplier=company_owner)
 
