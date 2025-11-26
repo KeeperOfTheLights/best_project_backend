@@ -1,50 +1,1486 @@
-name: Django Tests
+openapi: 3.0.3
+info:
+  title: ''
+  version: 0.0.0
+paths:
+  /api/accounts/account/delete/:
+    delete:
+      operationId: account_delete_destroy
+      tags:
+      - account
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/accounts/api/openapi.yaml:
+    get:
+      operationId: api_openapi.yaml_retrieve
+      description: |-
+        OpenApi3 schema for this API. Format can be selected via content negotiation.
 
-on:
-  push:
-  pull_request:
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_DB: postgres
-          POSTGRES_USER: postgres
-          POSTGRES_PASSWORD: 123iki123
-        ports:
-          - 5432:5432
-        options: >-
-          --health-cmd="pg_isready -U postgres"
-          --health-interval=10s
-          --health-timeout=5s
-          --health-retries=5
-
-    env:
-      DATABASE_NAME: postgres
-      DATABASE_USER: postgres
-      DATABASE_PASSWORD: 123iki123
-      DATABASE_HOST: localhost
-      DATABASE_PORT: 5432
-      DEBUG: false
-      SECRET_KEY: test-key
-
-    steps:
-      - uses: actions/checkout@v3
-
-      - name: Install Python
-        uses: actions/setup-python@v4
-        with:
-          python-version: '3.10'
-
-      - name: Install dependencies
-        run: pip install -r requirements.txt
-
-      - name: Run migrations
-        run: python manage.py migrate --noinput
-
-      - name: Run tests
-        run: python manage.py test
+        - YAML: application/vnd.oai.openapi
+        - JSON: application/vnd.oai.openapi+json
+      parameters:
+      - in: query
+        name: format
+        schema:
+          type: string
+          enum:
+          - json
+          - yaml
+      - in: query
+        name: lang
+        schema:
+          type: string
+          enum:
+          - af
+          - ar
+          - ar-dz
+          - ast
+          - az
+          - be
+          - bg
+          - bn
+          - br
+          - bs
+          - ca
+          - ckb
+          - cs
+          - cy
+          - da
+          - de
+          - dsb
+          - el
+          - en
+          - en-au
+          - en-gb
+          - eo
+          - es
+          - es-ar
+          - es-co
+          - es-mx
+          - es-ni
+          - es-ve
+          - et
+          - eu
+          - fa
+          - fi
+          - fr
+          - fy
+          - ga
+          - gd
+          - gl
+          - he
+          - hi
+          - hr
+          - hsb
+          - hu
+          - hy
+          - ia
+          - id
+          - ig
+          - io
+          - is
+          - it
+          - ja
+          - ka
+          - kab
+          - kk
+          - km
+          - kn
+          - ko
+          - ky
+          - lb
+          - lt
+          - lv
+          - mk
+          - ml
+          - mn
+          - mr
+          - ms
+          - my
+          - nb
+          - ne
+          - nl
+          - nn
+          - os
+          - pa
+          - pl
+          - pt
+          - pt-br
+          - ro
+          - ru
+          - sk
+          - sl
+          - sq
+          - sr
+          - sr-latn
+          - sv
+          - sw
+          - ta
+          - te
+          - tg
+          - th
+          - tk
+          - tr
+          - tt
+          - udm
+          - uk
+          - ur
+          - uz
+          - vi
+          - zh-hans
+          - zh-hant
+      tags:
+      - api
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/vnd.oai.openapi:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/yaml:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/vnd.oai.openapi+json:
+              schema:
+                type: object
+                additionalProperties: {}
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+          description: ''
+  /api/accounts/canned-replies/:
+    get:
+      operationId: canned_replies_list
+      tags:
+      - canned-replies
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CannedReply'
+          description: ''
+    post:
+      operationId: canned_replies_create
+      tags:
+      - canned-replies
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CannedReply'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CannedReply'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CannedReply'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CannedReply'
+          description: ''
+  /api/accounts/canned-replies/{id}/:
+    get:
+      operationId: canned_replies_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - canned-replies
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CannedReply'
+          description: ''
+    put:
+      operationId: canned_replies_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - canned-replies
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CannedReply'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/CannedReply'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/CannedReply'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CannedReply'
+          description: ''
+    patch:
+      operationId: canned_replies_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - canned-replies
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedCannedReply'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedCannedReply'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedCannedReply'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CannedReply'
+          description: ''
+    delete:
+      operationId: canned_replies_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - canned-replies
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/accounts/cart/:
+    get:
+      operationId: cart_list
+      tags:
+      - cart
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CartItem'
+          description: ''
+  /api/accounts/cart/{item_id}/:
+    patch:
+      operationId: cart_partial_update
+      parameters:
+      - in: path
+        name: item_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - cart
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+    delete:
+      operationId: cart_destroy
+      parameters:
+      - in: path
+        name: item_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - cart
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/accounts/cart/add/:
+    post:
+      operationId: cart_add_create
+      tags:
+      - cart
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/chat/{partner_id}/:
+    get:
+      operationId: chat_retrieve
+      parameters:
+      - in: path
+        name: partner_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - chat
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/chat/{supplier_id}/send/:
+    post:
+      operationId: chat_send_create
+      parameters:
+      - in: path
+        name: supplier_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - chat
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/company/assign/:
+    post:
+      operationId: company_assign_create
+      tags:
+      - company
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/company/employees/:
+    get:
+      operationId: company_employees_retrieve
+      tags:
+      - company
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/company/remove/:
+    post:
+      operationId: company_remove_create
+      tags:
+      - company
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/company/unassigned/:
+    get:
+      operationId: company_unassigned_retrieve
+      tags:
+      - company
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/complaints/{complaint_id}/escalate/:
+    post:
+      operationId: complaints_escalate_create
+      parameters:
+      - in: path
+        name: complaint_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - complaints
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/complaints/{complaint_id}/reject/:
+    post:
+      operationId: complaints_reject_create
+      parameters:
+      - in: path
+        name: complaint_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - complaints
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/complaints/{complaint_id}/resolve/:
+    post:
+      operationId: complaints_resolve_create
+      parameters:
+      - in: path
+        name: complaint_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - complaints
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/complaints/{order_id}/create/:
+    post:
+      operationId: complaints_create_create
+      parameters:
+      - in: path
+        name: order_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - complaints
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/complaints/my/:
+    get:
+      operationId: complaints_my_list
+      tags:
+      - complaints
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Complaint'
+          description: ''
+  /api/accounts/complaints/supplier/:
+    get:
+      operationId: complaints_supplier_list
+      tags:
+      - complaints
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Complaint'
+          description: ''
+  /api/accounts/consumer/links/:
+    get:
+      operationId: consumer_links_list
+      tags:
+      - consumer
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LinkRequest'
+          description: ''
+  /api/accounts/link/{link_id}/:
+    delete:
+      operationId: link_destroy
+      parameters:
+      - in: path
+        name: link_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - link
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/accounts/link/{link_id}/accept/:
+    post:
+      operationId: link_accept_create
+      parameters:
+      - in: path
+        name: link_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - link
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/link/{link_id}/block/:
+    post:
+      operationId: link_block_create
+      parameters:
+      - in: path
+        name: link_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - link
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/link/{link_id}/reject/:
+    post:
+      operationId: link_reject_create
+      parameters:
+      - in: path
+        name: link_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - link
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/link/{link_id}/unblock/:
+    post:
+      operationId: link_unblock_create
+      parameters:
+      - in: path
+        name: link_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - link
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/link/send/:
+    post:
+      operationId: link_send_create
+      tags:
+      - link
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/links/:
+    get:
+      operationId: links_list
+      tags:
+      - links
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/LinkRequest'
+          description: ''
+  /api/accounts/login/:
+    post:
+      operationId: login_create
+      tags:
+      - login
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/orders/{order_id}/:
+    get:
+      operationId: orders_retrieve
+      parameters:
+      - in: path
+        name: order_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/orders/{order_id}/accept/:
+    post:
+      operationId: orders_accept_create
+      parameters:
+      - in: path
+        name: order_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/orders/{order_id}/deliver/:
+    post:
+      operationId: orders_deliver_create
+      parameters:
+      - in: path
+        name: order_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/orders/{order_id}/reject/:
+    post:
+      operationId: orders_reject_create
+      parameters:
+      - in: path
+        name: order_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/orders/checkout/:
+    post:
+      operationId: orders_checkout_create
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/orders/my/:
+    get:
+      operationId: orders_my_list
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+          description: ''
+  /api/accounts/orders/stats/:
+    get:
+      operationId: orders_stats_retrieve
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/orders/supplier/:
+    get:
+      operationId: orders_supplier_list
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Order'
+          description: ''
+  /api/accounts/orders/supplier/stats/:
+    get:
+      operationId: orders_supplier_stats_retrieve
+      tags:
+      - orders
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/products/:
+    get:
+      operationId: products_list
+      tags:
+      - products
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+          description: ''
+    post:
+      operationId: products_create
+      tags:
+      - products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Product'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+  /api/accounts/products/{id}/:
+    get:
+      operationId: products_retrieve
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - products
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+    put:
+      operationId: products_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Product'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/Product'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/Product'
+        required: true
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+    patch:
+      operationId: products_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - products
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/PatchedProduct'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/PatchedProduct'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/PatchedProduct'
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+          description: ''
+    delete:
+      operationId: products_destroy
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - products
+      security:
+      - jwtAuth: []
+      responses:
+        '204':
+          description: No response body
+  /api/accounts/products/{id}/status/:
+    patch:
+      operationId: products_status_partial_update
+      parameters:
+      - in: path
+        name: id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - products
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/register/:
+    post:
+      operationId: register_create
+      tags:
+      - register
+      security:
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/search/:
+    get:
+      operationId: search_retrieve
+      tags:
+      - search
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/supplier/{supplier_id}/catalog/:
+    get:
+      operationId: supplier_catalog_retrieve
+      parameters:
+      - in: path
+        name: supplier_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - supplier
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/suppliers/:
+    get:
+      operationId: suppliers_retrieve
+      tags:
+      - suppliers
+      security:
+      - jwtAuth: []
+      responses:
+        '200':
+          description: No response body
+  /api/accounts/token/refresh/:
+    post:
+      operationId: token_refresh_create
+      description: |-
+        Takes a refresh type JSON web token and returns an access type JSON web
+        token if the refresh token is valid.
+      tags:
+      - token
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          application/x-www-form-urlencoded:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+          multipart/form-data:
+            schema:
+              $ref: '#/components/schemas/TokenRefresh'
+        required: true
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/TokenRefresh'
+          description: ''
+components:
+  schemas:
+    CannedReply:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        supplier:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        message:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+      required:
+      - created_at
+      - id
+      - message
+      - supplier
+      - title
+      - updated_at
+    CartItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product:
+          type: integer
+        product_name:
+          type: string
+          readOnly: true
+        product_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        product_discounted_price:
+          type: string
+          readOnly: true
+        product_discount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          readOnly: true
+        product_image:
+          type: string
+          format: uri
+          readOnly: true
+          nullable: true
+        product_unit:
+          type: string
+          readOnly: true
+        product_min_order:
+          type: integer
+          readOnly: true
+        product_supplier_id:
+          type: integer
+          readOnly: true
+        product_stock:
+          type: integer
+          readOnly: true
+        quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        added_at:
+          type: string
+          format: date-time
+          readOnly: true
+        line_total:
+          type: string
+          readOnly: true
+      required:
+      - added_at
+      - id
+      - line_total
+      - product
+      - product_discount
+      - product_discounted_price
+      - product_image
+      - product_min_order
+      - product_name
+      - product_price
+      - product_stock
+      - product_supplier_id
+      - product_unit
+    Complaint:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        order:
+          type: integer
+          readOnly: true
+        consumer:
+          type: integer
+          readOnly: true
+        consumer_name:
+          type: string
+          readOnly: true
+        supplier:
+          type: integer
+          readOnly: true
+        supplier_name:
+          type: string
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        description:
+          type: string
+        status:
+          allOf:
+          - $ref: '#/components/schemas/ComplaintStatusEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        resolved_at:
+          type: string
+          format: date-time
+          readOnly: true
+          nullable: true
+      required:
+      - consumer
+      - consumer_name
+      - created_at
+      - description
+      - id
+      - order
+      - resolved_at
+      - status
+      - supplier
+      - supplier_name
+      - title
+    ComplaintStatusEnum:
+      enum:
+      - pending
+      - resolved
+      - rejected
+      - escalated
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `resolved` - Resolved
+        * `rejected` - Rejected
+        * `escalated` - Escalated
+    DeliveryOptionEnum:
+      enum:
+      - delivery
+      - pickup
+      - both
+      type: string
+      description: |-
+        * `delivery` - Delivery
+        * `pickup` - Pickup
+        * `both` - Both
+    LinkRequest:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        supplier:
+          type: integer
+          readOnly: true
+        consumer:
+          type: integer
+          readOnly: true
+        status:
+          allOf:
+          - $ref: '#/components/schemas/LinkRequestStatusEnum'
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        consumer_name:
+          type: string
+          readOnly: true
+        supplier_name:
+          type: string
+          readOnly: true
+      required:
+      - consumer
+      - consumer_name
+      - created_at
+      - id
+      - status
+      - supplier
+      - supplier_name
+    LinkRequestStatusEnum:
+      enum:
+      - pending
+      - linked
+      - rejected
+      - blocked
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `linked` - Linked
+        * `rejected` - Rejected
+        * `blocked` - Blocked
+    Order:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        consumer:
+          type: integer
+          readOnly: true
+        consumer_name:
+          type: string
+          readOnly: true
+        supplier:
+          type: integer
+          nullable: true
+        supplier_name:
+          type: string
+          readOnly: true
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        total_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        status:
+          $ref: '#/components/schemas/OrderStatusEnum'
+        items:
+          type: array
+          items:
+            $ref: '#/components/schemas/OrderItem'
+          readOnly: true
+      required:
+      - consumer
+      - consumer_name
+      - created_at
+      - id
+      - items
+      - supplier_name
+      - total_price
+    OrderItem:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        product:
+          type: integer
+        product_name:
+          type: string
+          readOnly: true
+        quantity:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+      required:
+      - id
+      - price
+      - product
+      - product_name
+      - quantity
+    OrderStatusEnum:
+      enum:
+      - pending
+      - approved
+      - delivered
+      - cancelled
+      type: string
+      description: |-
+        * `pending` - Pending
+        * `approved` - Approved
+        * `delivered` - Delivered
+        * `cancelled` - Cancelled
+    PatchedCannedReply:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        supplier:
+          type: integer
+          readOnly: true
+        title:
+          type: string
+          maxLength: 200
+        message:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        updated_at:
+          type: string
+          format: date-time
+          readOnly: true
+    PatchedProduct:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 120
+        category:
+          type: string
+          maxLength: 100
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        discount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          description: Discount percentage (0-100)
+        discounted_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        unit:
+          $ref: '#/components/schemas/UnitEnum'
+        stock:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        minOrder:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        image:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/ProductStatusEnum'
+        delivery_option:
+          $ref: '#/components/schemas/DeliveryOptionEnum'
+        lead_time_days:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          description: Number of days for order fulfillment
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        supplier_name:
+          type: string
+          readOnly: true
+    Product:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        name:
+          type: string
+          maxLength: 120
+        category:
+          type: string
+          maxLength: 100
+        price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+        discount:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,3}(?:\.\d{0,2})?$
+          description: Discount percentage (0-100)
+        discounted_price:
+          type: string
+          format: decimal
+          pattern: ^-?\d{0,8}(?:\.\d{0,2})?$
+          readOnly: true
+        unit:
+          $ref: '#/components/schemas/UnitEnum'
+        stock:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        minOrder:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+        image:
+          type: string
+          format: uri
+          nullable: true
+          maxLength: 200
+        description:
+          type: string
+        status:
+          $ref: '#/components/schemas/ProductStatusEnum'
+        delivery_option:
+          $ref: '#/components/schemas/DeliveryOptionEnum'
+        lead_time_days:
+          type: integer
+          maximum: 2147483647
+          minimum: 0
+          description: Number of days for order fulfillment
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        supplier_name:
+          type: string
+          readOnly: true
+      required:
+      - created_at
+      - discounted_price
+      - id
+      - name
+      - price
+      - supplier_name
+    ProductStatusEnum:
+      enum:
+      - active
+      - inactive
+      type: string
+      description: |-
+        * `active` - Active
+        * `inactive` - Inactive
+    TokenRefresh:
+      type: object
+      properties:
+        access:
+          type: string
+          readOnly: true
+        refresh:
+          type: string
+          writeOnly: true
+      required:
+      - access
+      - refresh
+    UnitEnum:
+      enum:
+      - kg
+      - pcs
+      - litre
+      - pack
+      type: string
+      description: |-
+        * `kg` - Kilogram
+        * `pcs` - Pieces
+        * `litre` - Litre
+        * `pack` - Pack
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
