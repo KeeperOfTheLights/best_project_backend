@@ -36,3 +36,75 @@ npm run dev
 Using the link "http://localhost:5173/" we could open our website. Good luck!
 
 
+### Prerequisites
+- Node.js 18+ and npm
+- Backend API running on `http://localhost:8000`
+
+### Setup Steps
+
+1. **Install dependencies:**
+   ```bash
+   npm install
+   ```
+
+2. **Create environment file:**
+   ```bash
+   cp .env.example .env
+   ```
+   
+   Update `.env` with your backend API URL:
+   ```env
+   VITE_API_BASE_URL=http://localhost:8000/api/accounts
+   VITE_APP_NAME=Daivinvhik
+   VITE_ENV=development
+   ```
+
+3. **Start development server:**
+   ```bash
+   npm run dev
+   ```
+   
+   The app will open at `http://localhost:5173`
+
+## Available Scripts
+
+- `npm run dev` - Start development server
+- `npm test` - Run tests
+
+
+## Testing
+
+Tests are set up using Vitest and React Testing Library.
+
+```bash
+npm test
+
+npm test -- --watch
+
+npm run test:coverage
+
+
+## I18n
+
+The application supports English and Russian languages.
+
+- Language switcher is available in the navbar
+
+1. Add keys to `src/locales/en.json`
+2. Add corresponding translations to `src/locales/ru.json`
+3. Use `t()` function in components:
+   ```jsx
+   import { useTranslation } from 'react-i18next';
+   
+   const { t } = useTranslation();
+   <h1>{t('common.welcome')}</h1>
+   ```
+
+## Tech Specifications
+
+- **React 19**=
+- **React Router 7**=
+- **Vite**=
+- **i18next & react-i18next**=
+- **Vitest**==
+- **Tailwind CSS**=
