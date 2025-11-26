@@ -5,9 +5,8 @@ import '../providers/auth_provider.dart';
 import '../models/staff_member.dart';
 import '../utils/constants.dart';
 
-// StaffManagementScreen - allows Owner/Manager to manage staff
 class StaffManagementScreen extends StatefulWidget {
-  final bool isSalesManagement; // If true, only show sales staff (for Manager)
+  final bool isSalesManagement;
 
   const StaffManagementScreen({
     super.key,
@@ -31,13 +30,12 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final currentRole = authProvider.user?.role ?? '';
 
-    // Determine which roles can be added based on Requirements.md
     List<String> availableRoles = [];
     if (currentRole == UserRole.owner) {
-      // Owner: Add Manager, Add Sales
+
       availableRoles = [UserRole.manager, UserRole.sales];
     } else if (currentRole == UserRole.manager || widget.isSalesManagement) {
-      // Manager: Add Sales only
+
       availableRoles = [UserRole.sales];
     }
 
@@ -152,56 +150,15 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
                   return;
                 }
 
-                final staffProvider =
-                    Provider.of<StaffProvider>(context, listen: false);
-                
-                // For real backend, we need userId (user must register first)
-                // Show message and return early
-                if (!useMockApi) {
-                  if (mounted) {
-                    Navigator.pop(context);
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('To add staff: User must register first, then select them from "Unassigned Users" to assign to your company. Use the "Load Unassigned Users" button to see available users.'),
-                        backgroundColor: Colors.orange,
-                        duration: Duration(seconds: 6),
-                      ),
-                    );
-                  }
-                  return;
-                }
-                
-                // Mock API: create staff with email/name/password
-                final success = await staffProvider.addStaff(
-                  email: emailController.text.trim(),
-                  name: nameController.text.trim(),
-                  role: selectedRole,
-                  password: passwordController.text,
-                  phone: phoneController.text.trim().isEmpty 
-                      ? null 
-                      : phoneController.text.trim(),
-                );
-
                 if (mounted) {
                   Navigator.pop(context);
-                  if (success) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Staff member added successfully. They can now login with their email and password.'),
-                        backgroundColor: Colors.green,
-                        duration: Duration(seconds: 3),
-                      ),
-                    );
-                  } else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      SnackBar(
-                        content: Text(
-                          staffProvider.errorMessage ?? 'Failed to add staff',
-                        ),
-                        backgroundColor: Colors.red,
-                      ),
-                    );
-                  }
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(
+                      content: Text('To add staff: User must register first, then select them from "Unassigned Users" to assign to your company. Use the "Load Unassigned Users" button to see available users.'),
+                      backgroundColor: Colors.orange,
+                      duration: Duration(seconds: 6),
+                    ),
+                  );
                 }
               },
               child: const Text('Add'),
@@ -270,7 +227,6 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
     final currentRole = authProvider.user?.role ?? '';
 
-    // Check permissions
     final canAddStaff = currentRole == UserRole.owner || currentRole == UserRole.manager;
 
     return Scaffold(
@@ -311,10 +267,8 @@ class _StaffManagementScreenState extends State<StaffManagementScreen> {
             );
           }
 
-          // Filter staff based on role and screen type
           List<StaffMember> displayStaff = staffProvider.activeStaff;
-          
-          // If Sales Management screen (Manager view), only show Sales staff
+
           if (widget.isSalesManagement) {
             displayStaff = staffProvider.getStaffByRole(UserRole.sales);
           }

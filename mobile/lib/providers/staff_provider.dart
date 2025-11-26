@@ -1,10 +1,7 @@
 import 'package:flutter/foundation.dart';
 import '../models/staff_member.dart';
 import '../services/staff_service.dart';
-import '../services/mock_staff_service.dart';
-import '../utils/constants.dart';
 
-// StaffProvider - manages staff state
 class StaffProvider with ChangeNotifier {
   List<StaffMember> _staff = [];
   bool _isLoading = false;
@@ -14,26 +11,21 @@ class StaffProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  // Get staff by role
   List<StaffMember> getStaffByRole(String role) {
     return _staff.where((s) => s.role == role).toList();
   }
 
-  // Get active staff
   List<StaffMember> get activeStaff {
     return _staff.where((s) => s.isActive).toList();
   }
 
-  // Load all staff
   Future<void> loadStaff() async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final staffList = useMockApi
-          ? await MockStaffService.getStaff()
-          : await StaffService.getStaff();
+      final staffList = await StaffService.getStaff();
 
       _staff = staffList;
       _isLoading = false;
@@ -45,11 +37,8 @@ class StaffProvider with ChangeNotifier {
     }
   }
 
-  // Get unassigned users (available to be assigned as staff)
-  // Note: This should be stored in a separate list or handled by the screen
+
   Future<List<StaffMember>> loadUnassignedUsers() async {
-    if (useMockApi) return [];  // Mock API doesn't have this
-    
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
@@ -58,7 +47,7 @@ class StaffProvider with ChangeNotifier {
       final users = await StaffService.getUnassignedUsers();
       _isLoading = false;
       notifyListeners();
-      return users;  // Return the list for the screen to use
+      return users;
     } catch (e) {
       _errorMessage = e.toString();
       _isLoading = false;
@@ -67,14 +56,13 @@ class StaffProvider with ChangeNotifier {
     }
   }
 
-  // Add new staff member
-  // For mock API: creates a full login account with email/name/password
-  // For real backend: assigns existing user to company with userId (role comes from user)
+
+
   Future<bool> addStaff({
-    // For real backend
+
     String? userId,
-    String? role, // Optional - used for mock API or if needed
-    // For mock API
+    String? role,
+
     String? email,
     String? name,
     String? password,
@@ -85,20 +73,12 @@ class StaffProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final newStaff = useMockApi
-          ? await MockStaffService.addStaff(
-              email: email ?? '',
-              name: name ?? '',
-              role: role ?? 'sales',
-              password: password ?? '',
-              phone: phone,
-            )
-          : await StaffService.addStaff(
-              userId: userId ?? '',
-            );
+      final newStaff = await StaffService.addStaff(
+        userId: userId ?? '',
+      );
 
       _staff.add(newStaff);
-      await loadStaff();  // Reload to get full staff list
+      await loadStaff();
       _isLoading = false;
       notifyListeners();
       return true;
@@ -110,16 +90,13 @@ class StaffProvider with ChangeNotifier {
     }
   }
 
-  // Remove staff member
   Future<bool> removeStaff(String staffId) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final success = useMockApi
-          ? await MockStaffService.removeStaff(staffId)
-          : await StaffService.removeStaff(staffId);
+      final success = await StaffService.removeStaff(staffId);
 
       if (success) {
         _staff.removeWhere((s) => s.id == staffId);
@@ -136,7 +113,6 @@ class StaffProvider with ChangeNotifier {
     }
   }
 
-  // Clear error
   void clearError() {
     _errorMessage = null;
     notifyListeners();

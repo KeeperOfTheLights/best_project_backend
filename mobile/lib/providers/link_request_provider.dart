@@ -2,11 +2,8 @@ import 'package:flutter/foundation.dart';
 import '../models/supplier.dart';
 import '../models/link_request.dart';
 import '../services/link_request_service.dart';
-import '../services/mock_link_request_service.dart';
 import '../services/storage_service.dart';
-import '../utils/constants.dart';
 
-// LinkRequestProvider - manages link request state
 class LinkRequestProvider with ChangeNotifier {
   List<Supplier> _suppliers = [];
   List<LinkRequest> _linkRequests = [];
@@ -18,7 +15,6 @@ class LinkRequestProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  // Get link requests by status
   List<LinkRequest> getPendingRequests() {
     return _linkRequests.where((req) => req.status == LinkRequestStatus.pending).toList();
   }
@@ -31,16 +27,13 @@ class LinkRequestProvider with ChangeNotifier {
     return _linkRequests.where((req) => req.status == LinkRequestStatus.rejected).toList();
   }
 
-  // Search suppliers
   Future<void> searchSuppliers(String query) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final results = useMockApi
-          ? await MockLinkRequestService.searchSuppliers(query)
-          : await LinkRequestService.searchSuppliers(query);
+      final results = await LinkRequestService.searchSuppliers(query);
 
       _suppliers = results;
       _isLoading = false;
@@ -52,18 +45,14 @@ class LinkRequestProvider with ChangeNotifier {
     }
   }
 
-  // Send link request
   Future<bool> sendLinkRequest(String supplierId) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      await (useMockApi
-          ? MockLinkRequestService.sendLinkRequest(supplierId)
-          : LinkRequestService.sendLinkRequest(supplierId));
+      await LinkRequestService.sendLinkRequest(supplierId);
 
-      // Add to list and refresh
       await loadLinkRequests();
       _isLoading = false;
       notifyListeners();
@@ -76,7 +65,6 @@ class LinkRequestProvider with ChangeNotifier {
     }
   }
 
-  // Load all link requests
   Future<void> loadLinkRequests() async {
     _isLoading = true;
     _errorMessage = null;
@@ -84,9 +72,7 @@ class LinkRequestProvider with ChangeNotifier {
 
     try {
       final userRole = StorageService.getUserRole() ?? '';
-      final requests = useMockApi
-          ? await MockLinkRequestService.getLinkRequests()
-          : await LinkRequestService.getLinkRequests(userRole: userRole);
+      final requests = await LinkRequestService.getLinkRequests(userRole: userRole);
 
       _linkRequests = requests;
       _isLoading = false;
@@ -98,20 +84,14 @@ class LinkRequestProvider with ChangeNotifier {
     }
   }
 
-  // Approve link request (Supplier only)
   Future<bool> approveLinkRequest(String requestId) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      if (useMockApi) {
-        await MockLinkRequestService.approveLinkRequest(requestId);
-      } else {
-        await LinkRequestService.approveLinkRequest(requestId);
-      }
+      await LinkRequestService.approveLinkRequest(requestId);
 
-      // Backend doesn't return updated object, so reload the list
       await loadLinkRequests();
 
       _isLoading = false;
@@ -125,20 +105,14 @@ class LinkRequestProvider with ChangeNotifier {
     }
   }
 
-  // Reject link request (Supplier only)
   Future<bool> rejectLinkRequest(String requestId, {String? reason}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      if (useMockApi) {
-        await MockLinkRequestService.rejectLinkRequest(requestId, reason: reason);
-      } else {
-        await LinkRequestService.rejectLinkRequest(requestId, reason: reason);
-      }
+      await LinkRequestService.rejectLinkRequest(requestId, reason: reason);
 
-      // Backend doesn't return updated object, so reload the list
       await loadLinkRequests();
 
       _isLoading = false;
@@ -152,21 +126,14 @@ class LinkRequestProvider with ChangeNotifier {
     }
   }
 
-  // Unlink consumer (Supplier only)
   Future<bool> unlinkConsumer(String linkId) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      if (useMockApi) {
-        // Mock implementation would go here
-        throw Exception('Unlink not implemented in mock API');
-      } else {
-        await LinkRequestService.unlinkConsumer(linkId);
-      }
+      await LinkRequestService.unlinkConsumer(linkId);
 
-      // Backend doesn't return updated object, so reload the list
       await loadLinkRequests();
 
       _isLoading = false;
@@ -180,7 +147,6 @@ class LinkRequestProvider with ChangeNotifier {
     }
   }
 
-  // Clear error
   void clearError() {
     _errorMessage = null;
     notifyListeners();

@@ -3,11 +3,8 @@ import 'package:flutter/material.dart';
 import '../models/order.dart';
 import '../models/cart_item.dart';
 import '../services/order_service.dart';
-import '../services/mock_order_service.dart';
 import '../services/storage_service.dart';
-import '../utils/constants.dart';
 
-// OrderProvider - manages order state
 class OrderProvider with ChangeNotifier {
   List<Order> _orders = [];
   bool _isLoading = false;
@@ -17,27 +14,20 @@ class OrderProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  // Get orders by status
   List<Order> getOrdersByStatus(String status) {
     return _orders.where((order) => order.status == status).toList();
   }
 
-  // Get pending orders
   List<Order> get pendingOrders => getOrdersByStatus(OrderStatus.pending);
 
-  // Get accepted orders
   List<Order> get acceptedOrders => getOrdersByStatus(OrderStatus.accepted);
 
-  // Get in delivery orders
   List<Order> get inDeliveryOrders => getOrdersByStatus(OrderStatus.inDelivery);
 
-  // Get completed orders
   List<Order> get completedOrders => getOrdersByStatus(OrderStatus.completed);
 
-  // Get rejected orders
   List<Order> get rejectedOrders => getOrdersByStatus(OrderStatus.rejected);
 
-  // Create order from cart
   Future<bool> createOrder({
     required String supplierId,
     required List<CartItem> items,
@@ -50,23 +40,15 @@ class OrderProvider with ChangeNotifier {
     notifyListeners();
 
     try {
-      final order = useMockApi
-          ? await MockOrderService.createOrder(
-              supplierId: supplierId,
-              items: items,
-              deliveryType: deliveryType,
-              deliveryAddress: deliveryAddress,
-              comment: comment,
-            )
-          : await OrderService.createOrder(
-              supplierId: supplierId,
-              items: items,
-              deliveryType: deliveryType,
-              deliveryAddress: deliveryAddress,
-              comment: comment,
-            );
+      final order = await OrderService.createOrder(
+        supplierId: supplierId,
+        items: items,
+        deliveryType: deliveryType,
+        deliveryAddress: deliveryAddress,
+        comment: comment,
+      );
 
-      _orders.insert(0, order); // Add to beginning
+      _orders.insert(0, order);
       _isLoading = false;
       notifyListeners();
       return true;
@@ -78,7 +60,6 @@ class OrderProvider with ChangeNotifier {
     }
   }
 
-  // Load all orders
   Future<void> loadOrders() async {
     _isLoading = true;
     _errorMessage = null;
@@ -88,16 +69,13 @@ class OrderProvider with ChangeNotifier {
       final userRole = StorageService.getUserRole() ?? '';
       debugPrint('OrderProvider: Loading orders for role: $userRole');
       
-      final orders = useMockApi
-          ? await MockOrderService.getOrders()
-          : await OrderService.getOrders(userRole: userRole);
+      final orders = await OrderService.getOrders(userRole: userRole);
 
       _orders = orders;
       _isLoading = false;
       _errorMessage = null;
       notifyListeners();
-      
-      // Debug: Print orders count and details
+
       debugPrint('OrderProvider: Loaded ${orders.length} orders');
       if (orders.isNotEmpty) {
         for (var order in orders.take(3)) {
@@ -109,21 +87,17 @@ class OrderProvider with ChangeNotifier {
     } catch (e, stackTrace) {
       _errorMessage = e.toString();
       _isLoading = false;
-      _orders = []; // Clear orders on error
+      _orders = [];
       notifyListeners();
       debugPrint('OrderProvider: Error loading orders: $e');
       debugPrint('OrderProvider: Stack trace: $stackTrace');
     }
   }
 
-  // Get order details
   Future<Order?> getOrderDetails(String orderId) async {
     try {
-      final order = useMockApi
-          ? await MockOrderService.getOrderDetails(orderId)
-          : await OrderService.getOrderDetails(orderId);
+      final order = await OrderService.getOrderDetails(orderId);
 
-      // Update in list if exists
       final index = _orders.indexWhere((o) => o.id == orderId);
       if (index != -1) {
         _orders[index] = order;
@@ -138,18 +112,14 @@ class OrderProvider with ChangeNotifier {
     }
   }
 
-  // Accept order (Supplier only)
   Future<bool> acceptOrder(String orderId) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final order = useMockApi
-          ? await MockOrderService.acceptOrder(orderId)
-          : await OrderService.acceptOrder(orderId);
+      final order = await OrderService.acceptOrder(orderId);
 
-      // Update in list
       final index = _orders.indexWhere((o) => o.id == orderId);
       if (index != -1) {
         _orders[index] = order;
@@ -166,18 +136,14 @@ class OrderProvider with ChangeNotifier {
     }
   }
 
-  // Reject order (Supplier only)
   Future<bool> rejectOrder(String orderId, {String? reason}) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final order = useMockApi
-          ? await MockOrderService.rejectOrder(orderId, reason: reason)
-          : await OrderService.rejectOrder(orderId, reason: reason);
+      final order = await OrderService.rejectOrder(orderId, reason: reason);
 
-      // Update in list
       final index = _orders.indexWhere((o) => o.id == orderId);
       if (index != -1) {
         _orders[index] = order;
@@ -194,18 +160,14 @@ class OrderProvider with ChangeNotifier {
     }
   }
 
-  // Deliver order (Supplier only) - marks order as delivered
   Future<bool> deliverOrder(String orderId) async {
     _isLoading = true;
     _errorMessage = null;
     notifyListeners();
 
     try {
-      final order = useMockApi
-          ? await MockOrderService.updateOrderStatus(orderId, 'delivered')
-          : await OrderService.deliverOrder(orderId);
+      final order = await OrderService.deliverOrder(orderId);
 
-      // Update in list
       final index = _orders.indexWhere((o) => o.id == orderId);
       if (index != -1) {
         _orders[index] = order;
@@ -222,7 +184,6 @@ class OrderProvider with ChangeNotifier {
     }
   }
 
-  // Clear error
   void clearError() {
     _errorMessage = null;
     notifyListeners();
