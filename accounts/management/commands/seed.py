@@ -5,15 +5,15 @@ class Command(BaseCommand):
     help = "Seed database with demo data"
 
     def handle(self, *args, **kwargs):
-        owner = User.objects.create_user(email="owner@test.com", password="Pass123!", role="owner")
-        manager = User.objects.create_user(email="manager@test.com", password="Pass123!", role="manager")
-        sales = User.objects.create_user(email="sales@test.com", password="Pass123!", role="sales")
-        consumer = User.objects.create_user(email="consumer@test.com", password="Pass123!", role="consumer")
+        owner = User.objects.create_user(email="ownerTest@test.com", password="Asdasdasd1!", role="owner")
+        manager = User.objects.create_user(email="managerTest@test.com", password="Asdasdasd1!", role="manager")
+        sales = User.objects.create_user(email="salesTest@test.com", password="Asdasdasd1!", role="sales")
+        consumer = User.objects.create_user(email="consumerTest@test.com", password="Asdasdasd1!", role="consumer")
 
         product = Product.objects.create(
             supplier=owner,
-            name="Milk",
-            price=100,
+            name="Milk premium",
+            price=500,
             stock=50
         )
 
@@ -26,7 +26,7 @@ class Command(BaseCommand):
         Order.objects.create(
             consumer=consumer,
             supplier=owner,
-            total_price=300
+            total_price=1000
         )
 
-        self.stdout.write(self.style.SUCCESS("Demo data created!"))
+        self.stdout.write(self.style.SUCCESS("Demo data was created"))
