@@ -3,13 +3,13 @@ import 'package:provider/provider.dart';
 import '../providers/catalog_provider.dart';
 import '../providers/cart_provider.dart';
 import '../providers/order_provider.dart';
+import '../providers/language_provider.dart';
 import '../models/catalog_item.dart';
 import '../models/cart_item.dart';
 import '../services/cart_service.dart';
 import '../utils/localization.dart';
 import '../widgets/language_switcher.dart';
 
-// ConsumerCatalogScreen - matches website modal design with cart section at bottom
 class ConsumerCatalogScreen extends StatefulWidget {
   final String supplierId;
   final String supplierName;
@@ -43,7 +43,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
   Future<void> _loadCatalog() async {
     final provider = Provider.of<CatalogProvider>(context, listen: false);
     await provider.loadCatalogBySupplier(widget.supplierId);
-    // Initialize quantities with minOrder
+
     final products = provider.getFilteredItems();
     for (var product in products) {
       _quantities[product.id] = product.minOrder;
@@ -59,8 +59,8 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
 
     try {
       final cartItems = await CartService.getCart();
-    final cartProvider = Provider.of<CartProvider>(context, listen: false);
-      cartProvider.loadFromBackend(cartItems);
+      final cartProvider = Provider.of<CartProvider>(context, listen: false);
+      await cartProvider.loadFromBackend(cartItems);
     } catch (e) {
       setState(() {
         _cartError = e.toString();
@@ -82,6 +82,9 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
 
   Future<void> _addToCart(CatalogItem product) async {
     final quantity = _quantities[product.id] ?? product.minOrder;
+
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final loc = AppLocalizations(languageProvider.languageCode);
     
     setState(() {
       _loadingProductId = product.id;
@@ -90,28 +93,52 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
     });
 
     try {
-      await CartService.addToCart(product.id, quantity);
+      final result = await CartService.addToCart(product.id, quantity);
+
       await _loadCart();
-      setState(() {
-        final loc = AppLocalizations.of(context);
-        _cartMessage = '${loc.text('Added ')}$quantity ${product.unit}${loc.text(' of ')}${product.name}${loc.text(' to cart.')}';
-      });
-      // Clear message after 3 seconds
-      Future.delayed(const Duration(seconds: 3), () {
-            if (mounted) {
-          setState(() {
-            _cartMessage = null;
-          });
-        }
-      });
+
+      if (mounted) {
+        setState(() {
+          _cartMessage = '${loc.text('Added ')}$quantity ${product.unit}${loc.text(' of ')}${product.name}${loc.text(' to cart.')}';
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('${loc.text('Added ')}$quantity ${product.unit}${loc.text(' of ')}${product.name}${loc.text(' to cart.')}'),
+            backgroundColor: Colors.green,
+            duration: const Duration(seconds: 2),
+          ),
+        );
+
+        Future.delayed(const Duration(seconds: 3), () {
+          if (mounted) {
+            setState(() {
+              _cartMessage = null;
+            });
+          }
+        });
+      }
     } catch (e) {
-      setState(() {
-        _cartError = e.toString().replaceAll('Exception: ', '');
-      });
+      final errorMessage = e.toString().replaceAll('Exception: ', '');
+      if (mounted) {
+        setState(() {
+          _cartError = errorMessage;
+        });
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Error: $errorMessage'),
+            backgroundColor: Colors.red,
+            duration: const Duration(seconds: 3),
+          ),
+        );
+      }
     } finally {
-      setState(() {
-        _loadingProductId = null;
-      });
+      if (mounted) {
+        setState(() {
+          _loadingProductId = null;
+        });
+      }
     }
   }
 
@@ -157,7 +184,10 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
   }
 
   Future<void> _proceedToCheckout() async {
-    // Check if cart has items for this supplier
+
+    final languageProvider = Provider.of<LanguageProvider>(context, listen: false);
+    final loc = AppLocalizations(languageProvider.languageCode);
+
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
     final supplierCartItems = cartProvider.cartItems
         .where((item) => item.item.supplierId == widget.supplierId)
@@ -165,7 +195,6 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
     
     if (supplierCartItems.isEmpty) {
       if (mounted) {
-        final loc = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
             content: Text(loc.text('Cart is empty')),
@@ -182,26 +211,21 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
     });
 
     try {
-      // Call backend checkout endpoint
+
       final result = await CartService.checkout();
       
       if (result['success'] == true) {
         final orderId = result['orderId']?.toString() ?? '';
-        
-        // Show success message
+
         setState(() {
-          final loc = AppLocalizations.of(context);
           _cartMessage = '${loc.text('Order #')}$orderId${loc.text(' placed successfully.')}';
         });
-        
-        // Reload cart (should be empty now)
+
         await _loadCart();
-        
-        // Reload orders so they appear in My Orders
+
         final orderProvider = Provider.of<OrderProvider>(context, listen: false);
         await orderProvider.loadOrders();
-        
-        // Clear message after 5 seconds
+
         Future.delayed(const Duration(seconds: 5), () {
           if (mounted) {
             setState(() {
@@ -239,14 +263,14 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
           
           return Consumer<CartProvider>(
             builder: (context, cartProvider, child) {
-              // Get cart items for this supplier
+
               final supplierCartItems = cartProvider.cartItems
                   .where((item) => item.item.supplierId == widget.supplierId)
                   .toList();
               
               return Column(
                   children: [
-                  // Products section
+
           Expanded(
                     child: catalogProvider.isLoading
                         ? const Center(child: CircularProgressIndicator())
@@ -292,8 +316,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                                     ),
                                   ),
                   ),
-                  
-                  // Cart section at bottom
+
                   _buildCartSection(supplierCartItems, cartProvider),
                 ],
               );
@@ -326,7 +349,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-            // Product name and category
+
                                         Text(
               product.name,
                                           style: const TextStyle(
@@ -346,8 +369,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
               ),
             ],
             const SizedBox(height: 12),
-            
-            // Product details
+
             Wrap(
               spacing: 16,
               runSpacing: 8,
@@ -389,8 +411,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            
-            // Price
+
                                       Text(
               '${price.toStringAsFixed(0)} ₸',
                                         style: const TextStyle(
@@ -400,11 +421,10 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                                         ),
                                       ),
             const SizedBox(height: 12),
-            
-            // Quantity selector and Add to Cart button
+
             Row(
               children: [
-                // Quantity selector
+
                 Container(
                   decoration: BoxDecoration(
                     border: Border.all(color: Colors.grey),
@@ -442,13 +462,12 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                   ),
                 ),
                 const SizedBox(width: 12),
-                
-                // Add to Cart button
+
                 Expanded(
                   child: ElevatedButton(
                     onPressed: (product.stock == 0 || isLoading) ? null : () => _addToCart(product),
                                           style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF4CAF50), // Green
+                      backgroundColor: const Color(0xFF4CAF50),
                       foregroundColor: Colors.white,
                       padding: const EdgeInsets.symmetric(vertical: 12),
                       shape: RoundedRectangleBorder(
@@ -472,8 +491,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                 ),
               ],
             ),
-            
-            // In cart indicator
+
             if (isInCart && cartQuantity > 0)
               Padding(
                 padding: const EdgeInsets.only(top: 8),
@@ -520,7 +538,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
       child: Column(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Cart header
+
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Row(
@@ -543,8 +561,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                             ],
                           ),
                         ),
-          
-          // Cart messages
+
           if (_cartError != null)
             Container(
               width: double.infinity,
@@ -573,8 +590,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                 style: const TextStyle(color: Color(0xFF0F5132)),
               ),
             ),
-          
-          // Cart items
+
           if (supplierCartItems.isEmpty)
             Padding(
               padding: const EdgeInsets.all(16.0),
@@ -588,8 +604,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
             )
           else
             ...supplierCartItems.map((cartItem) => _buildCartItemTile(cartItem)),
-          
-          // Total and checkout button
+
           if (supplierCartItems.isNotEmpty) ...[
             const Divider(),
             Padding(
@@ -623,7 +638,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                     child: ElevatedButton(
                       onPressed: _proceedToCheckout,
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF4CAF50), // Green
+                        backgroundColor: const Color(0xFF4CAF50),
                         foregroundColor: Colors.white,
                         padding: const EdgeInsets.symmetric(vertical: 14),
                         shape: RoundedRectangleBorder(
@@ -671,7 +686,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
       trailing: Row(
         mainAxisSize: MainAxisSize.min,
         children: [
-          // Quantity controls
+
           Container(
             decoration: BoxDecoration(
               border: Border.all(color: Colors.grey),

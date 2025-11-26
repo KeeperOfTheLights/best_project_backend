@@ -1,12 +1,12 @@
-// User model - represents a user in our app
+
 class User {
   final String id;
   final String email;
   final String name;
-  final String role; // 'consumer' or 'supplier'
-  final String? businessName; // For consumer
-  final String? companyName; // For supplier
-  final String? companyType; // For supplier
+  final String role;
+  final String? businessName;
+  final String? companyName;
+  final String? companyType;
   final String? address;
   final String? phone;
 
@@ -22,13 +22,12 @@ class User {
     this.phone,
   });
 
-  // Convert JSON from backend to User object
-  // Backend uses 'full_name' but we use 'name' in the app
+
   factory User.fromJson(Map<String, dynamic> json) {
     return User(
       id: json['id']?.toString() ?? '',
       email: json['email'] ?? '',
-      name: json['name'] ?? json['full_name'] ?? '',  // Handle both formats
+      name: json['name'] ?? json['full_name'] ?? '',
       role: json['role'] ?? '',
       businessName: json['business_name'],
       companyName: json['company_name'],
@@ -38,7 +37,6 @@ class User {
     );
   }
 
-  // Convert User object to JSON for sending to backend
   Map<String, dynamic> toJson() {
     return {
       'id': id,

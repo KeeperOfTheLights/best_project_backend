@@ -8,7 +8,6 @@ import '../models/link_request.dart';
 import '../services/link_request_service.dart';
 import 'chat_room_screen.dart';
 
-// ChatListScreen - shows all linked partners (suppliers for Consumer, consumers for Supplier)
 class ChatListScreen extends StatefulWidget {
   const ChatListScreen({super.key});
 
@@ -45,18 +44,15 @@ class _ChatListScreenState extends State<ChatListScreen> {
     try {
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
       final userRole = authProvider.user?.role ?? '';
-      
-      // Get link requests
+
       final linkRequests = await LinkRequestService.getLinkRequests(userRole: userRole);
-      
-      // Filter only linked requests
+
       final linkedRequests = linkRequests.where((req) => req.status == LinkRequestStatus.linked).toList();
-      
-      // Build partner list
+
       List<Map<String, dynamic>> partners = [];
       
       if (userRole == UserRole.consumer) {
-        // For consumers, show linked suppliers
+
         for (var request in linkedRequests) {
           partners.add({
             'id': request.supplierId,
@@ -66,7 +62,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
           });
         }
       } else if (isSupplierSide(userRole)) {
-        // For suppliers, show linked consumers
+
         for (var request in linkedRequests) {
           partners.add({
             'id': request.consumerId,
@@ -126,7 +122,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
       ),
       body: Column(
         children: [
-          // Search bar
+
           Container(
             padding: const EdgeInsets.all(16),
             color: Colors.white,
@@ -146,7 +142,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
               onChanged: (_) => setState(() {}),
             ),
           ),
-          // Partners list
+
           Expanded(
             child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
@@ -197,8 +193,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                                 final partnerName = partner['name'] as String;
                                 final partnerSubtitle = partner['subtitle'] as String;
                                 final partnerId = partner['id'] as String;
-                                
-                                // Get first letters for avatar
+
                                 final initials = partnerName.isNotEmpty
                                     ? partnerName.substring(0, partnerName.length > 2 ? 2 : 1).toUpperCase()
                                     : '?';

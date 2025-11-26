@@ -5,9 +5,8 @@ import '../models/catalog_item.dart';
 import '../utils/constants.dart';
 import 'storage_service.dart';
 
-// SearchService - handles search operations
 class SearchService {
-  // Helper method to get headers with authentication token
+
   static Map<String, String> _getHeaders() {
     final token = StorageService.getToken();
     Map<String, String> headers = {
@@ -19,9 +18,8 @@ class SearchService {
     return headers;
   }
 
-  // Perform global search (suppliers, products, categories)
-  // Backend: GET /search/?q=<query>
-  // Returns: {suppliers: [], categories: [], products: []}
+
+
   static Future<Map<String, dynamic>> search(String query) async {
     if (query.trim().isEmpty) {
       return {
@@ -48,8 +46,7 @@ class SearchService {
       }
 
       final data = jsonDecode(response.body);
-      
-      // Parse suppliers
+
       final List<Supplier> suppliers = [];
       if (data['suppliers'] != null && data['suppliers'] is List) {
         suppliers.addAll(
@@ -59,7 +56,6 @@ class SearchService {
         );
       }
 
-      // Parse categories (list of strings)
       final List<String> categories = [];
       if (data['categories'] != null && data['categories'] is List) {
         categories.addAll(
@@ -69,7 +65,6 @@ class SearchService {
         );
       }
 
-      // Parse products
       final List<CatalogItem> products = [];
       if (data['products'] != null && data['products'] is List) {
         products.addAll(
@@ -96,9 +91,8 @@ class SearchService {
     }
   }
 
-  // Check if consumer has any linked suppliers
-  // This is used to determine if search should be enabled
-  // Backend: GET /consumer/links/ - returns link requests
+
+
   static Future<bool> hasLinkedSuppliers() async {
     try {
       final response = await http.get(
@@ -116,8 +110,7 @@ class SearchService {
 
       final data = jsonDecode(response.body);
       final List<dynamic> links = data is List ? data : (data['links'] ?? data['results'] ?? []);
-      
-      // Check if there's at least one link with status "linked"
+
       return links.any((link) => link['status'] == 'linked');
     } catch (e) {
       return false;

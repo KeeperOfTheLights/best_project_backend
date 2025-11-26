@@ -4,7 +4,6 @@ import '../providers/supplier_provider.dart';
 import '../models/supplier.dart';
 import 'catalog_management_screen.dart';
 
-// SalesManagementScreen - allows Owners/Managers to create supplier names (Sales Management)
 class SalesManagementScreen extends StatefulWidget {
   const SalesManagementScreen({super.key});
 

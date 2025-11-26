@@ -7,7 +7,6 @@ import '../utils/localization.dart';
 import '../widgets/language_switcher.dart';
 import 'checkout_screen.dart';
 
-// CartScreen - shows shopping cart with items grouped by supplier
 class CartScreen extends StatelessWidget {
   const CartScreen({super.key});
 
@@ -60,7 +59,6 @@ class CartScreen extends StatelessWidget {
                       (sum, item) => sum + item.totalPrice,
                     );
 
-                    // Get supplier name from link requests
                     String supplierName = 'Supplier';
                     try {
                       final link = approvedLinks.firstWhere(
@@ -68,7 +66,7 @@ class CartScreen extends StatelessWidget {
                       );
                       supplierName = link.supplier?.companyName ?? supplierId;
                     } catch (e) {
-                      // If not found in link requests, use supplier ID as fallback
+
                       supplierName = supplierId;
                     }
 
@@ -115,7 +113,7 @@ class CartScreen extends StatelessWidget {
                   },
                 ),
               ),
-              // Total and checkout button
+
               Container(
                 padding: const EdgeInsets.all(16),
                 decoration: BoxDecoration(

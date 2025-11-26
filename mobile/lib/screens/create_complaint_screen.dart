@@ -6,7 +6,6 @@ import '../providers/auth_provider.dart';
 import '../models/order.dart';
 import '../models/complaint.dart';
 
-// CreateComplaintScreen - allows consumers to file a complaint for an order
 class CreateComplaintScreen extends StatefulWidget {
   final String orderId;
 
@@ -22,7 +21,7 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
   final _descriptionController = TextEditingController();
   String? _selectedIssueType;
   String? _selectedOrderItemId;
-  List<String> _photoUrls = []; // In real app, this would be actual image files
+  List<String> _photoUrls = [];
 
   @override
   void dispose() {
@@ -63,7 +62,7 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
             backgroundColor: Colors.green,
           ),
         );
-        Navigator.pop(context, true); // Return true to indicate success
+        Navigator.pop(context, true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
@@ -105,7 +104,7 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Order info card
+
                   Card(
                     color: Colors.grey[100],
                     child: Padding(
@@ -130,7 +129,6 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Account Name (display only)
                   Card(
                     color: Colors.grey.shade100,
                     child: Padding(
@@ -169,7 +167,6 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Title field
                   const Text(
                     'Title *',
                     style: TextStyle(
@@ -197,7 +194,6 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Issue type selection
                   const Text(
                     'Issue Type *',
                     style: TextStyle(
@@ -232,7 +228,6 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Order item selection (optional)
                   if (order.items != null && order.items!.isNotEmpty) ...[
                     const Text(
                       'Select Item (Optional)',
@@ -269,7 +264,6 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                     const SizedBox(height: 24),
                   ],
 
-                  // Description
                   const Text(
                     'Description *',
                     style: TextStyle(
@@ -298,7 +292,6 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Photo/File attachment (optional)
                   const Text(
                     'Attach Images/Files (Optional)',
                     style: TextStyle(
@@ -317,7 +310,7 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                             children: [
                               ElevatedButton.icon(
                                 onPressed: () {
-                                  // TODO: Implement image picker
+
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text('Image picker coming soon'),
@@ -333,7 +326,7 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                               ),
                               ElevatedButton.icon(
                                 onPressed: () {
-                                  // TODO: Implement file picker
+
                                   ScaffoldMessenger.of(context).showSnackBar(
                                     const SnackBar(
                                       content: Text('File picker coming soon'),
@@ -380,7 +373,6 @@ class _CreateComplaintScreenState extends State<CreateComplaintScreen> {
                   ),
                   const SizedBox(height: 32),
 
-                  // Submit button
                   SizedBox(
                     width: double.infinity,
                     child: Consumer<ComplaintProvider>(

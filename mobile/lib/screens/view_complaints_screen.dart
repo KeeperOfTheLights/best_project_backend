@@ -8,7 +8,6 @@ import 'chat_room_screen.dart';
 import '../utils/localization.dart';
 import '../widgets/language_switcher.dart';
 
-// ViewComplaintsScreen - allows consumers to view and create complaints
 class ViewComplaintsScreen extends StatefulWidget {
   const ViewComplaintsScreen({super.key});
 
@@ -17,7 +16,7 @@ class ViewComplaintsScreen extends StatefulWidget {
 }
 
 class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
-  String _filterStatus = 'all'; // 'all', 'pending', 'resolved', 'rejected', 'escalated'
+  String _filterStatus = 'all';
   bool _showForm = false;
   final _formKey = GlobalKey<FormState>();
   final _titleController = TextEditingController();
@@ -121,7 +120,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header with New Complaint button
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -149,7 +148,6 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Create Complaint Form
                   if (_showForm)
                     Card(
                       color: Colors.white,
@@ -165,7 +163,6 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
 
                   if (_showForm) const SizedBox(height: 16),
 
-                  // Filter Tabs
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -184,7 +181,6 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Complaints List
                   if (complaintProvider.isLoading && complaints.isEmpty)
                     const Center(
                       child: Padding(
@@ -302,7 +298,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
             ),
           ),
           const SizedBox(height: 16),
-          // Order Selector
+
           DropdownButtonFormField<String>(
             decoration: InputDecoration(
               labelText: loc.text('Select Order'),
@@ -333,7 +329,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
               return null;
             },
           ),
-          // Order Details Preview
+
           if (_selectedOrderId != null) ...[
             const SizedBox(height: 12),
             Builder(
@@ -373,7 +369,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
             ),
           ],
           const SizedBox(height: 16),
-          // Complaint Title
+
           TextFormField(
             controller: _titleController,
             decoration: InputDecoration(
@@ -389,7 +385,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
             },
           ),
           const SizedBox(height: 16),
-          // Description
+
           TextFormField(
             controller: _descriptionController,
             decoration: InputDecoration(
@@ -406,7 +402,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
             },
           ),
           const SizedBox(height: 16),
-          // Action Buttons
+
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -494,7 +490,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with Title and Status
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -526,7 +522,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
               ],
             ),
             const SizedBox(height: 12),
-            // Complaint Info
+
             Text(
               '${loc.text('Supplier')}: ${complaint.supplierName ?? loc.text('Unknown')}',
               style: const TextStyle(
@@ -559,12 +555,12 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            // Open Chat Button
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(
                 onPressed: () {
-                  // Navigate to chat with supplier
+
                   Navigator.push(
                     context,
                     MaterialPageRoute(

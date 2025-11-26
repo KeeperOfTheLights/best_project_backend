@@ -6,9 +6,8 @@ import '../models/cart_item.dart';
 import '../utils/constants.dart';
 import 'storage_service.dart';
 
-// OrderService - handles order operations
 class OrderService {
-  // Helper method to get headers with authentication token
+
   static Map<String, String> _getHeaders() {
     final token = StorageService.getToken();
     Map<String, String> headers = {
@@ -20,9 +19,8 @@ class OrderService {
     return headers;
   }
 
-  // Get consumer order statistics
-  // Backend: GET /api/accounts/orders/stats/
-  // Returns: {"completed_orders": int, "in_progress_orders": int, "cancelled_orders": int, "total_spent": float}
+
+
   static Future<Map<String, dynamic>> getConsumerOrderStats() async {
     try {
       final response = await http.get(
@@ -47,9 +45,8 @@ class OrderService {
     }
   }
 
-  // Get supplier order statistics
-  // Backend: GET /api/accounts/orders/supplier/stats/
-  // Returns: {"active_orders": int, "completed_orders": int, "pending_deliveries": int, "total_revenue": float}
+
+
   static Future<Map<String, dynamic>> getSupplierOrderStats() async {
     try {
       final response = await http.get(
@@ -59,7 +56,7 @@ class OrderService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // Backend returns total_revenue as DecimalField (string or number)
+
         final totalRevenue = data['total_revenue'] != null
             ? (data['total_revenue'] is String 
                 ? double.parse(data['total_revenue']) 
@@ -81,9 +78,8 @@ class OrderService {
     }
   }
 
-  // Create order from cart items (checkout)
-  // Backend: POST /orders/checkout/ - uses cart items, doesn't take items in body
-  // Note: Backend automatically creates order from cart items, so we just call checkout
+
+
   static Future<Order> createOrder({
     required String supplierId,
     required List<CartItem> items,
@@ -92,12 +88,12 @@ class OrderService {
     String? comment,
   }) async {
     try {
-      // Backend checkout endpoint uses cart items from database, not from request body
-      // So we just call checkout without sending items
+
+
       final response = await http.post(
         Uri.parse('$baseUrl${ApiEndpoints.checkout}'),
         headers: _getHeaders(),
-        // Backend doesn't expect any body for checkout - it uses cart items from DB
+
       );
 
       if (response.statusCode == 200 || response.statusCode == 201) {
@@ -112,8 +108,7 @@ class OrderService {
     }
   }
 
-  // Get all orders for current user
-  // Backend: GET /orders/my/ (consumer) or GET /orders/supplier/ (supplier)
+
   static Future<List<Order>> getOrders({required String userRole}) async {
     try {
       final endpoint = userRole == UserRole.consumer 
@@ -134,12 +129,10 @@ class OrderService {
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
         debugPrint('OrderService: Response data type: ${data.runtimeType}');
-        
-        // Backend returns array directly
+
         final List<dynamic> ordersJson = data is List ? data : (data['orders'] ?? data['results'] ?? []);
         debugPrint('OrderService: Found ${ordersJson.length} orders in response');
-        
-        // Parse orders, catching any parsing errors
+
         final List<Order> orders = [];
         for (var json in ordersJson) {
           try {
@@ -147,7 +140,7 @@ class OrderService {
             orders.add(order);
             debugPrint('OrderService: Successfully parsed order #${order.id}');
           } catch (e, stackTrace) {
-            // Log parsing error but continue with other orders
+
             debugPrint('OrderService: Error parsing order: $e');
             debugPrint('OrderService: Stack trace: $stackTrace');
             debugPrint('OrderService: Order JSON: $json');
@@ -168,8 +161,7 @@ class OrderService {
     }
   }
 
-  // Get order details
-  // Backend: GET /orders/{id}/
+
   static Future<Order> getOrderDetails(String orderId) async {
     try {
       final response = await http.get(
@@ -189,8 +181,7 @@ class OrderService {
     }
   }
 
-  // Accept order (Supplier only)
-  // Backend: POST /orders/{id}/accept/
+
   static Future<Order> acceptOrder(String orderId) async {
     try {
       final response = await http.post(
@@ -210,8 +201,7 @@ class OrderService {
     }
   }
 
-  // Reject order (Supplier only)
-  // Backend: POST /orders/{id}/reject/
+
   static Future<Order> rejectOrder(String orderId, {String? reason}) async {
     try {
       final response = await http.post(
@@ -232,8 +222,7 @@ class OrderService {
     }
   }
 
-  // Deliver order (Supplier only) - update status to delivered
-  // Backend: POST /orders/{id}/deliver/
+
   static Future<Order> deliverOrder(String orderId) async {
     try {
       final response = await http.post(
@@ -253,8 +242,7 @@ class OrderService {
     }
   }
 
-  // Note: Backend doesn't have a generic updateOrderStatus endpoint
-  // Use deliverOrder() instead for changing status to delivered
+
 }
 
 

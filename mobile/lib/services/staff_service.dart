@@ -4,9 +4,8 @@ import '../models/staff_member.dart';
 import '../utils/constants.dart';
 import 'storage_service.dart';
 
-// StaffService - handles staff management operations
 class StaffService {
-  // Helper method to get headers with authentication token
+
   static Map<String, String> _getHeaders() {
     final token = StorageService.getToken();
     Map<String, String> headers = {
@@ -18,8 +17,7 @@ class StaffService {
     return headers;
   }
 
-  // Get all company employees (staff members)
-  // Backend: GET /company/employees/
+
   static Future<List<StaffMember>> getStaff() async {
     try {
       final response = await http.get(
@@ -29,7 +27,7 @@ class StaffService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // Backend returns array directly
+
         final List<dynamic> staffJson = data is List ? data : (data['employees'] ?? data['staff'] ?? []);
         return staffJson.map((json) => StaffMember.fromJson(json)).toList();
       } else {
@@ -41,8 +39,7 @@ class StaffService {
     }
   }
 
-  // Get unassigned users (available to be assigned as staff)
-  // Backend: GET /company/unassigned/
+
   static Future<List<StaffMember>> getUnassignedUsers() async {
     try {
       final response = await http.get(
@@ -63,9 +60,8 @@ class StaffService {
     }
   }
 
-  // Assign user to company (add staff member)
-  // Backend: POST /company/assign/ with {"user_id": ...}
-  // Note: Backend uses the user's existing role, not from request body
+
+
   static Future<StaffMember> addStaff({
     required String userId,
   }) async {
@@ -92,8 +88,7 @@ class StaffService {
     }
   }
 
-  // Remove/deactivate staff member from company
-  // Backend: POST /company/remove/ with {"user_id": ...}
+
   static Future<bool> removeStaff(String userId) async {
     try {
       final body = {

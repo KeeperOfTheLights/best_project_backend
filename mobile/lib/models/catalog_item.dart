@@ -1,21 +1,21 @@
-// CatalogItem model - represents a product/item in the catalog
+
 class CatalogItem {
   final String id;
   final String supplierId;
   final String name;
   final String? description;
   final String category;
-  final String unit; // kg, pcs, litre, pack
+  final String unit;
   final double price;
-  final double discount; // Discount percentage (0-100)
-  final double discountedPrice; // Calculated discounted price
-  final int stock; // Backend uses 'stock' not 'stockQuantity'
-  final int minOrder; // Minimum order quantity
-  final String status; // 'active' or 'inactive'
-  final String deliveryOption; // 'delivery', 'pickup', or 'both'
-  final int leadTimeDays; // Lead time in days
+  final double discount;
+  final double discountedPrice;
+  final int stock;
+  final int minOrder;
+  final String status;
+  final String deliveryOption;
+  final int leadTimeDays;
   final String? imageUrl;
-  final String? supplierName; // Supplier name from backend (for search results)
+  final String? supplierName;
 
   CatalogItem({
     required this.id,
@@ -36,16 +36,13 @@ class CatalogItem {
     this.supplierName,
   });
 
-  // Get stock quantity (for compatibility)
   int get stockQuantity => stock;
 
-  // Get isActive (for compatibility)
   bool get isActive => status == 'active';
 
-  // Convert JSON from backend to CatalogItem object
-  // Backend ProductSerializer returns: id, name, category, price, discount, discounted_price, unit, stock, minOrder, image, description, status, delivery_option, lead_time_days, supplier_name
+
   factory CatalogItem.fromJson(Map<String, dynamic> json) {
-    // Backend returns prices as strings (from DecimalField), need to parse
+
     final price = json['price'] != null 
         ? (json['price'] is String ? double.parse(json['price']) : (json['price'] as num).toDouble())
         : 0.0;
@@ -76,8 +73,7 @@ class CatalogItem {
     );
   }
 
-  // Convert CatalogItem object to JSON for sending to backend
-  // Backend expects: name, category, price, discount, unit, stock, minOrder, image, description, status, delivery_option, lead_time_days
+
   Map<String, dynamic> toJson() {
     final json = <String, dynamic>{
       'name': name,
@@ -91,16 +87,14 @@ class CatalogItem {
       'delivery_option': deliveryOption,
       'lead_time_days': leadTimeDays,
     };
-    
-    // Only include optional fields if they have values
+
     if (description != null && description!.isNotEmpty) {
       json['description'] = description;
     }
     if (imageUrl != null && imageUrl!.isNotEmpty) {
       json['image'] = imageUrl;
     }
-    
-    // Include id only for updates
+
     if (id.isNotEmpty) {
       json['id'] = id;
     }
@@ -108,7 +102,6 @@ class CatalogItem {
     return json;
   }
 
-  // Create a copy with updated fields
   CatalogItem copyWith({
     String? id,
     String? supplierId,

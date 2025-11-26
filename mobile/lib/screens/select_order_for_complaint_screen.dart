@@ -3,7 +3,6 @@ import 'package:provider/provider.dart';
 import '../providers/order_provider.dart';
 import 'create_complaint_screen.dart';
 
-// SelectOrderForComplaintScreen - allows consumers to select a completed order to file a complaint
 class SelectOrderForComplaintScreen extends StatefulWidget {
   const SelectOrderForComplaintScreen({super.key});
 
@@ -131,7 +130,7 @@ class _SelectOrderForComplaintScreenState
                         ),
                       ).then((result) {
                         if (result == true && mounted) {
-                          // Refresh orders if complaint was created
+
                           Navigator.pop(context, true);
                         }
                       });

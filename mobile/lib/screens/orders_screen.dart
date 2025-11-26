@@ -9,9 +9,8 @@ import '../widgets/language_switcher.dart';
 import 'order_details_screen.dart';
 import 'create_complaint_screen.dart';
 
-// OrdersScreen - shows list of orders matching website design
-// For suppliers: Order Management with Accept/Reject/Deliver actions
-// For consumers: My Orders with View Details/File Complaint
+
+
 class OrdersScreen extends StatefulWidget {
   final bool isConsumer;
 
@@ -22,7 +21,7 @@ class OrdersScreen extends StatefulWidget {
 }
 
 class _OrdersScreenState extends State<OrdersScreen> {
-  String? _actionLoadingId; // Track which order is being processed
+  String? _actionLoadingId;
 
   @override
   void initState() {
@@ -36,11 +35,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
     await Provider.of<OrderProvider>(context, listen: false).loadOrders();
   }
 
-  // Calculate order statistics for supplier view
   Map<String, dynamic> _calculateSupplierStats(List<Order> orders) {
     int pending = 0;
-    int processing = 0; // approved status
-    int completed = 0; // delivered status
+    int processing = 0;
+    int completed = 0;
     double totalRevenue = 0.0;
 
     for (var order in orders) {
@@ -62,7 +60,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
     };
   }
 
-  // Calculate order statistics for consumer view
   Map<String, int> _calculateConsumerStats(List<Order> orders) {
     int pending = 0;
     int inTransit = 0;
@@ -118,7 +115,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
       case 'pending':
         return Colors.orange;
       case 'approved':
-        return const Color(0xFF9C27B0); // Purple
+        return const Color(0xFF9C27B0);
       case 'delivered':
         return Colors.green;
       case 'cancelled':
@@ -274,9 +271,9 @@ class _OrdersScreenState extends State<OrdersScreen> {
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
+      backgroundColor: const Color(0xFFBFB7B7),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF6DEDE), // Light pink matching website header
+        backgroundColor: const Color(0xFFF6DEDE),
         title: Text(
           widget.isConsumer ? loc.text('My Orders') : loc.text('Order Management'),
           style: const TextStyle(
@@ -293,7 +290,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
       ),
       body: Consumer<OrderProvider>(
         builder: (context, orderProvider, child) {
-          // Show error message if any
+
           if (orderProvider.errorMessage != null && !orderProvider.isLoading) {
             return Center(
               child: Padding(
@@ -336,7 +333,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header with Refresh button
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -366,7 +363,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                             : const Icon(Icons.refresh, size: 18),
                         label: Text(loc.text('Refresh')),
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF111827), // Dark gray matching website
+                          backgroundColor: const Color(0xFF111827),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(
                             horizontal: 20,
@@ -381,14 +378,13 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Summary Cards
                   if (widget.isConsumer) ...[
-                    // Consumer stats
+
                     Row(
                       children: [
                         Expanded(
                           child: _buildStatCard(
-                            // Consumer stats labels
+
                             Icons.hourglass_empty,
                             '${stats['pending']}',
                             loc.text('Pending'),
@@ -433,7 +429,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       ],
                     ),
                   ] else ...[
-                    // Supplier stats
+
                     Row(
                       children: [
                         Expanded(
@@ -484,7 +480,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   ],
                   const SizedBox(height: 24),
 
-                  // Orders List
                   if (orderProvider.orders.isEmpty)
                     Card(
                       color: Colors.white,
@@ -598,7 +593,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Order Header
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               crossAxisAlignment: CrossAxisAlignment.start,
@@ -666,7 +661,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Order Date
             Row(
               children: [
                 const Icon(Icons.calendar_today, size: 20, color: Color(0xFF61DAFB)),
@@ -696,7 +690,6 @@ class _OrdersScreenState extends State<OrdersScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Order Items
             const Text(
               'Order Items',
               style: TextStyle(
@@ -713,7 +706,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
               ),
               child: Column(
                 children: [
-                  // Table Header
+
                   Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: const BoxDecoration(
@@ -761,7 +754,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       ],
                     ),
                   ),
-                  // Table Rows
+
                   ...(order.items ?? []).map((item) => Container(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
                     decoration: const BoxDecoration(
@@ -810,11 +803,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Total Amount and Actions
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Total Amount
+
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -837,13 +829,13 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   ],
                 ),
                 const SizedBox(height: 16),
-                // Action buttons - wrapped in Wrap to prevent overflow
+
                 Wrap(
                   spacing: 8,
                   runSpacing: 8,
                   alignment: WrapAlignment.end,
                   children: [
-                    // Action buttons for suppliers
+
                     if (!widget.isConsumer && isCatalogManager) ...[
                       if (order.status == 'pending') ...[
                         ElevatedButton.icon(
@@ -885,7 +877,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         ),
                       ] else if (order.status == 'delivered') ...[
                         ElevatedButton(
-                          onPressed: null, // Generate Invoice - not implemented yet
+                          onPressed: null,
                           style: ElevatedButton.styleFrom(
                             backgroundColor: const Color(0xFF9C27B0),
                             foregroundColor: Colors.white,
@@ -895,7 +887,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         ),
                       ],
                     ],
-                    // View Details button (always available)
+
                     ElevatedButton.icon(
                       onPressed: () {
                         Navigator.push(
@@ -946,7 +938,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Order Header
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -972,21 +964,18 @@ class _OrdersScreenState extends State<OrdersScreen> {
               ),
               const Divider(height: 24),
 
-              // Supplier
               _buildDetailItem(
                 'Supplier:',
                 order.supplierName ?? 'Supplier #${order.supplierId}',
               ),
               const SizedBox(height: 8),
-              
-              // Order Date
+
               _buildDetailItem(
                 'Order Date:',
                 _formatDate(order.createdAt.toLocal()),
               ),
               const SizedBox(height: 12),
-              
-              // Order Items
+
               const Text(
                 'Order Items:',
                 style: TextStyle(
@@ -1037,8 +1026,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   ),
                 ),
               const SizedBox(height: 12),
-              
-              // Total
+
               Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
@@ -1061,8 +1049,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                 ],
               ),
               const SizedBox(height: 16),
-              
-              // Action Buttons (matching website)
+
               Row(
                 children: [
                   Expanded(
@@ -1093,7 +1080,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                   if (order.status == 'pending')
                     Expanded(
                       child: ElevatedButton(
-                        onPressed: null, // Disabled
+                        onPressed: null,
                         style: ElevatedButton.styleFrom(
                           backgroundColor: Colors.grey[300],
                           foregroundColor: Colors.grey[600],
@@ -1120,8 +1107,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                         );
                       },
                       style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF61DAFB), // Light blue
-                        foregroundColor: const Color(0xFF20232A), // Black text
+                        backgroundColor: const Color(0xFF61DAFB),
+                        foregroundColor: const Color(0xFF20232A),
                         padding: const EdgeInsets.symmetric(vertical: 12),
                         shape: RoundedRectangleBorder(
                           borderRadius: BorderRadius.circular(8),

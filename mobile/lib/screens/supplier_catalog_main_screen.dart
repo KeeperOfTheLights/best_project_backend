@@ -9,7 +9,6 @@ import '../widgets/language_switcher.dart';
 import '../services/link_request_service.dart';
 import 'orders_screen.dart';
 
-// SupplierCatalogMainScreen - shows Consumer Link Requests similar to website
 class SupplierCatalogMainScreen extends StatefulWidget {
   const SupplierCatalogMainScreen({super.key});
 
@@ -18,8 +17,8 @@ class SupplierCatalogMainScreen extends StatefulWidget {
 }
 
 class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
-  String _filterStatus = 'all'; // 'all', 'pending', 'linked', 'rejected', 'blocked'
-  String? _actionLoadingId; // Track which request is being processed
+  String _filterStatus = 'all';
+  String? _actionLoadingId;
 
   @override
   void initState() {
@@ -46,7 +45,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          // Provider already reloads the list, but refresh UI to ensure update
+
           setState(() {});
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -92,7 +91,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
               backgroundColor: Colors.orange,
             ),
           );
-          // Provider already reloads the list, but refresh UI to ensure update
+
           setState(() {});
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -138,7 +137,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
             backgroundColor: Colors.red,
           ),
         );
-        // Refresh UI to ensure update
+
         setState(() {});
       }
     } catch (e) {
@@ -176,7 +175,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
               backgroundColor: Colors.green,
             ),
           );
-          // Provider already reloads the list, but refresh UI to ensure update
+
           setState(() {});
         } else {
           ScaffoldMessenger.of(context).showSnackBar(
@@ -210,8 +209,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
     final userRole = authProvider.user?.role ?? '';
     final loc = AppLocalizations.of(context);
-    
-    // Only Owners and Managers can view link requests
+
     if (userRole != UserRole.owner && userRole != UserRole.manager) {
       return Scaffold(
         backgroundColor: const Color(0xFFBFB7B7),
@@ -258,9 +256,9 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
     }
 
     return Scaffold(
-      backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
+      backgroundColor: const Color(0xFFBFB7B7),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF6DEDE), // Light pink matching website header
+        backgroundColor: const Color(0xFFF6DEDE),
         title: Text(
           loc.text('My Catalog'),
           style: const TextStyle(
@@ -287,8 +285,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
           }
 
           final allRequests = provider.linkRequests;
-          
-          // Calculate counts
+
           final counts = {
             'all': allRequests.length,
             'pending': allRequests.where((r) => r.status == 'pending').length,
@@ -297,7 +294,6 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
             'blocked': allRequests.where((r) => r.status == 'blocked').length,
           };
 
-          // Filter requests
           final filteredRequests = _filterStatus == 'all'
               ? allRequests
               : allRequests.where((r) => r.status == _filterStatus).toList();
@@ -309,7 +305,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header
+
                   Text(
                     loc.text('Consumer Link Requests'),
                     style: const TextStyle(
@@ -328,7 +324,6 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Summary Cards
                   Row(
                     children: [
                       Expanded(
@@ -374,7 +369,6 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Filter Tabs
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -393,7 +387,6 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Link Request Cards
                   if (filteredRequests.isEmpty)
                     Center(
                       child: Padding(
@@ -507,7 +500,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
   }
 
   Widget _buildRequestCard(LinkRequest request) {
-    // Format date as DD.MM.YYYY
+
     final date = request.createdAt;
     final requestDate = '${date.day.toString().padLeft(2, '0')}.${date.month.toString().padLeft(2, '0')}.${date.year}';
 
@@ -523,7 +516,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Consumer Name
+
             Text(
               request.consumerName ?? 'Unknown Consumer',
               style: const TextStyle(
@@ -534,7 +527,6 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Request Details
             Row(
               children: [
                 const Icon(Icons.calendar_today, size: 20, color: Color(0xFF666666)),
@@ -564,7 +556,6 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
             ),
             const SizedBox(height: 16),
 
-            // Action Buttons
             if (request.status == 'pending') ...[
               Row(
                 children: [
@@ -621,14 +612,14 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
                 children: [
                   ElevatedButton.icon(
                     onPressed: () {
-                      // Navigate to Order Management filtered by consumer ID
+
                       Navigator.push(
                         context,
                         MaterialPageRoute(
                           builder: (context) => OrdersScreen(
                             isConsumer: false,
-                            // Note: We'll filter orders by consumer ID in the OrdersScreen
-                            // For now, just navigate - filtering can be added later if needed
+
+
                           ),
                         ),
                       );
@@ -643,7 +634,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
                   ),
                   ElevatedButton.icon(
                     onPressed: () {
-                      // Message functionality - to be implemented later
+
                       ScaffoldMessenger.of(context).showSnackBar(
                         const SnackBar(
                           content: Text('Message functionality coming soon'),

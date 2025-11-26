@@ -5,7 +5,6 @@ import '../utils/localization.dart';
 import '../widgets/language_switcher.dart';
 import 'signup_screen.dart';
 
-// LoginScreen - the screen where users enter email and password to login
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
 
@@ -14,36 +13,32 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-  // Controllers for text fields (to get the text user types)
+
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
-  final _formKey = GlobalKey<FormState>(); // For form validation
+  final _formKey = GlobalKey<FormState>();
 
   @override
   void dispose() {
-    // Clean up controllers when screen is closed
+
     _emailController.dispose();
     _passwordController.dispose();
     super.dispose();
   }
 
-  // Function called when user taps "Login" button
   Future<void> _handleLogin() async {
-    // Validate form (check if fields are filled correctly)
+
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    // Get the AuthProvider
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    // Call login function
     final success = await authProvider.login(
       _emailController.text.trim(),
       _passwordController.text,
     );
 
-    // Show error message if login failed
     if (!success && mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -52,7 +47,7 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
     }
-    // If successful, navigation will happen automatically via Consumer
+
   }
 
   @override
@@ -60,7 +55,7 @@ class _LoginScreenState extends State<LoginScreen> {
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
+      backgroundColor: const Color(0xFFBFB7B7),
       appBar: AppBar(
         backgroundColor: const Color(0xFFF6DEDE),
         elevation: 0,
@@ -78,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
             child: Form(
               key: _formKey,
               child: Container(
-                // White card matching website design
+
                 padding: const EdgeInsets.symmetric(horizontal: 48.0, vertical: 32.0),
                 decoration: BoxDecoration(
                   color: Colors.white,
@@ -91,12 +86,12 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                   ],
                 ),
-                width: 360, // Fixed width matching website
+                width: 360,
               child: Column(
                 mainAxisAlignment: MainAxisAlignment.center,
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
-                    // Logo from assets
+
                     Center(
                       child: Image.asset(
                         'assets/images/Logo.png',
@@ -107,30 +102,27 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     const SizedBox(height: 24),
 
-                    // Title - "Welcome Back"
                   Text(
                     loc.text('Welcome Back'),
                     style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
-                      color: Color(0xFF20232A), // Black text matching website
+                      color: Color(0xFF20232A),
                     ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
 
-                    // Subtitle - "Log in to continue"
                   Text(
                     loc.text('Log in to continue'),
                     style: const TextStyle(
                       fontSize: 14,
-                      color: Color(0xFF20232A), // Gray text matching website
+                      color: Color(0xFF20232A),
                     ),
                     textAlign: TextAlign.center,
                   ),
                     const SizedBox(height: 24),
 
-                    // Error message (shown if login fails)
                     Consumer<AuthProvider>(
                       builder: (context, authProvider, child) {
                         if (authProvider.errorMessage != null && authProvider.errorMessage!.isNotEmpty) {
@@ -138,14 +130,14 @@ class _LoginScreenState extends State<LoginScreen> {
                             padding: const EdgeInsets.all(12),
                             margin: const EdgeInsets.only(bottom: 16),
                             decoration: BoxDecoration(
-                              color: const Color(0xFFFFF1F0), // Light red background
+                              color: const Color(0xFFFFF1F0),
                               borderRadius: BorderRadius.circular(8),
                               border: Border.all(color: const Color(0xFFFF4D4F)),
                             ),
                             child: Text(
                               authProvider.errorMessage!,
                               style: const TextStyle(
-                                color: Color(0xFFFF4D4F), // Red text
+                                color: Color(0xFFFF4D4F),
                                 fontSize: 14,
                               ),
                               textAlign: TextAlign.center,
@@ -156,14 +148,13 @@ class _LoginScreenState extends State<LoginScreen> {
                       },
                     ),
 
-                    // Email Address field
                   TextFormField(
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
                         hintText: loc.text('Email Address'),
                         filled: true,
-                        fillColor: const Color(0xFFB5B5B5), // Gray background matching website
+                        fillColor: const Color(0xFFB5B5B5),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: const BorderSide(color: Color(0xFF9B9A9A)),
@@ -174,7 +165,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: Color(0xFF61DAFB)), // Light blue focus
+                          borderSide: const BorderSide(color: Color(0xFF61DAFB)),
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
@@ -190,14 +181,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Password field
                   TextFormField(
                     controller: _passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
                         hintText: loc.text('Password'),
                         filled: true,
-                        fillColor: const Color(0xFFB5B5B5), // Gray background matching website
+                        fillColor: const Color(0xFFB5B5B5),
                         border: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
                           borderSide: const BorderSide(color: Color(0xFF9B9A9A)),
@@ -208,7 +198,7 @@ class _LoginScreenState extends State<LoginScreen> {
                         ),
                         focusedBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(8),
-                          borderSide: const BorderSide(color: Color(0xFF61DAFB)), // Light blue focus
+                          borderSide: const BorderSide(color: Color(0xFF61DAFB)),
                         ),
                         contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                     ),
@@ -221,15 +211,14 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                    // Log In button
                   Consumer<AuthProvider>(
                     builder: (context, authProvider, child) {
                       return ElevatedButton(
                         onPressed: authProvider.isLoading ? null : _handleLogin,
                         style: ElevatedButton.styleFrom(
                             padding: const EdgeInsets.symmetric(vertical: 14),
-                            backgroundColor: const Color(0xFF61DAFB), // Light blue matching website
-                            foregroundColor: const Color(0xFF20232A), // Black text
+                            backgroundColor: const Color(0xFF61DAFB),
+                            foregroundColor: const Color(0xFF20232A),
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(8),
                             ),
@@ -258,7 +247,6 @@ class _LoginScreenState extends State<LoginScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                    // Footer - "Don't have an account yet? Sign Up"
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
@@ -287,7 +275,7 @@ class _LoginScreenState extends State<LoginScreen> {
                             loc.text('Sign Up'),
                             style: const TextStyle(
                               fontSize: 14,
-                              color: Color(0xFF61DAFB), // Light blue link
+                              color: Color(0xFF61DAFB),
                               decoration: TextDecoration.underline,
                             ),
                           ),

@@ -3,8 +3,6 @@ import 'package:provider/provider.dart';
 
 import '../providers/language_provider.dart';
 
-/// Very lightweight localization helper.
-/// We use the English text as the key and provide Russian translations here.
 class AppLocalizations {
   AppLocalizations(this._languageCode);
 
@@ -17,7 +15,7 @@ class AppLocalizations {
 
   static final Map<String, Map<String, String>> _localizedValues = {
     'ru': {
-      // Login
+
       'Welcome Back': 'С возвращением',
       'Log in to continue': 'Войдите, чтобы продолжить',
       'Email Address': 'Электронная почта',
@@ -30,7 +28,6 @@ class AppLocalizations {
       'Sign Up': 'Зарегистрироваться',
       'Login failed': 'Ошибка входа',
 
-      // Signup
       'Create an Account': 'Создать аккаунт',
       'Join Daivinvhik today': 'Присоединяйтесь к Daivinvhik уже сегодня',
       'Full Name': 'Полное имя',
@@ -62,7 +59,6 @@ class AppLocalizations {
           'Пароль должен содержать хотя бы один спецсимвол',
       'Signup failed': 'Ошибка регистрации',
 
-      // Consumer dashboard
       'Welcome back!': 'С возвращением!',
       "Here's an overview of your order activity.":
           'Краткий обзор вашей активности по заказам.',
@@ -78,7 +74,6 @@ class AppLocalizations {
       'My Complaints': 'Мои жалобы',
       'Sign Out': 'Выход',
 
-      // Supplier dashboard and stats
       'Hello, Owner!': 'Здравствуйте, владелец!',
       'Hello, Manager!': 'Здравствуйте, менеджер!',
       'Hello, Sales Representative!': 'Здравствуйте, менеджер по продажам!',
@@ -96,13 +91,11 @@ class AppLocalizations {
       'Chats': 'Чаты',
       'Complaints': 'Жалобы',
 
-      // Cart
       'Shopping Cart': 'Корзина',
       'Your cart is empty': 'Ваша корзина пуста',
       'Total:': 'Итого:',
       'Proceed to Checkout': 'Перейти к оформлению',
 
-      // Link requests
       'Link Requests': 'Запросы на связь',
       'My Catalog': 'Мой каталог',
       'Access Denied': 'Доступ запрещен',
@@ -118,7 +111,6 @@ class AppLocalizations {
       'Blocked': 'Заблокированные',
       'No requests found': 'Запросы не найдены',
 
-      // Company management
       'Company Management': 'Управление компанией',
       'Only owners can access Company Management':
           'Только владельцы могут получать доступ к управлению компанией',
@@ -134,14 +126,12 @@ class AppLocalizations {
       'Remove': 'Удалить',
       'Refresh': 'Обновить',
 
-      // Catalog / products
       'Product Catalog': 'Каталог товаров',
       'Add New Product': 'Добавить',
       'No products yet': 'Пока нет товаров',
       'Add your first product to get started':
           'Добавьте первый товар, чтобы начать работу',
 
-      // Orders / order management
       'My Orders': 'Мои заказы',
       'Order Management': 'Управление заказами',
       'Pending Orders': 'Ожидающие заказы',
@@ -155,7 +145,6 @@ class AppLocalizations {
           'Вы еще не оформляли заказы.',
       'No orders found.': 'Заказы не найдены.',
 
-      // Messages / chat
       'Messages': 'Сообщения',
       'Search conversations...': 'Поиск бесед...',
       'Retry': 'Повторить',
@@ -165,7 +154,6 @@ class AppLocalizations {
       'Start chatting with your linked consumers':
           'Начните переписку с вашими связанными покупателями',
 
-      // Complaints management
       'Complaints Management': 'Управление жалобами',
       'Handle customer complaints and escalate when manager review is needed.':
           'Обрабатывайте жалобы клиентов и передавайте их на рассмотрение менеджеру при необходимости.',
@@ -178,21 +166,17 @@ class AppLocalizations {
       'No complaints found for this status.':
           'Для данного статуса жалобы не найдены.',
 
-      // Generic filter labels
       'All': 'Все',
       'Linked': 'Связанные',
 
-      // Generic / other
       'Loading...': 'Загрузка...',
       'Error': 'Ошибка',
 
-      // Language switcher labels
       'ENG': 'АНГ',
       'English': 'Английский',
       'RU': 'РУ',
       'Russian': 'Русский',
 
-      // Supplier Connections screen
       'Supplier Connections': 'Связи с поставщиками',
       'Manage your supplier relationships': 'Управляйте связями с поставщиками',
       'Linked': 'Связанные',
@@ -206,7 +190,6 @@ class AppLocalizations {
       'Link request sent successfully': 'Запрос на связь успешно отправлен',
       'Failed to send link request: ': 'Не удалось отправить запрос на связь: ',
 
-      // Search screen
       'Search suppliers, products...': 'Поиск поставщиков, товаров...',
       'Please enter a search query': 'Пожалуйста, введите поисковый запрос',
       'No Linked Suppliers': 'Нет связанных поставщиков',
@@ -222,7 +205,6 @@ class AppLocalizations {
       'Could not find supplier for this product. Supplier: ': 'Не удалось найти поставщика для этого товара. Поставщик: ',
       'Unknown': 'Неизвестно',
 
-      // My Complaints screen
       'New Complaint': 'Новая жалоба',
       'Cancel': 'Отмена',
       'Submit a New Complaint': 'Подать новую жалобу',
@@ -245,7 +227,6 @@ class AppLocalizations {
       'Reason: ': 'Причина: ',
       'Created: ': 'Создано: ',
 
-      // Consumer Catalog screen
       "'s Catalog": ' каталог',
       'No products available in this catalog': 'В этом каталоге нет доступных товаров',
       'Stock: ': 'Наличие: ',

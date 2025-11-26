@@ -6,7 +6,6 @@ import 'consumer_catalog_screen.dart';
 import '../utils/localization.dart';
 import '../widgets/language_switcher.dart';
 
-// ConsumerCatalogMainScreen - Supplier Connections page matching website design
 class ConsumerCatalogMainScreen extends StatefulWidget {
   const ConsumerCatalogMainScreen({super.key});
 
@@ -35,7 +34,7 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
     });
 
     try {
-      // Fetch all suppliers and consumer links in parallel
+
       final results = await Future.wait([
         LinkRequestService.getAllSuppliers(),
         LinkRequestService.getLinkRequests(userRole: 'consumer'),
@@ -54,7 +53,6 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
     }
   }
 
-  // Create a map of supplier statuses
   Map<String, String> _getSupplierStatusMap() {
     final Map<String, String> statusMap = {};
     for (var link in _consumerLinks) {
@@ -63,7 +61,6 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
     return statusMap;
   }
 
-  // Get filtered suppliers based on filter status
   List<SupplierWithStatus> _getFilteredSuppliers() {
     final statusMap = _getSupplierStatusMap();
     final List<SupplierWithStatus> suppliersWithStatus = [];
@@ -88,7 +85,6 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
     return suppliersWithStatus;
   }
 
-  // Get counts for summary cards
   Map<String, int> _getCounts() {
     final statusMap = _getSupplierStatusMap();
     int linked = 0;
@@ -121,7 +117,7 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
   Future<void> _sendLinkRequest(String supplierId) async {
     try {
       await LinkRequestService.sendLinkRequest(supplierId);
-      // Reload data after sending request
+
       await _loadData();
       if (mounted) {
         final loc = AppLocalizations.of(context);
@@ -152,9 +148,9 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
     final filteredSuppliers = _getFilteredSuppliers();
 
     return Scaffold(
-      backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
+      backgroundColor: const Color(0xFFBFB7B7),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF6DEDE), // Light pink matching website header
+        backgroundColor: const Color(0xFFF6DEDE),
         title: Text(
           loc.text('Supplier Connections'),
           style: const TextStyle(
@@ -187,7 +183,7 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Subtitle
+
                         Text(
                           loc.text('Manage your supplier relationships'),
                           style: const TextStyle(
@@ -197,7 +193,6 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Summary Cards
                         Row(
                           children: [
                             Expanded(
@@ -230,7 +225,6 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Filter Buttons
                         Wrap(
                           spacing: 8,
                           runSpacing: 8,
@@ -244,7 +238,6 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
                         ),
                         const SizedBox(height: 24),
 
-                        // Supplier Cards
                         if (filteredSuppliers.isEmpty)
                           Center(
                             child: Padding(
@@ -363,7 +356,7 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
   }
 
   Widget _buildSupplierCard(Supplier supplier, String status, AppLocalizations loc) {
-    // Get initials for logo
+
     final initials = supplier.companyName.isNotEmpty
         ? supplier.companyName.substring(0, 2).toUpperCase()
         : 'OO';
@@ -377,7 +370,7 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Supplier initials/logo
+
             Container(
               width: 48,
               height: 48,
@@ -398,7 +391,6 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
             ),
             const SizedBox(height: 12),
 
-            // Company Name
             Row(
               children: [
                 const Icon(Icons.business, size: 16, color: Colors.grey),
@@ -417,7 +409,6 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
             ),
             const SizedBox(height: 8),
 
-            // Email
             if (supplier.email != null)
               Row(
                 children: [
@@ -437,15 +428,14 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
 
             const SizedBox(height: 16),
 
-            // Action Button
             if (status == 'not_linked' || status == 'rejected')
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: () => _sendLinkRequest(supplier.id),
                   style: ElevatedButton.styleFrom(
-                    backgroundColor: const Color(0xFF61DAFB), // Light blue matching website
-                    foregroundColor: const Color(0xFF20232A), // Black text
+                    backgroundColor: const Color(0xFF61DAFB),
+                    foregroundColor: const Color(0xFF20232A),
                     padding: const EdgeInsets.symmetric(vertical: 12),
                     shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(8),
@@ -497,7 +487,6 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
   }
 }
 
-// Helper class to combine supplier with status
 class SupplierWithStatus {
   final Supplier supplier;
   final String status;

@@ -1,7 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'catalog_item.dart';
 
-// OrderItem model - represents an item within an order
 class OrderItem {
   final String id;
   final String orderId;
@@ -12,8 +11,7 @@ class OrderItem {
   final double unitPrice;
   final int quantity;
   final double totalPrice;
-  
-  // Optional: full catalog item if loaded
+
   final CatalogItem? catalogItem;
 
   OrderItem({
@@ -29,12 +27,11 @@ class OrderItem {
     this.catalogItem,
   });
 
-  // Convert JSON from backend to OrderItem object
-  // Backend OrderItemSerializer returns: id, product (ID), product_name, quantity, price
-  // Note: product_unit is NOT included in OrderItemSerializer, so we default to empty string
+
+
   factory OrderItem.fromJson(Map<String, dynamic> json) {
     try {
-      // Backend returns price as string (from DecimalField), need to parse
+
       final unitPrice = json['price'] != null
           ? (json['price'] is String ? double.parse(json['price']) : (json['price'] as num).toDouble())
           : 0.0;
@@ -47,11 +44,11 @@ class OrderItem {
         itemId: json['product']?.toString() ?? json['item_id']?.toString() ?? json['itemId'] ?? '',
         itemName: json['product_name'] ?? json['item_name'] ?? json['itemName'] ?? '',
         itemDescription: json['product_description'] ?? json['item_description'] ?? json['itemDescription'],
-        unit: json['product_unit'] ?? json['unit'] ?? 'kg', // Default to 'kg' if not provided
+        unit: json['product_unit'] ?? json['unit'] ?? 'kg',
         unitPrice: unitPrice,
         quantity: quantity,
         totalPrice: totalPrice,
-        catalogItem: null, // Backend doesn't include full product
+        catalogItem: null,
       );
     } catch (e) {
       debugPrint('Error parsing OrderItem: $e\nOrderItem JSON: $json');
@@ -59,7 +56,6 @@ class OrderItem {
     }
   }
 
-  // Convert OrderItem object to JSON for sending to backend
   Map<String, dynamic> toJson() {
     return {
       'id': id,

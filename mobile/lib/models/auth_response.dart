@@ -1,9 +1,8 @@
 import 'user.dart';
 
-// AuthResponse model - what we get back from login/signup API
 class AuthResponse {
   final String token;
-  final String? refreshToken; // Refresh token for token renewal
+  final String? refreshToken;
   final User user;
 
   AuthResponse({
@@ -12,11 +11,10 @@ class AuthResponse {
     required this.user,
   });
 
-  // Convert JSON from backend to AuthResponse object
   factory AuthResponse.fromJson(Map<String, dynamic> json) {
     return AuthResponse(
       token: json['token'] ?? '',
-      refreshToken: json['refresh'], // Backend returns 'refresh' field
+      refreshToken: json['refresh'],
       user: User.fromJson(json['user'] ?? {}),
     );
   }

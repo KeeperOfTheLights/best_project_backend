@@ -4,7 +4,6 @@ import '../providers/cart_provider.dart';
 import '../providers/order_provider.dart';
 import '../models/order.dart' as order_models;
 
-// CheckoutScreen - final step to create order
 class CheckoutScreen extends StatefulWidget {
   const CheckoutScreen({super.key});
 
@@ -53,7 +52,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       return;
     }
 
-    // Group items by supplier and create separate orders
     final itemsBySupplier = cartProvider.itemsBySupplier;
     
     for (final entry in itemsBySupplier.entries) {
@@ -83,7 +81,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       }
     }
 
-    // Clear cart and navigate back
     cartProvider.clearCart();
     
     if (mounted) {
@@ -118,7 +115,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Order summary
+
                   Card(
                     child: Padding(
                       padding: const EdgeInsets.all(16),
@@ -180,7 +177,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Delivery type
                   const Text(
                     'Delivery Type',
                     style: TextStyle(
@@ -219,7 +215,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
                   const SizedBox(height: 16),
 
-                  // Delivery address (if delivery selected)
                   if (_deliveryType == order_models.DeliveryType.delivery)
                     TextFormField(
                       controller: _addressController,
@@ -239,7 +234,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                     ),
                   const SizedBox(height: 16),
 
-                  // Comment
                   TextFormField(
                     controller: _commentController,
                     decoration: const InputDecoration(
@@ -251,7 +245,6 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Submit button
                   Consumer<OrderProvider>(
                     builder: (context, orderProvider, child) {
                       return SizedBox(

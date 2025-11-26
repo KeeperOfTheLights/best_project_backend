@@ -13,7 +13,6 @@ import 'orders_screen.dart';
 import 'chat_list_screen.dart';
 import 'view_complaints_screen.dart';
 
-// ConsumerDashboard - the main screen for consumers after login
 class ConsumerDashboard extends StatefulWidget {
   const ConsumerDashboard({super.key});
 
@@ -45,7 +44,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
     } catch (e) {
       setState(() {
         _isLoadingStats = false;
-        // Set default values if error
+
         _orderStats = {
           'completed_orders': 0,
           'in_progress_orders': 0,
@@ -62,9 +61,9 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
+      backgroundColor: const Color(0xFFBFB7B7),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF6DEDE), // Light pink matching website header
+        backgroundColor: const Color(0xFFF6DEDE),
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -127,7 +126,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Welcome section
+
                   Card(
                 color: Colors.white,
                 elevation: 0,
@@ -158,7 +157,6 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                   ),
                   const SizedBox(height: 24),
 
-              // Order Activity Overview Cards
               _isLoadingStats
                   ? const Center(
                       child: Padding(
@@ -215,13 +213,12 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                   : const SizedBox.shrink(),
               const SizedBox(height: 24),
 
-              // Quick Actions Section
               Row(
                 children: [
                   Container(
                     width: 4,
                     height: 24,
-                    color: const Color(0xFF20232A), // Black bar matching website
+                    color: const Color(0xFF20232A),
                   ),
                   const SizedBox(width: 12),
                   Text(
@@ -236,7 +233,6 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                   ),
               const SizedBox(height: 16),
 
-              // Quick Actions Buttons - matching website design
               Column(
                 children: [
                   Row(
@@ -263,7 +259,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                           loc.text('My Orders'),
                           Icons.shopping_cart,
                           () async {
-                            // Preload orders before navigating
+
                             final orderProvider = Provider.of<OrderProvider>(context, listen: false);
                             await orderProvider.loadOrders();
                             
@@ -334,7 +330,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                           },
                         ),
                       ),
-                      const Expanded(child: SizedBox()), // Empty space for alignment
+                      const Expanded(child: SizedBox()),
                     ],
                         ),
                 ],
@@ -395,8 +391,8 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
         child: ElevatedButton(
           onPressed: onTap,
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFF61DAFB), // Light blue matching website
-            foregroundColor: const Color(0xFF20232A), // Black text
+            backgroundColor: const Color(0xFF61DAFB),
+            foregroundColor: const Color(0xFF20232A),
             elevation: 0,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(8),

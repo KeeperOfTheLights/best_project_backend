@@ -3,7 +3,6 @@ import '../models/cart_item.dart';
 import '../models/catalog_item.dart';
 import '../services/cart_service.dart';
 
-// CartProvider - manages shopping cart state
 class CartProvider with ChangeNotifier {
   final List<CartItem> _cartItems = [];
   bool _isLoading = false;
@@ -13,7 +12,6 @@ class CartProvider with ChangeNotifier {
   bool get isLoading => _isLoading;
   String? get errorMessage => _errorMessage;
 
-  // Load cart from backend
   Future<void> loadFromBackend(List<CartItemResponse> backendItems) async {
     _cartItems.clear();
     for (var item in backendItems) {
@@ -27,17 +25,14 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Get total number of items in cart
   int get totalItems {
     return _cartItems.fold(0, (sum, item) => sum + item.quantity);
   }
 
-  // Get total price of all items in cart
   double get totalPrice {
     return _cartItems.fold(0.0, (sum, item) => sum + item.totalPrice);
   }
 
-  // Get cart items grouped by supplier
   Map<String, List<CartItem>> get itemsBySupplier {
     final Map<String, List<CartItem>> grouped = {};
     for (final item in _cartItems) {
@@ -50,14 +45,13 @@ class CartProvider with ChangeNotifier {
     return grouped;
   }
 
-  // Add item to cart
   void addItem(CatalogItem item, {int quantity = 1}) {
     final existingIndex = _cartItems.indexWhere(
       (cartItem) => cartItem.item.id == item.id,
     );
 
     if (existingIndex != -1) {
-      // Item already in cart, update quantity
+
       final existingItem = _cartItems[existingIndex];
       final newQuantity = existingItem.quantity + quantity;
       
@@ -67,11 +61,11 @@ class CartProvider with ChangeNotifier {
           quantity: newQuantity,
         );
       } else {
-        // Can't add more than stock
+
         throw Exception('Not enough stock available');
       }
     } else {
-      // New item, add to cart
+
       if (quantity <= item.stockQuantity) {
         _cartItems.add(CartItem(item: item, quantity: quantity));
       } else {
@@ -81,7 +75,6 @@ class CartProvider with ChangeNotifier {
     notifyListeners();
   }
 
-  // Update item quantity
   void updateQuantity(String itemId, int quantity) {
     final index = _cartItems.indexWhere(
       (cartItem) => cartItem.item.id == itemId,
@@ -91,7 +84,7 @@ class CartProvider with ChangeNotifier {
       final cartItem = _cartItems[index];
       
       if (quantity <= 0) {
-        // Remove item if quantity is 0 or less
+
         _cartItems.removeAt(index);
       } else if (quantity <= cartItem.item.stockQuantity) {
         _cartItems[index] = CartItem(
@@ -105,26 +98,22 @@ class CartProvider with ChangeNotifier {
     }
   }
 
-  // Remove item from cart
   void removeItem(String itemId) {
     _cartItems.removeWhere((cartItem) => cartItem.item.id == itemId);
     notifyListeners();
   }
 
-  // Clear entire cart
   void clearCart() {
     _cartItems.clear();
     notifyListeners();
   }
 
-  // Get items for a specific supplier
   List<CartItem> getItemsForSupplier(String supplierId) {
     return _cartItems.where(
       (item) => item.item.supplierId == supplierId,
     ).toList();
   }
 
-  // Check if cart has items for a supplier
   bool hasItemsForSupplier(String supplierId) {
     return _cartItems.any((item) => item.item.supplierId == supplierId);
   }

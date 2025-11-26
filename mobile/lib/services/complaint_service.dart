@@ -4,9 +4,8 @@ import '../models/complaint.dart';
 import '../utils/constants.dart';
 import 'storage_service.dart';
 
-// ComplaintService - handles complaint operations
 class ComplaintService {
-  // Helper method to get headers with authentication token
+
   static Map<String, String> _getHeaders() {
     final token = StorageService.getToken();
     Map<String, String> headers = {
@@ -18,20 +17,19 @@ class ComplaintService {
     return headers;
   }
 
-  // Create a new complaint (Consumer)
-  // Backend: POST /complaints/{order_id}/create/ - order_id in URL, not body
-  // Backend only requires: title, description
+
+
   static Future<Complaint> createComplaint({
     required String orderId,
     required String title,
     required String description,
   }) async {
     try {
-      // Convert orderId to integer (backend expects integer)
+
       final orderIdInt = int.parse(orderId);
       
       final body = {
-        'order': orderIdInt, // Backend serializer requires this field as integer
+        'order': orderIdInt,
         'title': title,
         'description': description,
       };
@@ -49,13 +47,13 @@ class ComplaintService {
         String errorMessage = 'Failed to create complaint';
         try {
           final error = jsonDecode(response.body);
-          // Handle different error formats
+
           if (error['detail'] != null) {
             errorMessage = error['detail'].toString();
           } else if (error['message'] != null) {
             errorMessage = error['message'].toString();
           } else if (error['title'] != null) {
-            // Handle validation errors which might be lists
+
             final titleError = error['title'];
             errorMessage = titleError is List ? titleError.join(', ') : titleError.toString();
           } else if (error['description'] != null) {
@@ -70,7 +68,7 @@ class ComplaintService {
         throw Exception(errorMessage);
       }
     } catch (e) {
-      // If it's already an Exception, rethrow it; otherwise wrap it
+
       if (e is Exception) {
         rethrow;
       }
@@ -78,8 +76,7 @@ class ComplaintService {
     }
   }
 
-  // Get all complaints for current user (Consumer or Supplier)
-  // Backend: GET /complaints/my/ (consumer) or GET /complaints/supplier/ (supplier)
+
   static Future<List<Complaint>> getComplaints({required String userRole}) async {
     try {
       final endpoint = userRole == UserRole.consumer 
@@ -92,7 +89,7 @@ class ComplaintService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // Backend returns array directly
+
         final List<dynamic> complaintsJson = data is List 
             ? data 
             : (data['complaints'] ?? data['results'] ?? []);
@@ -106,8 +103,7 @@ class ComplaintService {
     }
   }
 
-  // Resolve complaint (Supplier)
-  // Backend: POST /complaints/{id}/resolve/
+
   static Future<Complaint> resolveComplaint(String complaintId) async {
     try {
       final response = await http.post(
@@ -116,8 +112,8 @@ class ComplaintService {
       );
 
       if (response.statusCode == 200) {
-        // Backend returns {"detail": "Complaint resolved"}
-        // Return a simple complaint object - caller should refresh complaints list
+
+
         return Complaint.fromJson({'id': complaintId, 'status': 'resolved'});
       } else {
         final error = jsonDecode(response.body);
@@ -128,8 +124,7 @@ class ComplaintService {
     }
   }
 
-  // Reject complaint (Supplier)
-  // Backend: POST /complaints/{id}/reject/
+
   static Future<Complaint> rejectComplaint(String complaintId) async {
     try {
       final response = await http.post(
@@ -138,7 +133,7 @@ class ComplaintService {
       );
 
       if (response.statusCode == 200) {
-        // Backend returns {"detail": "Complaint rejected"}
+
         return Complaint.fromJson({'id': complaintId, 'status': 'rejected'});
       } else {
         final error = jsonDecode(response.body);
@@ -149,8 +144,7 @@ class ComplaintService {
     }
   }
 
-  // Escalate complaint (Supplier Sales -> Manager)
-  // Backend: POST /complaints/{id}/escalate/
+
   static Future<Complaint> escalateComplaint(String complaintId) async {
     try {
       final response = await http.post(
@@ -159,7 +153,7 @@ class ComplaintService {
       );
 
       if (response.statusCode == 200) {
-        // Backend returns {"detail": "Complaint escalated"}
+
         return Complaint.fromJson({'id': complaintId, 'status': 'escalated'});
       } else {
         final error = jsonDecode(response.body);

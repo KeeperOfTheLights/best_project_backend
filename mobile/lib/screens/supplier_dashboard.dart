@@ -13,7 +13,6 @@ import 'company_management_screen.dart';
 import 'chat_list_screen.dart';
 import 'complaints_management_screen.dart';
 
-// SupplierDashboard - matches website design with order statistics and quick actions
 class SupplierDashboard extends StatefulWidget {
   const SupplierDashboard({super.key});
 
@@ -48,7 +47,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
       setState(() {
         _isLoadingStats = false;
         _statsError = e.toString().replaceAll('Exception: ', '');
-        // Set default values if error
+
         _orderStats = {
           'active_orders': 0,
           'completed_orders': 0,
@@ -85,9 +84,9 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
+      backgroundColor: const Color(0xFFBFB7B7),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF6DEDE), // Light pink matching website header
+        backgroundColor: const Color(0xFFF6DEDE),
         title: Row(
           mainAxisSize: MainAxisSize.min,
           children: [
@@ -128,7 +127,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              // Welcome section
+
               Card(
                 color: Colors.white,
                 elevation: 0,
@@ -159,7 +158,6 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
               ),
               const SizedBox(height: 24),
 
-              // Order Statistics Overview Cards (only for non-sales roles)
               if (authProvider.user?.role != 'sales') ...[
                 _isLoadingStats
                     ? const Center(
@@ -178,7 +176,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                                     child: _buildStatCard(
                                       '${_orderStats!['active_orders']}',
                                       loc.text('Active Orders'),
-                                      const Color(0xFF61DAFB), // Light blue matching website
+                                      const Color(0xFF61DAFB),
                                       Icons.shopping_cart,
                                     ),
                                   ),
@@ -209,7 +207,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                                     child: _buildStatCard(
                                       '${_orderStats!['total_revenue']!.toStringAsFixed(0)} ₸',
                                       loc.text('Total Revenue'),
-                                      const Color(0xFF9C27B0), // Purple matching website
+                                      const Color(0xFF9C27B0),
                                       Icons.attach_money,
                                     ),
                                   ),
@@ -247,13 +245,12 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                 const SizedBox(height: 24),
               ],
 
-              // Quick Actions Section
               Row(
                 children: [
                   Container(
                     width: 4,
                     height: 24,
-                    color: const Color(0xFF20232A), // Black bar matching website
+                    color: const Color(0xFF20232A),
                   ),
                   const SizedBox(width: 12),
                   Text(
@@ -268,18 +265,17 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
               ),
               const SizedBox(height: 16),
 
-              // Quick Actions Buttons - matching website design
-              // Role-based access: Owner/Manager see all, Sales Rep only sees Orders/Chat/Complaints
+
               Builder(
                 builder: (context) {
                   final userRole = authProvider.user?.role ?? '';
                   final isOwner = userRole == UserRole.owner;
                   final isManager = userRole == UserRole.manager;
-                  final isCatalogManager = isOwner || isManager; // Owner and Manager can manage catalog
+                  final isCatalogManager = isOwner || isManager;
 
                   return Column(
                     children: [
-                      // My Catalog and Products - Only for Owner and Manager
+
                       if (isCatalogManager) ...[
                         Row(
                           children: [
@@ -323,7 +319,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                         ),
                         const SizedBox(height: 12),
                       ],
-                      // Order Management - All roles
+
                       Row(
                         children: [
                           Expanded(
@@ -332,7 +328,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                                 loc.text('Order Management'),
                               Icons.shopping_cart,
                               () async {
-                                // Preload orders before navigating
+
                                 final orderProvider = Provider.of<OrderProvider>(context, listen: false);
                                 await orderProvider.loadOrders();
                                 
@@ -347,7 +343,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                               },
                             ),
                           ),
-                          // Company Management - Only for Owner
+
                           if (isOwner) ...[
                             const SizedBox(width: 12),
                             Expanded(
@@ -366,14 +362,14 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                               ),
                             ),
                           ] else if (isCatalogManager) ...[
-                            // If Manager, show empty space or another action
+
                             const SizedBox(width: 12),
                             const Expanded(child: SizedBox()),
                           ],
                         ],
                       ),
                       const SizedBox(height: 12),
-                      // Chats and Complaints - All roles
+
                       Row(
                         children: [
                           Expanded(
@@ -496,7 +492,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
             children: [
               Icon(
                 icon,
-                color: const Color(0xFF61DAFB), // Light blue matching website
+                color: const Color(0xFF61DAFB),
                 size: 24,
               ),
               const SizedBox(height: 8),

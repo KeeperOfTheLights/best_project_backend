@@ -1,27 +1,25 @@
 import 'order.dart';
 
-// Complaint model - represents a complaint filed by a consumer
 class Complaint {
   final String id;
   final String orderId;
-  final String? orderItemId; // Optional: specific item in the order
+  final String? orderItemId;
   final String consumerId;
   final String supplierId;
-  final String title; // Complaint title
-  final String? accountName; // Consumer's account name (legacy)
-  final String? consumerName; // Consumer's name from backend serializer
-  final String? supplierName; // Supplier's name from backend serializer
-  final String? issueType; // e.g., 'damaged', 'wrong_item', 'missing', 'quality', 'other' (optional in backend)
+  final String title;
+  final String? accountName;
+  final String? consumerName;
+  final String? supplierName;
+  final String? issueType;
   final String description;
-  final List<String>? photoUrls; // URLs or paths to attached photos
-  final String status; // 'pending', 'resolved', 'rejected', 'escalated'
+  final List<String>? photoUrls;
+  final String status;
   final DateTime createdAt;
   final DateTime? updatedAt;
-  final DateTime? resolvedAt; // When complaint was resolved
-  final String? resolutionNote; // Supplier's response/resolution
-  final String? escalatedBy; // User ID who escalated (Sales -> Manager)
-  
-  // Optional: full objects if loaded
+  final DateTime? resolvedAt;
+  final String? resolutionNote;
+  final String? escalatedBy;
+
   final Order? order;
 
   Complaint({
@@ -46,8 +44,7 @@ class Complaint {
     this.order,
   });
 
-  // Convert JSON from backend to Complaint object
-  // Backend ComplaintSerializer returns: id, order, consumer, consumer_name, supplier, supplier_name, title, description, status, created_at, resolved_at
+
   factory Complaint.fromJson(Map<String, dynamic> json) {
     return Complaint(
       id: json['id']?.toString() ?? '',
@@ -56,7 +53,7 @@ class Complaint {
       consumerId: json['consumer']?.toString() ?? json['consumer_id']?.toString() ?? json['consumerId'] ?? '',
       supplierId: json['supplier']?.toString() ?? json['supplier_id']?.toString() ?? json['supplierId'] ?? '',
       title: json['title'] ?? '',
-      accountName: json['account_name'] ?? json['accountName'], // Legacy field
+      accountName: json['account_name'] ?? json['accountName'],
       consumerName: json['consumer_name'] ?? json['consumerName'],
       supplierName: json['supplier_name'] ?? json['supplierName'],
       issueType: json['issue_type'] ?? json['issueType'],
@@ -84,7 +81,6 @@ class Complaint {
     );
   }
 
-  // Convert Complaint object to JSON for sending to backend
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -105,7 +101,6 @@ class Complaint {
     };
   }
 
-  // Create a copy with updated fields
   Complaint copyWith({
     String? id,
     String? orderId,
@@ -151,16 +146,14 @@ class Complaint {
   }
 }
 
-// Complaint status constants
 class ComplaintStatus {
   static const String pending = 'pending';
   static const String inProgress = 'in_progress';
   static const String resolved = 'resolved';
-  static const String rejected = 'rejected';  // Backend supports this
+  static const String rejected = 'rejected';
   static const String escalated = 'escalated';
 }
 
-// Issue type constants
 class IssueType {
   static const String damaged = 'damaged';
   static const String wrongItem = 'wrong_item';

@@ -4,11 +4,10 @@ import '../utils/constants.dart';
 import '../services/storage_service.dart';
 import '../models/catalog_item.dart';
 
-// CartService - handles cart operations with backend
 class CartService {
-  static const String baseUrl = 'http://127.0.0.1:8000/api/accounts';
 
-  // Get headers with authentication
+  static String get baseUrl => getApiBaseUrl();
+
   static Map<String, String> _getHeaders() {
     final token = StorageService.getToken();
     return {
@@ -17,8 +16,7 @@ class CartService {
     };
   }
 
-  // Get cart items
-  // Backend: GET /cart/
+
   static Future<List<CartItemResponse>> getCart() async {
     try {
       final response = await http.get(
@@ -39,8 +37,7 @@ class CartService {
     }
   }
 
-  // Add item to cart
-  // Backend: POST /cart/add/
+
   static Future<CartItemResponse> addToCart(String productId, int quantity) async {
     try {
       final response = await http.post(
@@ -64,8 +61,7 @@ class CartService {
     }
   }
 
-  // Update cart item quantity
-  // Backend: PATCH /cart/{item_id}/
+
   static Future<CartItemResponse> updateCartItem(String itemId, int quantity) async {
     try {
       final response = await http.patch(
@@ -86,8 +82,7 @@ class CartService {
     }
   }
 
-  // Remove cart item
-  // Backend: DELETE /cart/{item_id}/
+
   static Future<void> removeCartItem(String itemId) async {
     try {
       final response = await http.delete(
@@ -104,9 +99,8 @@ class CartService {
     }
   }
 
-  // Checkout - Create order from cart
-  // Backend: POST /orders/checkout/
-  // Note: Backend uses cart items from database, doesn't need items in request body
+
+
   static Future<Map<String, dynamic>> checkout() async {
     try {
       final response = await http.post(
@@ -116,7 +110,7 @@ class CartService {
 
       if (response.statusCode == 201 || response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // Backend returns order with id
+
         return {
           'success': true,
           'orderId': data['id']?.toString() ?? '',
@@ -132,7 +126,6 @@ class CartService {
   }
 }
 
-// CartItemResponse - represents cart item from backend
 class CartItemResponse {
   final String id;
   final String productId;
@@ -164,10 +157,9 @@ class CartItemResponse {
     required this.lineTotal,
   });
 
-  // Convert JSON from backend to CartItemResponse
-  // Backend CartItemSerializer returns: id, product, quantity, product_name, product_price, product_image, product_unit, product_min_order, product_stock, product_supplier_id, product_discounted_price, product_discount, line_total
+
   factory CartItemResponse.fromJson(Map<String, dynamic> json) {
-    // Backend returns prices as strings (from DecimalField), need to parse
+
     final productPrice = json['product_price'] != null
         ? (json['product_price'] is String ? double.parse(json['product_price']) : (json['product_price'] as num).toDouble())
         : 0.0;
@@ -198,7 +190,6 @@ class CartItemResponse {
     );
   }
 
-  // Convert to CatalogItem for compatibility
   CatalogItem toCatalogItem() {
     return CatalogItem(
       id: productId,

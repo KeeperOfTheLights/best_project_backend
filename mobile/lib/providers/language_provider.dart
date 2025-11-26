@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
 
-/// Manages the current app language (English / Russian).
 class LanguageProvider extends ChangeNotifier {
-  String _languageCode = 'en'; // 'en' or 'ru'
+  String _languageCode = 'en';
 
   String get languageCode => _languageCode;
 

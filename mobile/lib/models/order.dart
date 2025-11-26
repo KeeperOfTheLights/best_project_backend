@@ -3,26 +3,24 @@ import 'order_item.dart';
 import 'user.dart';
 import 'supplier.dart';
 
-// Order model - represents an order
 class Order {
   final String id;
   final String consumerId;
   final String supplierId;
-  final String status; // 'pending', 'accepted', 'rejected', 'in_delivery', 'completed'
-  final String deliveryType; // 'delivery' or 'pickup'
+  final String status;
+  final String deliveryType;
   final String? deliveryAddress;
   final String? comment;
   final double totalAmount;
   final DateTime createdAt;
   final DateTime? updatedAt;
   final String? rejectionReason;
-  
-  // Optional: full objects if loaded
+
   final List<OrderItem>? items;
   final User? consumer;
   final Supplier? supplier;
-  final String? consumerName; // From backend consumer_name
-  final String? supplierName; // From backend supplier_name
+  final String? consumerName;
+  final String? supplierName;
 
   Order({
     required this.id,
@@ -43,20 +41,17 @@ class Order {
     this.supplierName,
   });
 
-  // Convert JSON from backend to Order object
-  // Backend OrderSerializer returns: id, consumer, supplier, created_at, total_price, status, items, consumer_name, supplier_name
-  // Note: consumer and supplier are IDs (integers), not full objects
+
+
   factory Order.fromJson(Map<String, dynamic> json) {
     try {
-      // Debug: Print consumer_name and supplier_name
+
       debugPrint('Order.fromJson: consumer_name = ${json['consumer_name']}, supplier_name = ${json['supplier_name']}');
-      
-      // Backend returns total_price as string (from DecimalField), need to parse
+
       final totalAmount = json['total_price'] != null
           ? (json['total_price'] is String ? double.parse(json['total_price']) : (json['total_price'] as num).toDouble())
           : 0.0;
-      
-      // Parse items safely
+
       List<OrderItem>? items;
       if (json['items'] != null && json['items'] is List) {
         try {
@@ -87,15 +82,15 @@ class Order {
         comment: json['comment'],
         totalAmount: totalAmount,
         createdAt: json['created_at'] != null
-            ? DateTime.parse(json['created_at']) // Keep UTC time like backend
+            ? DateTime.parse(json['created_at'])
             : DateTime.now(),
         updatedAt: json['updated_at'] != null
             ? DateTime.parse(json['updated_at'])
             : null,
         rejectionReason: json['rejection_reason'] ?? json['rejectionReason'],
         items: items,
-        consumer: null, // Backend doesn't include full consumer object
-        supplier: null, // Backend doesn't include full supplier object
+        consumer: null,
+        supplier: null,
         consumerName: json['consumer_name'] ?? json['consumerName'],
         supplierName: json['supplier_name'] ?? json['supplierName'],
       );
@@ -105,7 +100,6 @@ class Order {
     }
   }
 
-  // Convert Order object to JSON for sending to backend
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -123,7 +117,6 @@ class Order {
   }
 }
 
-// Order status constants
 class OrderStatus {
   static const String pending = 'pending';
   static const String accepted = 'accepted';
@@ -132,7 +125,6 @@ class OrderStatus {
   static const String completed = 'completed';
 }
 
-// Delivery type constants
 class DeliveryType {
   static const String delivery = 'delivery';
   static const String pickup = 'pickup';

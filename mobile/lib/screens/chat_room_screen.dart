@@ -14,7 +14,6 @@ import '../models/catalog_item.dart';
 import '../models/chat_message.dart';
 import 'orders_screen.dart';
 
-// ChatRoomScreen - shows conversation messages with file attachments, order receipts, and product links
 class ChatRoomScreen extends StatefulWidget {
   final String chatRoomId;
   final String otherPartyName;
@@ -63,29 +62,29 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     final userRole = authProvider.user?.role ?? '';
 
     if (userRole == UserRole.consumer) {
-      // Load consumer orders for this supplier
+
       setState(() => _loadingOrders = true);
       try {
         final orderProvider = Provider.of<OrderProvider>(context, listen: false);
         await orderProvider.loadOrders();
         final allOrders = orderProvider.orders;
-        // Filter orders for this supplier
+
         _consumerOrders = allOrders
             .where((order) => order.supplierId == widget.chatRoomId)
             .toList();
       } catch (e) {
-        // Handle error silently
+
       }
       setState(() => _loadingOrders = false);
     } else if (isSupplierSide(userRole)) {
-      // Load supplier products
+
       setState(() => _loadingProducts = true);
       try {
         final catalogProvider = Provider.of<CatalogProvider>(context, listen: false);
         await catalogProvider.loadMyCatalog();
         _supplierProducts = catalogProvider.items;
       } catch (e) {
-        // Handle error silently
+
       }
       setState(() => _loadingProducts = false);
     }
@@ -105,23 +104,22 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     final chatProvider = Provider.of<ChatProvider>(context, listen: false);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final userRole = authProvider.user?.role ?? '';
-    
-    // Determine supplierId and consumerId based on role
+
     String? supplierId;
     String? consumerId;
     String? messageType;
 
     if (userRole == UserRole.consumer) {
-      supplierId = widget.chatRoomId; // Consumer sends to supplier
+      supplierId = widget.chatRoomId;
       if (orderId != null) {
         messageType = 'receipt';
         text = text ?? 'Order Receipt #$orderId';
       }
     } else if (isSupplierSide(userRole)) {
-      // For supplier, need to get company owner ID
+
       final userId = authProvider.user?.id ?? StorageService.getUserId() ?? '';
-      supplierId = userId; // Company owner ID
-      consumerId = widget.chatRoomId; // Supplier sends to consumer
+      supplierId = userId;
+      consumerId = widget.chatRoomId;
       if (productId != null) {
         messageType = 'product_link';
         final product = _supplierProducts.firstWhere((p) => p.id == productId, orElse: () => _supplierProducts.first);
@@ -189,8 +187,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
     final currentUserId = authProvider.user?.id ?? StorageService.getUserId() ?? '';
     final userRole = authProvider.user?.role ?? '';
     final isConsumer = userRole == UserRole.consumer;
-    
-    // Get avatar initials
+
     final initials = widget.otherPartyName.isNotEmpty
         ? widget.otherPartyName.substring(0, widget.otherPartyName.length > 2 ? 2 : 1).toUpperCase()
         : '?';
@@ -247,7 +244,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
       ),
       body: Column(
         children: [
-          // Messages list
+
           Expanded(
             child: Consumer<ChatProvider>(
               builder: (context, chatProvider, child) {
@@ -278,7 +275,6 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                   );
                 }
 
-                // Scroll to bottom when messages load
                 WidgetsBinding.instance.addPostFrameCallback((_) {
                   _scrollToBottom();
                 });
@@ -298,11 +294,9 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             ),
           ),
 
-          // Order/Product selector dropdowns
           if (_showOrderSelector && isConsumer) _buildOrderSelector(),
           if (_showProductSelector && !isConsumer) _buildProductSelector(),
 
-          // Message input
           Container(
             padding: const EdgeInsets.all(8),
             decoration: BoxDecoration(
@@ -345,13 +339,13 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    // File attachment button
+
                     IconButton(
                       icon: const Icon(Icons.attach_file, color: Color(0xFF61DAFB)),
                       onPressed: _pickFile,
                       tooltip: 'Attach file',
                     ),
-                    // Order Receipt button (Consumer) or Product Link button (Supplier)
+
                     if (isConsumer)
                       IconButton(
                         icon: const Icon(Icons.receipt, color: Color(0xFF61DAFB)),
@@ -374,7 +368,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                         },
                         tooltip: 'Send Product Link',
                       ),
-                    // Send button
+
                     IconButton(
                       icon: const Icon(Icons.send, color: Color(0xFF61DAFB)),
                       onPressed: () {
@@ -406,15 +400,15 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
         child: Column(
           crossAxisAlignment: isMe ? CrossAxisAlignment.end : CrossAxisAlignment.start,
           children: [
-            // Message content based on type
-            // Show special message types first, then text if present
+
+
             if (messageType == 'receipt' && message.orderId != null)
               _buildOrderReceiptCard(message, isMe, isConsumer),
             if (messageType == 'product_link' && message.productId != null)
               _buildProductLinkCard(message, isMe),
             if (messageType == 'attachment' && message.attachmentUrl != null)
               _buildAttachmentCard(message, isMe),
-            // Show text if present (and not already shown in special cards)
+
             if (message.text.isNotEmpty && 
                 messageType != 'receipt' && 
                 messageType != 'product_link' && 
@@ -427,7 +421,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                 child: _buildTextBubble(message.text, isMe),
               ),
             const SizedBox(height: 4),
-            // Timestamp
+
             Text(
               _formatTime(message.createdAt),
               style: TextStyle(
@@ -499,10 +493,10 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
             ),
           ),
           const SizedBox(height: 12),
-          // Always show View Order button (matching website)
+
           ElevatedButton(
             onPressed: () {
-              // Navigate to Orders screen (consumer or supplier)
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -556,7 +550,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
                 color: isMe ? Colors.white70 : const Color(0xFF666666),
               ),
             ),
-          // Show text message below product name (like "Check out: PineApple")
+
           if (message.text.isNotEmpty && message.text != message.productName)
             Padding(
               padding: const EdgeInsets.only(top: 8),
@@ -576,7 +570,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
   Widget _buildAttachmentCard(ChatMessage message, bool isMe) {
     return InkWell(
       onTap: () {
-        // Open/download attachment
+
         if (message.attachmentUrl != null) {
           _openAttachment(message.attachmentUrl!);
         }
@@ -606,7 +600,7 @@ class _ChatRoomScreenState extends State<ChatRoomScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Show attachment name (file name)
+
                   Text(
                     message.attachmentName ?? 'Attachment',
                     style: TextStyle(

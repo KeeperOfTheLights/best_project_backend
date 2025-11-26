@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import '../models/order.dart';
 import '../services/order_service.dart';
 
-// OrderDetailsScreen - shows detailed order information matching website design
 class OrderDetailsScreen extends StatefulWidget {
   final String orderId;
 
@@ -44,10 +43,10 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
   }
 
   String _formatDate(DateTime date) {
-    // Backend returns UTC time in ISO format (e.g., "2025-11-23T07:42:10Z")
-    // Website uses new Date(value).toLocaleString() which converts UTC to local time
-    // Format: "23.11.2025, 12:42:10" (matching website - uses local time)
-    // Convert to local time to match website display
+
+
+
+
     final localDate = date.isUtc ? date.toLocal() : date;
     return '${localDate.day.toString().padLeft(2, '0')}.${localDate.month.toString().padLeft(2, '0')}.${localDate.year}, ${localDate.hour.toString().padLeft(2, '0')}:${localDate.minute.toString().padLeft(2, '0')}:${localDate.second.toString().padLeft(2, '0')}';
   }
@@ -106,7 +105,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Order Details Section
+
                           Card(
                             color: Colors.white,
                             elevation: 2,
@@ -130,7 +129,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Customer Information Section
                           Card(
                             color: Colors.white,
                             elevation: 2,
@@ -160,7 +158,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Order Items Section
                           Card(
                             color: Colors.white,
                             elevation: 2,
@@ -182,7 +179,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                   ),
                                   const Divider(),
                                   if (_order!.items != null && _order!.items!.isNotEmpty) ...[
-                                    // Table header
+
                                     Row(
                                       children: [
                                         Expanded(
@@ -228,7 +225,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                       ],
                                     ),
                                     const Divider(),
-                                    // Order items
+
                                     ..._order!.items!.map((item) => Padding(
                                           padding: const EdgeInsets.symmetric(vertical: 8.0),
                                           child: Row(
@@ -287,7 +284,6 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                           ),
                           const SizedBox(height: 16),
 
-                          // Total Section
                           Card(
                             color: Colors.white,
                             elevation: 2,
@@ -312,7 +308,7 @@ class _OrderDetailsScreenState extends State<OrderDetailsScreen> {
                                     style: const TextStyle(
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
-                                      color: Color(0xFF61DAFB), // Light blue
+                                      color: Color(0xFF61DAFB),
                                     ),
                                   ),
                                 ],

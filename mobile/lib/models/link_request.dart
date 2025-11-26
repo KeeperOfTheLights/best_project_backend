@@ -1,19 +1,17 @@
 import 'supplier.dart';
 import 'user.dart';
 
-// LinkRequest model - represents a connection request between consumer and supplier
 class LinkRequest {
   final String id;
   final String consumerId;
   final String supplierId;
-  final String status; // 'pending', 'linked', 'rejected', 'blocked'
+  final String status;
   final DateTime createdAt;
   final DateTime? updatedAt;
   final String? rejectionReason;
-  final String? consumerName; // From backend serializer
-  final String? supplierName; // From backend serializer
-  
-  // Optional: full objects if loaded
+  final String? consumerName;
+  final String? supplierName;
+
   final Supplier? supplier;
   final User? consumer;
 
@@ -31,14 +29,13 @@ class LinkRequest {
     this.consumer,
   });
 
-  // Convert JSON from backend to LinkRequest object
-  // Backend LinkRequestSerializer returns: id, supplier, consumer, status, created_at, consumer_name, supplier_name
+
   factory LinkRequest.fromJson(Map<String, dynamic> json) {
     return LinkRequest(
       id: json['id']?.toString() ?? '',
       consumerId: json['consumer']?.toString() ?? json['consumer_id']?.toString() ?? json['consumerId'] ?? '',
       supplierId: json['supplier']?.toString() ?? json['supplier_id']?.toString() ?? json['supplierId'] ?? '',
-      status: json['status'] ?? 'pending', // Can be: pending, linked, rejected, blocked
+      status: json['status'] ?? 'pending',
       createdAt: json['created_at'] != null
           ? DateTime.parse(json['created_at'])
           : DateTime.now(),
@@ -48,12 +45,11 @@ class LinkRequest {
       rejectionReason: json['rejection_reason'] ?? json['rejectionReason'],
       consumerName: json['consumer_name'],
       supplierName: json['supplier_name'],
-      supplier: null, // Supplier data not included in LinkRequestSerializer
-      consumer: null, // Consumer data not included in LinkRequestSerializer
+      supplier: null,
+      consumer: null,
     );
   }
 
-  // Convert LinkRequest object to JSON for sending to backend
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -67,11 +63,10 @@ class LinkRequest {
   }
 }
 
-// Link request status constants
 class LinkRequestStatus {
   static const String pending = 'pending';
-  static const String linked = 'linked'; // Backend uses 'linked' instead of 'approved'
-  static const String approved = 'linked'; // Alias for compatibility
+  static const String linked = 'linked';
+  static const String approved = 'linked';
   static const String rejected = 'rejected';
   static const String blocked = 'blocked';
 }

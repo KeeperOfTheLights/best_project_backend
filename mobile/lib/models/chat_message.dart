@@ -1,21 +1,19 @@
 import 'user.dart';
 
-// ChatMessage model - represents a message in a chat
 class ChatMessage {
   final String id;
   final String chatRoomId;
   final String senderId;
-  final String? senderName; // From backend serializer
-  final String text; // Backend uses 'text' instead of 'message'
-  final DateTime createdAt; // Backend uses 'timestamp'
-  final String messageType; // 'text', 'receipt', 'product_link', 'attachment'
-  final String? orderId; // Optional: link to order if message is about an order
-  final String? productId; // Optional: link to product if message is product link
-  final String? productName; // Optional: product name
-  final String? attachmentUrl; // Optional: attachment URL
-  final String? attachmentName; // Optional: attachment file name
-  
-  // Optional: full sender object if loaded
+  final String? senderName;
+  final String text;
+  final DateTime createdAt;
+  final String messageType;
+  final String? orderId;
+  final String? productId;
+  final String? productName;
+  final String? attachmentUrl;
+  final String? attachmentName;
+
   final User? sender;
 
   ChatMessage({
@@ -34,11 +32,9 @@ class ChatMessage {
     this.sender,
   });
 
-  // Get message display text (for compatibility)
   String get message => text;
 
-  // Convert JSON from backend to ChatMessage object
-  // Backend MessageSerializer returns: id, room, sender, sender_name, text, timestamp, message_type, attachment, attachment_name, attachment_url, order, order_id, product, product_id, product_name
+
   factory ChatMessage.fromJson(Map<String, dynamic> json) {
     return ChatMessage(
       id: json['id']?.toString() ?? '',
@@ -63,7 +59,6 @@ class ChatMessage {
     );
   }
 
-  // Convert ChatMessage object to JSON for sending to backend
   Map<String, dynamic> toJson() {
     return {
       'id': id,

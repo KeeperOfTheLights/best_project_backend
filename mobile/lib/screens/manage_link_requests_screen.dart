@@ -5,7 +5,6 @@ import '../models/link_request.dart';
 import '../utils/localization.dart';
 import '../widgets/language_switcher.dart';
 
-// ManageLinkRequestsScreen - allows suppliers to view and manage incoming link requests
 class ManageLinkRequestsScreen extends StatefulWidget {
   const ManageLinkRequestsScreen({super.key});
 
@@ -18,7 +17,7 @@ class _ManageLinkRequestsScreenState extends State<ManageLinkRequestsScreen> {
   @override
   void initState() {
     super.initState();
-    // Load link requests when screen opens
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<LinkRequestProvider>(context, listen: false)
           .loadLinkRequests();
@@ -198,7 +197,7 @@ class _ManageLinkRequestsScreenState extends State<ManageLinkRequestsScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Header row with avatar and name
+
                         Row(
                           children: [
                             const CircleAvatar(
@@ -230,7 +229,7 @@ class _ManageLinkRequestsScreenState extends State<ManageLinkRequestsScreen> {
                                 ],
                               ),
                             ),
-                            // Action buttons
+
                             Row(
                               mainAxisSize: MainAxisSize.min,
                               children: [
@@ -251,7 +250,7 @@ class _ManageLinkRequestsScreenState extends State<ManageLinkRequestsScreen> {
                         const SizedBox(height: 12),
                         const Divider(),
                         const SizedBox(height: 8),
-                        // Details section
+
                         if (request.consumer?.businessName != null)
                           _buildDetailRow(
                             Icons.business,
@@ -279,7 +278,7 @@ class _ManageLinkRequestsScreenState extends State<ManageLinkRequestsScreen> {
                         const SizedBox(height: 8),
                         const Divider(),
                         const SizedBox(height: 8),
-                        // Request info
+
                         Row(
                           children: [
                             const Icon(Icons.access_time, size: 16, color: Colors.grey),

@@ -1,12 +1,11 @@
 import '../utils/constants.dart';
 
-// StaffMember model - represents a staff member in a supplier company
 class StaffMember {
   final String id;
   final String supplierId;
   final String email;
   final String name;
-  final String role; // 'owner', 'manager', 'sales'
+  final String role;
   final String? phone;
   final bool isActive;
   final DateTime createdAt;
@@ -24,14 +23,13 @@ class StaffMember {
     this.updatedAt,
   });
 
-  // Convert JSON from backend to StaffMember object
-  // Backend UserSerializer returns: id, full_name, email, role, company
+
   factory StaffMember.fromJson(Map<String, dynamic> json) {
     return StaffMember(
       id: json['id']?.toString() ?? '',
       supplierId: json['supplier_id']?.toString() ?? json['supplierId'] ?? json['company']?.toString() ?? '',
       email: json['email'] ?? '',
-      name: json['full_name'] ?? json['name'] ?? '', // Backend uses full_name
+      name: json['full_name'] ?? json['name'] ?? '',
       role: json['role'] ?? '',
       phone: json['phone'],
       isActive: json['is_active'] ?? json['isActive'] ?? true,
@@ -44,7 +42,6 @@ class StaffMember {
     );
   }
 
-  // Convert StaffMember object to JSON for sending to backend
   Map<String, dynamic> toJson() {
     return {
       'id': id,
@@ -59,16 +56,15 @@ class StaffMember {
     };
   }
 
-  // Check if current user can manage this staff member
   static bool canManage(String currentUserRole, String staffRole) {
     if (currentUserRole == UserRole.owner) {
-      // Owner can manage anyone
+
       return true;
     } else if (currentUserRole == UserRole.manager) {
-      // Manager can only manage sales
+
       return staffRole == UserRole.sales;
     }
-    // Sales cannot manage anyone
+
     return false;
   }
 }

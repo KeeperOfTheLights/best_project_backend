@@ -4,7 +4,6 @@ import 'package:provider/provider.dart';
 import '../providers/language_provider.dart';
 import '../utils/localization.dart';
 
-/// Language switcher matching the web design (ENG / RU dropdown).
 class LanguageSwitcher extends StatelessWidget {
   const LanguageSwitcher({super.key});
 

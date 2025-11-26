@@ -8,7 +8,6 @@ import 'consumer_catalog_screen.dart';
 import '../utils/localization.dart';
 import '../widgets/language_switcher.dart';
 
-// SearchScreen - matches website design, searches products and suppliers from linked suppliers only
 class SearchSuppliersScreen extends StatefulWidget {
   const SearchSuppliersScreen({super.key});
 
@@ -23,7 +22,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
   @override
   void initState() {
     super.initState();
-    // Check for linked suppliers when screen loads
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<SearchProvider>(context, listen: false).checkLinkedSuppliers();
     });
@@ -63,12 +62,11 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
   }
 
   void _handleProductClick(CatalogItem product) async {
-    // Find the supplier by matching supplier_name
-    // Products in search are only from linked suppliers, so we need to find the supplier
+
+
     final searchProvider = Provider.of<SearchProvider>(context, listen: false);
     Supplier? matchingSupplier;
-    
-    // First, try to use supplierId from product if available
+
     if (product.supplierId.isNotEmpty) {
       final supplierName = product.supplierName ?? 'Supplier';
       if (mounted) {
@@ -84,12 +82,10 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
       }
       return;
     }
-    
-    // If supplierId not available, match by supplier_name
+
     if (product.supplierName != null && product.supplierName!.isNotEmpty) {
       final productSupplierName = product.supplierName!.trim().toLowerCase();
-      
-      // First try search results
+
       if (searchProvider.suppliers.isNotEmpty) {
         try {
           matchingSupplier = searchProvider.suppliers.firstWhere(
@@ -100,17 +96,15 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
             },
           );
         } catch (e) {
-          // Not in search results
+
         }
       }
-      
-      // If not found in search results, fetch ALL suppliers and match
-      // (Products are only from linked suppliers, so the supplier must exist)
+
+
       if (matchingSupplier == null) {
         try {
           final allSuppliers = await LinkRequestService.getAllSuppliers();
-          
-          // Try exact match first
+
           try {
             matchingSupplier = allSuppliers.firstWhere(
               (s) {
@@ -120,7 +114,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
               },
             );
           } catch (e) {
-            // Try partial match
+
             try {
               matchingSupplier = allSuppliers.firstWhere(
                 (s) {
@@ -133,18 +127,17 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                 },
               );
             } catch (e2) {
-              // Supplier not found
+
               matchingSupplier = null;
             }
           }
         } catch (e) {
-          // Failed to fetch suppliers
+
           matchingSupplier = null;
         }
       }
     }
-    
-    // Use found supplier
+
     if (matchingSupplier != null) {
       final supplierId = matchingSupplier.id;
       final supplierName = matchingSupplier.fullName ?? 
@@ -163,7 +156,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
         );
       }
     } else {
-      // Could not find supplier - show error
+
       if (mounted) {
         final loc = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -180,7 +173,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
   Widget build(BuildContext context) {
     final loc = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: const Color(0xFFF5F5F5), // Light gray background matching website
+      backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
         backgroundColor: const Color(0xFFF5F5F5),
         elevation: 0,
@@ -200,7 +193,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
       ),
       body: Consumer<SearchProvider>(
         builder: (context, searchProvider, child) {
-          // Check if consumer has linked suppliers
+
           if (!searchProvider.hasLinkedSuppliers) {
             return Center(
               child: Padding(
@@ -242,7 +235,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                // Search Bar - matching website design
+
                 Form(
                   key: _formKey,
                   child: Row(
@@ -282,7 +275,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                       ElevatedButton(
                         onPressed: searchProvider.isLoading ? null : _performSearch,
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF61DAFB), // Light blue matching website
+                          backgroundColor: const Color(0xFF61DAFB),
                           foregroundColor: Colors.white,
                           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 12),
                           shape: RoundedRectangleBorder(
@@ -312,7 +305,6 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
 
                 const SizedBox(height: 40),
 
-                // Loading State
                 if (searchProvider.isLoading)
                   const Center(
                     child: Padding(
@@ -323,7 +315,6 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                     ),
                   ),
 
-                // Error State
                 if (!searchProvider.isLoading && searchProvider.errorMessage != null)
                   Center(
                     child: Padding(
@@ -342,11 +333,10 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                     ),
                   ),
 
-                // Results
                 if (!searchProvider.isLoading &&
                     searchProvider.errorMessage == null &&
                     searchProvider.hasResults) ...[
-                  // Suppliers Section
+
                   if (searchProvider.suppliers.isNotEmpty) ...[
                     _buildSectionTitle('${loc.text('Suppliers (')}${searchProvider.suppliers.length})', loc),
                     const SizedBox(height: 16),
@@ -362,7 +352,6 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                     const SizedBox(height: 32),
                   ],
 
-                  // Categories Section (if any)
                   if (searchProvider.categories.isNotEmpty) ...[
                     _buildSectionTitle('${loc.text('Categories (')}${searchProvider.categories.length})', loc),
                     const SizedBox(height: 16),
@@ -376,22 +365,20 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                     const SizedBox(height: 32),
                   ],
 
-                  // Products Section
                   if (searchProvider.products.isNotEmpty) ...[
                     _buildSectionTitle('${loc.text('Products (')}${searchProvider.products.length})', loc),
                     const SizedBox(height: 16),
                     LayoutBuilder(
                       builder: (context, constraints) {
-                        // Calculate responsive grid based on screen width
+
                         final screenWidth = constraints.maxWidth;
-                        final crossAxisCount = screenWidth > 600 ? 3 : 2; // 3 columns on tablets, 2 on phones
+                        final crossAxisCount = screenWidth > 600 ? 3 : 2;
                         final spacing = 16.0;
                         final padding = 0.0;
                         final itemWidth = (screenWidth - padding - (spacing * (crossAxisCount - 1))) / crossAxisCount;
-                        
-                        // Calculate aspect ratio based on estimated content height
-                        // Image: 1:1 aspect ratio (itemWidth), Text content: ~80px (compact, no description)
-                        // Total height = itemWidth + 80
+
+
+
                         final estimatedHeight = itemWidth + 80;
                         final aspectRatio = itemWidth / estimatedHeight;
                         
@@ -415,7 +402,6 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                   ],
                 ],
 
-                // Empty State (after search with no results)
                 if (!searchProvider.isLoading &&
                     searchProvider.errorMessage == null &&
                     searchProvider.query.isNotEmpty &&
@@ -440,7 +426,6 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                   ),
                 ],
 
-                // Initial State (before search)
                 if (!searchProvider.isLoading &&
                     searchProvider.errorMessage == null &&
                     searchProvider.query.isEmpty) ...[
@@ -486,7 +471,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
         const SizedBox(height: 10),
         Container(
           height: 2,
-          color: const Color(0xFF61DAFB), // Light blue separator
+          color: const Color(0xFF61DAFB),
         ),
       ],
     );
@@ -511,7 +496,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
           padding: const EdgeInsets.all(20.0),
           child: Row(
             children: [
-              // Avatar
+
               Container(
                 width: 60,
                 height: 60,
@@ -535,7 +520,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                 ),
               ),
               const SizedBox(width: 15),
-              // Supplier Info
+
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -612,7 +597,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
             crossAxisAlignment: CrossAxisAlignment.stretch,
             mainAxisSize: MainAxisSize.min,
             children: [
-              // Product Image Placeholder - Fixed height
+
               AspectRatio(
                 aspectRatio: 1.0,
                 child: Container(
@@ -627,38 +612,38 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                     child: Text(
                       imageChar,
                       style: const TextStyle(
-                        fontSize: 40, // Reduced from 48
+                        fontSize: 40,
                         color: Color(0xFF999999),
                       ),
                     ),
                   ),
                 ),
               ),
-              // Product Info - Fixed padding, no Flexible to prevent overflow
+
               Padding(
-                padding: const EdgeInsets.all(8.0), // Reduced from 10.0
+                padding: const EdgeInsets.all(8.0),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    // Product Name - max 1 line
+
                     Text(
                       product.name,
                       style: const TextStyle(
-                        fontSize: 13, // Reduced from 15
+                        fontSize: 13,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF20232A),
-                        height: 1.1, // Reduced from 1.2
+                        height: 1.1,
                       ),
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 3), // Reduced from 4
-                    // Category
+                    const SizedBox(height: 3),
+
                     Text(
                       product.category,
                       style: const TextStyle(
-                        fontSize: 11, // Reduced from 12
+                        fontSize: 11,
                         color: Color(0xFF61DAFB),
                         fontWeight: FontWeight.w500,
                         height: 1.1,
@@ -666,15 +651,15 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 2), // Reduced from 3
-                    // Supplier
+                    const SizedBox(height: 2),
+
                     Builder(
                       builder: (context) {
                         final loc = AppLocalizations.of(context);
                         return Text(
                           '${loc.text('by ')}${product.supplierName ?? loc.text('Supplier')}',
                           style: const TextStyle(
-                            fontSize: 10, // Reduced from 11
+                            fontSize: 10,
                             color: Color(0xFF666666),
                             height: 1.1,
                           ),
@@ -683,12 +668,12 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                         );
                       },
                     ),
-                    const SizedBox(height: 4), // Reduced from 6
-                    // Price - Always show
+                    const SizedBox(height: 4),
+
                     Text(
                       '₸${product.discountedPrice.toStringAsFixed(2)} / ${product.unit}',
                       style: const TextStyle(
-                        fontSize: 12, // Reduced from 14
+                        fontSize: 12,
                         fontWeight: FontWeight.w600,
                         color: Color(0xFF20232A),
                         height: 1.1,
@@ -696,7 +681,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
                     ),
-                    // No description to save space
+
                   ],
                 ),
               ),

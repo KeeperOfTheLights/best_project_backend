@@ -8,7 +8,6 @@ import '../utils/localization.dart';
 import '../widgets/language_switcher.dart';
 import 'chat_room_screen.dart';
 
-// ComplaintsManagementScreen - allows suppliers to manage complaints
 class ComplaintsManagementScreen extends StatefulWidget {
   const ComplaintsManagementScreen({super.key});
 
@@ -19,8 +18,8 @@ class ComplaintsManagementScreen extends StatefulWidget {
 
 class _ComplaintsManagementScreenState
     extends State<ComplaintsManagementScreen> {
-  String _filterStatus = 'all'; // 'all', 'pending', 'resolved', 'rejected', 'escalated'
-  String? _actionLoadingId; // Track which complaint is being processed
+  String _filterStatus = 'all';
+  String? _actionLoadingId;
 
   @override
   void initState() {
@@ -198,7 +197,7 @@ class _ComplaintsManagementScreenState
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header with subtitle and Refresh button
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -250,7 +249,6 @@ class _ComplaintsManagementScreenState
                   ),
                   const SizedBox(height: 24),
 
-                  // Summary Cards
                   if (isSales)
                     Row(
                       children: [
@@ -292,7 +290,6 @@ class _ComplaintsManagementScreenState
 
                   const SizedBox(height: 24),
 
-                  // Filter Tabs
                   SingleChildScrollView(
                     scrollDirection: Axis.horizontal,
                     child: Row(
@@ -313,7 +310,6 @@ class _ComplaintsManagementScreenState
                   ),
                   const SizedBox(height: 16),
 
-                  // Complaints List
                   if (complaintProvider.isLoading && complaints.isEmpty)
                     const Center(
                       child: Padding(
@@ -380,8 +376,10 @@ class _ComplaintsManagementScreenState
       ),
       child: Padding(
         padding: const EdgeInsets.all(16.0),
-        child: Row(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
           children: [
+
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -390,26 +388,25 @@ class _ComplaintsManagementScreenState
               ),
               child: Icon(icon, color: color, size: 24),
             ),
-            const SizedBox(width: 12),
-            Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  count.toString(),
-                  style: TextStyle(
-                    fontSize: 24,
-                    fontWeight: FontWeight.bold,
-                    color: color,
-                  ),
-                ),
-                Text(
-                  label,
-                  style: const TextStyle(
-                    fontSize: 14,
-                    color: Color(0xFF666666),
-                  ),
-                ),
-              ],
+            const SizedBox(height: 12),
+
+            Text(
+              count.toString(),
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: color,
+              ),
+            ),
+            const SizedBox(height: 4),
+
+            Text(
+              label,
+              style: const TextStyle(
+                fontSize: 14,
+                color: Color(0xFF666666),
+              ),
+              textAlign: TextAlign.center,
             ),
           ],
         ),
@@ -445,7 +442,7 @@ class _ComplaintsManagementScreenState
   }
 
   Widget _buildComplaintCard(Complaint complaint, String userRole) {
-    // Show Resolve/Reject buttons for pending or escalated complaints
+
     final canResolveOrReject = complaint.status == 'pending' || complaint.status == 'escalated';
     final isLoading = _actionLoadingId == complaint.id;
 
@@ -465,7 +462,7 @@ class _ComplaintsManagementScreenState
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Header with Title and Status
+
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
               children: [
@@ -497,7 +494,7 @@ class _ComplaintsManagementScreenState
               ],
             ),
             const SizedBox(height: 12),
-            // Complaint Info
+
             Text(
               'Consumer: ${complaint.consumerName ?? complaint.accountName ?? "Unknown"}',
               style: const TextStyle(
@@ -530,17 +527,17 @@ class _ComplaintsManagementScreenState
               ),
             ),
             const SizedBox(height: 12),
-            // Action Buttons
+
             Column(
               children: [
-                // Open Chat button - full width
+
                 SizedBox(
                   width: double.infinity,
                   child: ElevatedButton(
                     onPressed: isLoading
                         ? null
                         : () {
-                            // Navigate to chat with consumer
+
                             Navigator.push(
                               context,
                               MaterialPageRoute(
@@ -562,7 +559,7 @@ class _ComplaintsManagementScreenState
                 ),
                 if (canResolveOrReject || (userRole == UserRole.sales && complaint.status == 'pending')) ...[
                   const SizedBox(height: 8),
-                  // Action buttons row
+
                   Row(
                     children: [
                       if (canResolveOrReject) ...[
@@ -602,7 +599,7 @@ class _ComplaintsManagementScreenState
                           ),
                         ),
                       ],
-                      // Escalate button - only for Sales Rep on pending complaints
+
                       if (userRole == UserRole.sales && complaint.status == 'pending') ...[
                         if (canResolveOrReject) const SizedBox(width: 8),
                         Expanded(

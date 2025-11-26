@@ -4,7 +4,6 @@ import '../providers/auth_provider.dart';
 import '../utils/localization.dart';
 import '../widgets/language_switcher.dart';
 
-// SignUpScreen - the screen where new users create an account
 class SignUpScreen extends StatefulWidget {
   const SignUpScreen({super.key});
 
@@ -13,15 +12,15 @@ class SignUpScreen extends StatefulWidget {
 }
 
 class _SignUpScreenState extends State<SignUpScreen> {
-  // Controllers for text fields - matching website form exactly
+
   final _formKey = GlobalKey<FormState>();
   final _fullNameController = TextEditingController();
-  final _usernameController = TextEditingController(); // Collected but not sent to backend
+  final _usernameController = TextEditingController();
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _repeatPasswordController = TextEditingController();
 
-  String _selectedRole = 'consumer'; // Default role: consumer, owner, manager, sales
+  String _selectedRole = 'consumer';
 
   @override
   void dispose() {
@@ -33,13 +32,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
     super.dispose();
   }
 
-  // Function called when user taps "Sign Up" button
   Future<void> _handleSignUp() async {
     if (!_formKey.currentState!.validate()) {
       return;
     }
 
-    // Validate passwords match
     if (_passwordController.text != _repeatPasswordController.text) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -50,7 +47,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
       return;
     }
 
-    // Validate password strength (matching website requirements)
     final password = _passwordController.text;
     if (password.length < 6) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -91,13 +87,12 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
 
-    // Call signup with only backend-expected fields
-    // Note: username is collected but not sent (backend doesn't use it)
+
     final success = await authProvider.signup(
       email: _emailController.text.trim(),
       password: _passwordController.text,
-      name: _fullNameController.text.trim(), // This will be sent as 'full_name' to backend
-      role: _selectedRole, // consumer, owner, manager, or sales
+      name: _fullNameController.text.trim(),
+      role: _selectedRole,
     );
 
     if (!success && mounted) {
@@ -108,8 +103,8 @@ class _SignUpScreenState extends State<SignUpScreen> {
         ),
       );
     } else if (success && mounted) {
-      // Clear navigation stack and go back to root
-      // AuthWrapper will automatically show the dashboard since user is now authenticated
+
+
       Navigator.of(context).popUntil((route) => route.isFirst);
     }
   }
@@ -137,7 +132,7 @@ class _SignUpScreenState extends State<SignUpScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
-                // Title and subtitle - matching website
+
                 Text(
                   loc.text('Create an Account'),
                   style: const TextStyle(
@@ -157,7 +152,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 32),
 
-                // Full Name field
                 TextFormField(
                   controller: _fullNameController,
                   decoration: InputDecoration(
@@ -177,7 +171,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Username field (collected but not sent to backend)
                 TextFormField(
                   controller: _usernameController,
                   decoration: InputDecoration(
@@ -197,7 +190,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Email field
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
@@ -221,7 +213,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Password field
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
@@ -237,12 +228,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     if (value == null || value.isEmpty) {
                       return loc.text('Please enter a password');
                     }
-                    return null; // Password strength checked in _handleSignUp
+                    return null;
                   },
                 ),
                 const SizedBox(height: 16),
 
-                // Repeat Password field
                 TextFormField(
                   controller: _repeatPasswordController,
                   obscureText: true,
@@ -258,12 +248,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                     if (value == null || value.isEmpty) {
                       return loc.text('Please confirm your password');
                     }
-                    return null; // Match checked in _handleSignUp
+                    return null;
                   },
                 ),
                 const SizedBox(height: 24),
 
-                // Role selection buttons - matching website
                 Text(
                   loc.text('Select your role:'),
                   style: const TextStyle(
@@ -297,7 +286,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 24),
 
-                // Sign Up button
                 Consumer<AuthProvider>(
                   builder: (context, authProvider, child) {
                     return ElevatedButton(
@@ -335,7 +323,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 ),
                 const SizedBox(height: 16),
 
-                // Login link - matching website
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
@@ -359,7 +346,6 @@ class _SignUpScreenState extends State<SignUpScreen> {
     );
   }
 
-  // Helper widget for role selection buttons
   Widget _buildRoleButton(String role, String label) {
     final isSelected = _selectedRole == role;
     return InkWell(

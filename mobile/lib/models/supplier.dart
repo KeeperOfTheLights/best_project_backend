@@ -1,8 +1,8 @@
-// Supplier model - represents a supplier company
+
 class Supplier {
   final String id;
   final String companyName;
-  final String? fullName; // Backend uses full_name
+  final String? fullName;
   final String? companyType;
   final String? address;
   final String? phone;
@@ -20,8 +20,7 @@ class Supplier {
     this.description,
   });
 
-  // Convert JSON from backend to Supplier object
-  // Backend SupplierSerializer returns: id, full_name, email, role, supplier_company
+
   factory Supplier.fromJson(Map<String, dynamic> json) {
     return Supplier(
       id: json['id']?.toString() ?? '',
@@ -35,7 +34,6 @@ class Supplier {
     );
   }
 
-  // Convert Supplier object to JSON for sending to backend
   Map<String, dynamic> toJson() {
     return {
       'id': id,

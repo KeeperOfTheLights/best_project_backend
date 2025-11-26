@@ -4,9 +4,8 @@ import '../models/catalog_item.dart';
 import '../utils/constants.dart';
 import 'storage_service.dart';
 
-// CatalogService - handles catalog operations
 class CatalogService {
-  // Helper method to get headers with authentication token
+
   static Map<String, String> _getHeaders() {
     final token = StorageService.getToken();
     Map<String, String> headers = {
@@ -18,8 +17,7 @@ class CatalogService {
     return headers;
   }
 
-  // Get catalog items for a specific supplier (Consumer view)
-  // Backend: GET /supplier/{id}/catalog/
+
   static Future<List<CatalogItem>> getCatalogBySupplier(String supplierId) async {
     try {
       final response = await http.get(
@@ -29,7 +27,7 @@ class CatalogService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // Backend returns array directly or wrapped in 'items' or 'products'
+
         final List<dynamic> itemsJson = data is List 
             ? data 
             : (data['items'] ?? data['products'] ?? data['results'] ?? []);
@@ -43,8 +41,7 @@ class CatalogService {
     }
   }
 
-  // Get all catalog items for current supplier (Supplier view)
-  // Backend: GET /products/
+
   static Future<List<CatalogItem>> getMyCatalog() async {
     try {
       final response = await http.get(
@@ -54,7 +51,7 @@ class CatalogService {
 
       if (response.statusCode == 200) {
         final data = jsonDecode(response.body);
-        // Backend returns array directly
+
         final List<dynamic> itemsJson = data is List 
             ? data 
             : (data['items'] ?? data['products'] ?? data['results'] ?? []);
@@ -68,8 +65,7 @@ class CatalogService {
     }
   }
 
-  // Create new catalog item (Supplier only)
-  // Backend: POST /products/
+
   static Future<CatalogItem> createItem(CatalogItem item) async {
     try {
       final response = await http.post(
@@ -85,13 +81,13 @@ class CatalogService {
         String errorMessage = 'Failed to create product';
         try {
           final error = jsonDecode(response.body);
-          // Handle different error formats
+
           if (error['detail'] != null) {
             errorMessage = error['detail'].toString();
           } else if (error['message'] != null) {
             errorMessage = error['message'].toString();
           } else if (error is Map) {
-            // Handle validation errors
+
             final errors = <String>[];
             error.forEach((key, value) {
               if (value is List) {
@@ -114,8 +110,7 @@ class CatalogService {
     }
   }
 
-  // Update catalog item (Supplier only)
-  // Backend: PUT /products/{id}/
+
   static Future<CatalogItem> updateItem(CatalogItem item) async {
     try {
       final response = await http.put(
@@ -136,8 +131,7 @@ class CatalogService {
     }
   }
 
-  // Delete catalog item (Supplier only)
-  // Backend: DELETE /products/{id}/
+
   static Future<bool> deleteItem(String itemId) async {
     try {
       final response = await http.delete(
@@ -156,8 +150,7 @@ class CatalogService {
     }
   }
 
-  // Toggle product status (Supplier only)
-  // Backend: PATCH /products/{id}/status/
+
   static Future<CatalogItem> toggleProductStatus(String productId, String newStatus) async {
     try {
       final response = await http.patch(
@@ -166,9 +159,9 @@ class CatalogService {
       );
 
       if (response.statusCode == 200) {
-        // Backend returns {"message": "Status changed to active/inactive"}
-        // We need to reload the product to get updated data
-        // Try to get the product again to return updated CatalogItem
+
+
+
         final productResponse = await http.get(
           Uri.parse('$baseUrl${ApiEndpoints.updateProduct}/$productId/'),
           headers: _getHeaders(),

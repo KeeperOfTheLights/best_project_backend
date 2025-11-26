@@ -6,7 +6,6 @@ import '../models/link_request.dart';
 import 'consumer_catalog_screen.dart';
 import 'chat_room_screen.dart';
 
-// ManageLinksScreen - allows consumers to view and manage their link requests
 class ManageLinksScreen extends StatefulWidget {
   const ManageLinksScreen({super.key});
 
@@ -22,7 +21,7 @@ class _ManageLinksScreenState extends State<ManageLinksScreen>
   void initState() {
     super.initState();
     _tabController = TabController(length: 3, vsync: this);
-    // Load link requests when screen opens
+
     WidgetsBinding.instance.addPostFrameCallback((_) {
       Provider.of<LinkRequestProvider>(context, listen: false)
           .loadLinkRequests();
@@ -181,7 +180,7 @@ class _ManageLinksScreenState extends State<ManageLinksScreen>
                         IconButton(
                           icon: const Icon(Icons.add_shopping_cart),
                           onPressed: () {
-                            // TODO: Navigate to create order
+
                             ScaffoldMessenger.of(context).showSnackBar(
                               const SnackBar(
                                 content: Text('Create Order feature coming soon'),

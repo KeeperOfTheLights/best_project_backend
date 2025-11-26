@@ -5,7 +5,6 @@ import '../models/catalog_item.dart';
 import '../utils/localization.dart';
 import '../widgets/language_switcher.dart';
 
-// CatalogManagementScreen - Product Catalog matching website design
 class CatalogManagementScreen extends StatefulWidget {
   final String supplierId;
   final String supplierName;
@@ -21,7 +20,7 @@ class CatalogManagementScreen extends StatefulWidget {
 }
 
 class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
-  String? _actionLoadingId; // Track which product is being processed
+  String? _actionLoadingId;
 
   @override
   void initState() {
@@ -151,9 +150,9 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
     final loc = AppLocalizations.of(context);
 
     return Scaffold(
-      backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
+      backgroundColor: const Color(0xFFBFB7B7),
       appBar: AppBar(
-        backgroundColor: const Color(0xFFF6DEDE), // Light pink matching website header
+        backgroundColor: const Color(0xFFF6DEDE),
         title: Text(
           loc.text('Products'),
           style: const TextStyle(
@@ -206,7 +205,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header with Add Product button
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -218,16 +217,21 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                           color: Color(0xFF20232A),
                         ),
                       ),
-                      ElevatedButton.icon(
-                        onPressed: () => _showAddProductDialog(context, catalogProvider),
-                        icon: const Icon(Icons.add, size: 20),
-                        label: Text(loc.text('Add New Product')),
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF61DAFB), // Light blue matching website
-                          foregroundColor: Colors.white,
-                          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
+                      Flexible(
+                        child: ElevatedButton.icon(
+                          onPressed: () => _showAddProductDialog(context, catalogProvider),
+                          icon: const Icon(Icons.add, size: 20),
+                          label: FittedBox(
+                            fit: BoxFit.scaleDown,
+                            child: Text(loc.text('Add New Product')),
+                          ),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: const Color(0xFF61DAFB),
+                            foregroundColor: Colors.white,
+                            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(8),
+                            ),
                           ),
                         ),
                       ),
@@ -235,7 +239,6 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Products Grid
                   if (catalogProvider.items.isEmpty)
                     Center(
                       child: Padding(
@@ -275,7 +278,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                         crossAxisCount: 2,
                         crossAxisSpacing: 16,
                         mainAxisSpacing: 16,
-                        childAspectRatio: 0.60, // Reduced to make cards taller so buttons fit
+                        childAspectRatio: 0.42,
                       ),
                       itemCount: catalogProvider.items.length,
                       itemBuilder: (context, index) {
@@ -304,7 +307,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // Image with Status Badge
+
           Expanded(
             flex: 3,
             child: Stack(
@@ -350,7 +353,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                           ),
                         ),
                 ),
-                // Status Badge
+
                 Positioned(
                   top: 8,
                   right: 8,
@@ -373,16 +376,16 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
               ],
             ),
           ),
-          // Product Info
+
           Expanded(
-            flex: 5, // Increased from 4 to give more space for buttons
+            flex: 5,
             child: Padding(
               padding: const EdgeInsets.all(12.0),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Name
+
                   Text(
                     product.name,
                     style: const TextStyle(
@@ -394,7 +397,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                     overflow: TextOverflow.ellipsis,
                   ),
                   const SizedBox(height: 4),
-                  // Category
+
                   Text(
                     product.category,
                     style: const TextStyle(
@@ -403,7 +406,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  // Price
+
                   Text(
                     '${_formatCurrency(product.discountedPrice)} ₸ / ${product.unit == 'pcs' ? 'piece' : product.unit}',
                     style: const TextStyle(
@@ -413,7 +416,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                     ),
                   ),
                   const SizedBox(height: 4),
-                  // Description
+
                   Flexible(
                     child: Text(
                       product.description ?? 'No description',
@@ -426,7 +429,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                     ),
                   ),
                   const SizedBox(height: 8),
-                  // Action Buttons - using mainAxisSize.min to prevent overflow
+
                   Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
@@ -513,8 +516,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
 
   void _showProductDialog(BuildContext context, CatalogProvider provider, CatalogItem? product) {
     final isEdit = product != null;
-    
-    // Controllers
+
     final nameController = TextEditingController(text: product?.name ?? '');
     final categoryController = TextEditingController(text: product?.category ?? '');
     final priceController = TextEditingController(text: product?.price.toString() ?? '');
@@ -525,7 +527,6 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
     final descriptionController = TextEditingController(text: product?.description ?? '');
     final leadTimeController = TextEditingController(text: product?.leadTimeDays.toString() ?? '0');
 
-    // Dropdown values
     String selectedUnit = product?.unit ?? 'kg';
     String selectedDeliveryOption = product?.deliveryOption ?? 'both';
     String selectedStatus = product?.status ?? 'active';
@@ -550,7 +551,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  // Name
+
                   TextField(
                     controller: nameController,
                     decoration: const InputDecoration(
@@ -559,7 +560,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Category
+
                   TextField(
                     controller: categoryController,
                     decoration: const InputDecoration(
@@ -568,7 +569,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Price
+
                   TextField(
                     controller: priceController,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -578,7 +579,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Discount
+
                   TextField(
                     controller: discountController,
                     keyboardType: const TextInputType.numberWithOptions(decimal: true),
@@ -589,7 +590,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Unit
+
                   DropdownButtonFormField<String>(
                     value: selectedUnit,
                     decoration: const InputDecoration(
@@ -609,7 +610,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  // Stock
+
                   TextField(
                     controller: stockController,
                     keyboardType: TextInputType.number,
@@ -619,7 +620,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Minimum Order
+
                   TextField(
                     controller: minOrderController,
                     keyboardType: TextInputType.number,
@@ -629,7 +630,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Image URL
+
                   TextField(
                     controller: imageController,
                     decoration: const InputDecoration(
@@ -638,7 +639,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Description
+
                   TextField(
                     controller: descriptionController,
                     maxLines: 3,
@@ -648,7 +649,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Delivery Option
+
                   DropdownButtonFormField<String>(
                     value: selectedDeliveryOption,
                     decoration: const InputDecoration(
@@ -667,7 +668,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                     },
                   ),
                   const SizedBox(height: 16),
-                  // Lead Time
+
                   TextField(
                     controller: leadTimeController,
                     keyboardType: TextInputType.number,
@@ -677,7 +678,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Status
+
                   DropdownButtonFormField<String>(
                     value: selectedStatus,
                     decoration: const InputDecoration(
@@ -705,7 +706,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
             ),
             ElevatedButton(
               onPressed: () async {
-                // Validate required fields
+
                 if (nameController.text.isEmpty ||
                     categoryController.text.isEmpty ||
                     priceController.text.isEmpty ||
@@ -755,7 +756,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                   if (mounted) {
                     Navigator.pop(context);
                     if (success) {
-                      // Reload catalog to ensure we have the latest data from backend
+
                       await provider.loadMyCatalog();
                       ScaffoldMessenger.of(context).showSnackBar(
                         SnackBar(

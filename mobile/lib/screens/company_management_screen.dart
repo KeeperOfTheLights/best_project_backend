@@ -7,7 +7,6 @@ import '../utils/constants.dart';
 import '../utils/localization.dart';
 import '../widgets/language_switcher.dart';
 
-// CompanyManagementScreen - allows Owner to manage company employees
 class CompanyManagementScreen extends StatefulWidget {
   const CompanyManagementScreen({super.key});
 
@@ -18,7 +17,7 @@ class CompanyManagementScreen extends StatefulWidget {
 class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
   List<StaffMember> _unassignedUsers = [];
   bool _isLoadingUnassigned = false;
-  String? _actionLoadingId; // Track which user is being processed
+  String? _actionLoadingId;
 
   @override
   void initState() {
@@ -26,8 +25,7 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
     WidgetsBinding.instance.addPostFrameCallback((_) {
       final staffProvider = Provider.of<StaffProvider>(context, listen: false);
       final authProvider = Provider.of<AuthProvider>(context, listen: false);
-      
-      // Check if user is Owner
+
       if (authProvider.user?.role != UserRole.owner) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
@@ -83,7 +81,7 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
     if (mounted) {
       setState(() => _actionLoadingId = null);
       if (success) {
-        // Reload both lists
+
         await staffProvider.loadStaff();
         await _loadUnassignedUsers();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -133,7 +131,7 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
     if (mounted) {
       setState(() => _actionLoadingId = null);
       if (success) {
-        // Reload both lists
+
         await staffProvider.loadStaff();
         await _loadUnassignedUsers();
         ScaffoldMessenger.of(context).showSnackBar(
@@ -213,7 +211,7 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  // Header with Refresh button
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -233,7 +231,7 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
                                 await _loadUnassignedUsers();
                               },
                         style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF1E3A8A), // Dark blue matching website
+                          backgroundColor: const Color(0xFF1E3A8A),
                           foregroundColor: Colors.white,
                         ),
                         child: isLoading
@@ -248,11 +246,10 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
                   ),
                   const SizedBox(height: 24),
 
-                  // Two Column Layout
                   Row(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // Current Employees Section
+
                       Expanded(
                         child: Card(
                           color: Colors.white,
@@ -305,7 +302,7 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
                         ),
                       ),
                       const SizedBox(width: 16),
-                      // Available to Assign Section
+
                       Expanded(
                         child: Card(
                           color: Colors.white,
@@ -392,7 +389,7 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Name
+
             Text(
               employee.name,
               style: const TextStyle(
@@ -402,7 +399,7 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
               ),
             ),
             const SizedBox(height: 4),
-            // Email
+
             Text(
               employee.email,
               style: const TextStyle(
@@ -411,7 +408,7 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
               ),
             ),
             const SizedBox(height: 8),
-            // Role Badge
+
             Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               decoration: BoxDecoration(
@@ -428,7 +425,7 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
               ),
             ),
             const SizedBox(height: 12),
-            // Action Button
+
             SizedBox(
               width: double.infinity,
               child: ElevatedButton(

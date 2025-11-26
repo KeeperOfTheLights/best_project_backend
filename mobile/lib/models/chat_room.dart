@@ -2,15 +2,13 @@ import 'user.dart';
 import 'supplier.dart';
 import 'chat_message.dart';
 
-// ChatRoom model - represents a chat conversation
 class ChatRoom {
   final String id;
   final String consumerId;
   final String supplierId;
   final DateTime createdAt;
   final DateTime? updatedAt;
-  
-  // Optional: full objects if loaded
+
   final User? consumer;
   final Supplier? supplier;
   final ChatMessage? lastMessage;
@@ -28,7 +26,6 @@ class ChatRoom {
     this.unreadCount = 0,
   });
 
-  // Convert JSON from backend to ChatRoom object
   factory ChatRoom.fromJson(Map<String, dynamic> json) {
     return ChatRoom(
       id: json['id']?.toString() ?? '',
@@ -53,7 +50,6 @@ class ChatRoom {
     );
   }
 
-  // Convert ChatRoom object to JSON for sending to backend
   Map<String, dynamic> toJson() {
     return {
       'id': id,

@@ -4,9 +4,8 @@ import '../models/supplier.dart';
 import '../utils/constants.dart';
 import 'storage_service.dart';
 
-// SupplierService - handles supplier management operations (Sales Management)
 class SupplierService {
-  // Helper method to get headers with authentication token
+
   static Map<String, String> _getHeaders() {
     final token = StorageService.getToken();
     Map<String, String> headers = {
@@ -18,7 +17,6 @@ class SupplierService {
     return headers;
   }
 
-  // Get all suppliers created by current user (Owner/Manager)
   static Future<List<Supplier>> getMySuppliers() async {
     try {
       final response = await http.get(
@@ -38,7 +36,6 @@ class SupplierService {
     }
   }
 
-  // Create new supplier (Sales name)
   static Future<Supplier> createSupplier({
     required String companyName,
     String? companyType,
@@ -75,7 +72,6 @@ class SupplierService {
     }
   }
 
-  // Update supplier
   static Future<Supplier> updateSupplier(Supplier supplier) async {
     try {
       final response = await http.put(
@@ -96,7 +92,6 @@ class SupplierService {
     }
   }
 
-  // Delete supplier
   static Future<bool> deleteSupplier(String supplierId) async {
     try {
       final response = await http.delete(

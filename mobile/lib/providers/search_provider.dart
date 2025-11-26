@@ -10,7 +10,7 @@ class SearchProvider with ChangeNotifier {
   bool _isLoading = false;
   String? _errorMessage;
   String _query = '';
-  bool _hasLinkedSuppliers = true; // Assume true by default, will check on init
+  bool _hasLinkedSuppliers = true;
 
   List<Supplier> get suppliers => _suppliers;
   List<String> get categories => _categories;
@@ -21,7 +21,6 @@ class SearchProvider with ChangeNotifier {
   bool get hasLinkedSuppliers => _hasLinkedSuppliers;
   bool get hasResults => _suppliers.isNotEmpty || _categories.isNotEmpty || _products.isNotEmpty;
 
-  // Check if consumer has linked suppliers
   Future<void> checkLinkedSuppliers() async {
     try {
       _hasLinkedSuppliers = await SearchService.hasLinkedSuppliers();
@@ -32,7 +31,6 @@ class SearchProvider with ChangeNotifier {
     }
   }
 
-  // Perform search
   Future<void> search(String query) async {
     if (query.trim().isEmpty) {
       _query = '';
@@ -66,7 +64,6 @@ class SearchProvider with ChangeNotifier {
     }
   }
 
-  // Clear search results
   void clearSearch() {
     _query = '';
     _suppliers = [];
