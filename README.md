@@ -102,9 +102,9 @@ The application supports English and Russian languages.
 
 ## Tech Specifications
 
-- **React 19**=
-- **React Router 7**=
-- **Vite**=
-- **i18next & react-i18next**=
-- **Vitest**==
-- **Tailwind CSS**=
+- **React 19**
+- **React Router 7**
+- **Vite**
+- **i18next & react-i18next**
+- **Vitest**
+- **Tailwind CSS**
