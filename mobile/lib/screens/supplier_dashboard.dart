@@ -4,6 +4,8 @@ import '../providers/auth_provider.dart';
 import '../providers/order_provider.dart';
 import '../services/order_service.dart';
 import '../utils/constants.dart';
+import '../utils/localization.dart';
+import '../widgets/language_switcher.dart';
 import 'supplier_catalog_main_screen.dart';
 import 'catalog_management_screen.dart';
 import 'orders_screen.dart';
@@ -58,26 +60,29 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
   }
 
   String _getGreeting() {
+    final loc = AppLocalizations.of(context);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final role = authProvider.user?.role ?? '';
-    if (role == 'owner') return 'Hello, Owner!';
-    if (role == 'manager') return 'Hello, Manager!';
-    if (role == 'sales') return 'Hello, Sales Representative!';
-    return 'Welcome Back!';
+    if (role == 'owner') return loc.text('Hello, Owner!');
+    if (role == 'manager') return loc.text('Hello, Manager!');
+    if (role == 'sales') return loc.text('Hello, Sales Representative!');
+    return loc.text('Welcome Back!');
   }
 
   String _getSubtitle() {
+    final loc = AppLocalizations.of(context);
     final authProvider = Provider.of<AuthProvider>(context, listen: false);
     final role = authProvider.user?.role ?? '';
     if (role == 'sales') {
-      return "Manage your communications and handle customer inquiries.";
+      return loc.text("Manage your communications and handle customer inquiries.");
     }
-    return "Here's an overview of your performance and current activity.";
+    return loc.text("Here's an overview of your performance and current activity.");
   }
 
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final loc = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
@@ -103,12 +108,16 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
           ],
         ),
         actions: [
+          const Padding(
+            padding: EdgeInsets.only(right: 8.0),
+            child: LanguageSwitcher(),
+          ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.black),
             onPressed: () async {
               await authProvider.logout();
             },
-            tooltip: 'Sign Out',
+            tooltip: loc.text('Sign Out'),
           ),
         ],
       ),
@@ -168,7 +177,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                                   Expanded(
                                     child: _buildStatCard(
                                       '${_orderStats!['active_orders']}',
-                                      'Active Orders',
+                                      loc.text('Active Orders'),
                                       const Color(0xFF61DAFB), // Light blue matching website
                                       Icons.shopping_cart,
                                     ),
@@ -177,7 +186,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                                   Expanded(
                                     child: _buildStatCard(
                                       '${_orderStats!['completed_orders']}',
-                                      'Completed Orders',
+                                      loc.text('Completed Orders'),
                                       Colors.green,
                                       Icons.check_circle,
                                     ),
@@ -190,7 +199,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                                   Expanded(
                                     child: _buildStatCard(
                                       '${_orderStats!['pending_deliveries']}',
-                                      'Pending Deliveries',
+                                      loc.text('Pending Deliveries'),
                                       Colors.orange,
                                       Icons.local_shipping,
                                     ),
@@ -199,7 +208,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                                   Expanded(
                                     child: _buildStatCard(
                                       '${_orderStats!['total_revenue']!.toStringAsFixed(0)} ₸',
-                                      'Total Revenue',
+                                      loc.text('Total Revenue'),
                                       const Color(0xFF9C27B0), // Purple matching website
                                       Icons.attach_money,
                                     ),
@@ -247,9 +256,9 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                     color: const Color(0xFF20232A), // Black bar matching website
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    'Quick Actions',
-                    style: TextStyle(
+                  Text(
+                    loc.text('Quick Actions'),
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF20232A),
@@ -277,7 +286,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                             Expanded(
                               child: _buildQuickActionButton(
                                 context,
-                                'My Catalog',
+                                loc.text('My Catalog'),
                                 Icons.inventory_2,
                                 () {
                                   Navigator.push(
@@ -293,7 +302,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                             Expanded(
                               child: _buildQuickActionButton(
                                 context,
-                                'Products',
+                                loc.text('Products'),
                                 Icons.category,
                                 () {
                                   final userId = authProvider.user?.id ?? '';
@@ -318,9 +327,9 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                       Row(
                         children: [
                           Expanded(
-                            child: _buildQuickActionButton(
-                              context,
-                              'Order Management',
+                              child: _buildQuickActionButton(
+                                context,
+                                loc.text('Order Management'),
                               Icons.shopping_cart,
                               () async {
                                 // Preload orders before navigating
@@ -344,7 +353,7 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                             Expanded(
                               child: _buildQuickActionButton(
                                 context,
-                                'Company Management',
+                                loc.text('Company Management'),
                                 Icons.business,
                                 () {
                                   Navigator.push(
@@ -368,9 +377,9 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                       Row(
                         children: [
                           Expanded(
-                            child: _buildQuickActionButton(
-                              context,
-                              'Chats',
+                              child: _buildQuickActionButton(
+                                context,
+                                loc.text('Chats'),
                               Icons.chat,
                               () {
                                 Navigator.push(
@@ -384,9 +393,9 @@ class _SupplierDashboardState extends State<SupplierDashboard> {
                           ),
                           const SizedBox(width: 12),
                           Expanded(
-                            child: _buildQuickActionButton(
-                              context,
-                              'Complaints',
+                              child: _buildQuickActionButton(
+                                context,
+                                loc.text('Complaints'),
                               Icons.report_problem,
                               () {
                                 Navigator.push(

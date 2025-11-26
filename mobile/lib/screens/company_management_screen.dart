@@ -4,6 +4,8 @@ import '../providers/staff_provider.dart';
 import '../providers/auth_provider.dart';
 import '../models/staff_member.dart';
 import '../utils/constants.dart';
+import '../utils/localization.dart';
+import '../widgets/language_switcher.dart';
 
 // CompanyManagementScreen - allows Owner to manage company employees
 class CompanyManagementScreen extends StatefulWidget {
@@ -29,8 +31,9 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
       if (authProvider.user?.role != UserRole.owner) {
         Navigator.pop(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Only owners can access Company Management'),
+          SnackBar(
+            content: Text(AppLocalizations.of(context)
+                .text('Only owners can access Company Management')),
             backgroundColor: Colors.red,
           ),
         );
@@ -178,18 +181,26 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
         backgroundColor: const Color(0xFFF5E6E6),
-        title: const Text(
-          'Company Management',
-          style: TextStyle(
+        title: Text(
+          loc.text('Company Management'),
+          style: const TextStyle(
             color: Color(0xFF20232A),
             fontWeight: FontWeight.bold,
           ),
         ),
         elevation: 0,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16.0),
+            child: LanguageSwitcher(),
+          ),
+        ],
       ),
       body: Consumer<StaffProvider>(
         builder: (context, staffProvider, child) {
@@ -206,9 +217,9 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Company Management',
-                        style: TextStyle(
+                      Text(
+                        loc.text('Company Management'),
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF20232A),
@@ -231,7 +242,7 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
                                 width: 20,
                                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                               )
-                            : const Text('Refresh'),
+                            : Text(loc.text('Refresh')),
                       ),
                     ],
                   ),
@@ -255,7 +266,7 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Current Employees (${employees.length})',
+                                  '${loc.text('Current Employees')} (${employees.length})',
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -271,12 +282,14 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
                                     ),
                                   )
                                 else if (employees.isEmpty)
-                                  const Center(
+                                  Center(
                                     child: Padding(
-                                      padding: EdgeInsets.all(24.0),
+                                      padding: const EdgeInsets.all(24.0),
                                       child: Text(
-                                        'No employees assigned to your company yet.',
-                                        style: TextStyle(color: Colors.grey),
+                                        loc.text(
+                                            'No employees assigned to your company yet.'),
+                                        style:
+                                            const TextStyle(color: Colors.grey),
                                         textAlign: TextAlign.center,
                                       ),
                                     ),
@@ -306,7 +319,7 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Text(
-                                  'Available to Assign (${_unassignedUsers.length})',
+                                  '${loc.text('Available to Assign')} (${_unassignedUsers.length})',
                                   style: const TextStyle(
                                     fontSize: 18,
                                     fontWeight: FontWeight.bold,
@@ -314,9 +327,10 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
                                   ),
                                 ),
                                 const SizedBox(height: 8),
-                                const Text(
-                                  'Managers and Sales Representatives who are not yet assigned to any company.',
-                                  style: TextStyle(
+                                Text(
+                                  loc.text(
+                                      'Managers and Sales Representatives who are not yet assigned to any company.'),
+                                  style: const TextStyle(
                                     fontSize: 12,
                                     color: Color(0xFF666666),
                                   ),
@@ -330,12 +344,13 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
                                     ),
                                   )
                                 else if (_unassignedUsers.isEmpty)
-                                  const Center(
+                                  Center(
                                     child: Padding(
-                                      padding: EdgeInsets.all(24.0),
+                                      padding: const EdgeInsets.all(24.0),
                                       child: Text(
-                                        'No unassigned users available.',
-                                        style: TextStyle(color: Colors.grey),
+                                        loc.text('No unassigned users available.'),
+                                        style:
+                                            const TextStyle(color: Colors.grey),
                                         textAlign: TextAlign.center,
                                       ),
                                     ),
@@ -363,6 +378,7 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
 
   Widget _buildEmployeeCard(StaffMember employee, {required bool isUnassigned}) {
     final isLoading = _actionLoadingId == employee.id;
+    final loc = AppLocalizations.of(context);
 
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
@@ -436,7 +452,9 @@ class _CompanyManagementScreenState extends State<CompanyManagementScreen> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
-                    : Text(isUnassigned ? 'Assign to Company' : 'Remove'),
+                    : Text(isUnassigned
+                        ? loc.text('Assign to Company')
+                        : loc.text('Remove')),
               ),
             ),
           ],

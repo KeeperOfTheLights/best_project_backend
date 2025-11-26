@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/link_request_provider.dart';
 import '../models/link_request.dart';
+import '../utils/localization.dart';
+import '../widgets/language_switcher.dart';
 
 // ManageLinkRequestsScreen - allows suppliers to view and manage incoming link requests
 class ManageLinkRequestsScreen extends StatefulWidget {
@@ -137,9 +139,17 @@ class _ManageLinkRequestsScreenState extends State<ManageLinkRequestsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Link Requests'),
+        title: Text(loc.text('Link Requests')),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16.0),
+            child: LanguageSwitcher(),
+          ),
+        ],
       ),
       body: Consumer<LinkRequestProvider>(
         builder: (context, provider, child) {

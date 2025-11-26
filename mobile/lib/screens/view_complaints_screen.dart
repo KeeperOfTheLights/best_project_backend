@@ -5,6 +5,8 @@ import '../providers/order_provider.dart';
 import '../models/complaint.dart';
 import '../models/order.dart';
 import 'chat_room_screen.dart';
+import '../utils/localization.dart';
+import '../widgets/language_switcher.dart';
 
 // ViewComplaintsScreen - allows consumers to view and create complaints
 class ViewComplaintsScreen extends StatefulWidget {
@@ -55,16 +57,16 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
     return complaints.where((c) => c.status == _filterStatus).toList();
   }
 
-  String _getStatusLabel(String status) {
+  String _getStatusLabel(String status, AppLocalizations loc) {
     switch (status.toLowerCase()) {
       case 'pending':
-        return 'Pending';
+        return loc.text('Pending');
       case 'resolved':
-        return 'Resolved';
+        return loc.text('Resolved');
       case 'rejected':
-        return 'Rejected';
+        return loc.text('Rejected');
       case 'escalated':
-        return 'Escalated';
+        return loc.text('Escalated');
       default:
         return status;
     }
@@ -92,18 +94,20 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
         backgroundColor: const Color(0xFFF5E6E6),
-        title: const Text(
-          'My Complaints',
-          style: TextStyle(
+        title: Text(
+          loc.text('My Complaints'),
+          style: const TextStyle(
             color: Color(0xFF20232A),
             fontWeight: FontWeight.bold,
           ),
         ),
         elevation: 0,
+        actions: const [LanguageSwitcher()],
       ),
       body: Consumer2<ComplaintProvider, OrderProvider>(
         builder: (context, complaintProvider, orderProvider, child) {
@@ -121,9 +125,9 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'My Complaints',
-                        style: TextStyle(
+                      Text(
+                        loc.text('My Complaints'),
+                        style: const TextStyle(
                           fontSize: 24,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF20232A),
@@ -139,7 +143,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
                           backgroundColor: _showForm ? Colors.grey : const Color(0xFF61DAFB),
                           foregroundColor: Colors.white,
                         ),
-                        child: Text(_showForm ? 'Cancel' : 'New Complaint'),
+                        child: Text(_showForm ? loc.text('Cancel') : loc.text('New Complaint')),
                       ),
                     ],
                   ),
@@ -155,7 +159,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
                       ),
                       child: Padding(
                         padding: const EdgeInsets.all(16.0),
-                        child: _buildComplaintForm(orderProvider, complaintProvider),
+                        child: _buildComplaintForm(orderProvider, complaintProvider, loc),
                       ),
                     ),
 
@@ -166,15 +170,15 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
-                        _buildFilterTab('all', counts['all'] ?? 0, _filterStatus == 'all'),
+                        _buildFilterTab('all', counts['all'] ?? 0, _filterStatus == 'all', loc),
                         const SizedBox(width: 8),
-                        _buildFilterTab('pending', counts['pending'] ?? 0, _filterStatus == 'pending'),
+                        _buildFilterTab('pending', counts['pending'] ?? 0, _filterStatus == 'pending', loc),
                         const SizedBox(width: 8),
-                        _buildFilterTab('resolved', counts['resolved'] ?? 0, _filterStatus == 'resolved'),
+                        _buildFilterTab('resolved', counts['resolved'] ?? 0, _filterStatus == 'resolved', loc),
                         const SizedBox(width: 8),
-                        _buildFilterTab('rejected', counts['rejected'] ?? 0, _filterStatus == 'rejected'),
+                        _buildFilterTab('rejected', counts['rejected'] ?? 0, _filterStatus == 'rejected', loc),
                         const SizedBox(width: 8),
-                        _buildFilterTab('escalated', counts['escalated'] ?? 0, _filterStatus == 'escalated'),
+                        _buildFilterTab('escalated', counts['escalated'] ?? 0, _filterStatus == 'escalated', loc),
                       ],
                     ),
                   ),
@@ -200,7 +204,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
                             onPressed: () {
                               complaintProvider.loadComplaints();
                             },
-                            child: const Text('Retry'),
+                            child: Text(loc.text('Retry')),
                           ),
                         ],
                       ),
@@ -214,15 +218,15 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
                           children: [
                             const Icon(Icons.report_problem_outlined, size: 64, color: Colors.grey),
                             const SizedBox(height: 16),
-                            const Text(
-                              'No complaints found for this status.',
-                              style: TextStyle(color: Colors.grey, fontSize: 16),
+                            Text(
+                              loc.text('No complaints found for this status.'),
+                              style: const TextStyle(color: Colors.grey, fontSize: 16),
                             ),
                             if (complaints.isEmpty) ...[
                               const SizedBox(height: 8),
-                              const Text(
-                                'Create a complaint by clicking "New Complaint" above.',
-                                style: TextStyle(color: Colors.grey, fontSize: 14),
+                              Text(
+                                loc.text('Create a complaint by clicking "New Complaint" above.'),
+                                style: const TextStyle(color: Colors.grey, fontSize: 14),
                                 textAlign: TextAlign.center,
                               ),
                             ],
@@ -231,7 +235,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
                       ),
                     )
                   else
-                    ...filteredComplaints.map((complaint) => _buildComplaintCard(complaint)),
+                    ...filteredComplaints.map((complaint) => _buildComplaintCard(complaint, loc)),
                 ],
               ),
             ),
@@ -241,7 +245,22 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
     );
   }
 
-  Widget _buildFilterTab(String status, int count, bool isActive) {
+  Widget _buildFilterTab(String status, int count, bool isActive, AppLocalizations loc) {
+    String label;
+    if (status == 'all') {
+      label = loc.text('All');
+    } else if (status == 'pending') {
+      label = loc.text('Pending');
+    } else if (status == 'resolved') {
+      label = loc.text('Resolved');
+    } else if (status == 'rejected') {
+      label = loc.text('Rejected');
+    } else if (status == 'escalated') {
+      label = loc.text('Escalated');
+    } else {
+      label = status[0].toUpperCase() + status.substring(1);
+    }
+    
     return InkWell(
       onTap: () {
         setState(() {
@@ -258,7 +277,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
           ),
         ),
         child: Text(
-          '${status[0].toUpperCase()}${status.substring(1)}${count > 0 ? ' ($count)' : ''}',
+          '$label${count > 0 ? ' ($count)' : ''}',
           style: TextStyle(
             color: isActive ? Colors.white : const Color(0xFF20232A),
             fontWeight: FontWeight.w500,
@@ -268,15 +287,15 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
     );
   }
 
-  Widget _buildComplaintForm(OrderProvider orderProvider, ComplaintProvider complaintProvider) {
+  Widget _buildComplaintForm(OrderProvider orderProvider, ComplaintProvider complaintProvider, AppLocalizations loc) {
     return Form(
       key: _formKey,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Submit a New Complaint',
-            style: TextStyle(
+          Text(
+            loc.text('Submit a New Complaint'),
+            style: const TextStyle(
               fontSize: 18,
               fontWeight: FontWeight.bold,
               color: Color(0xFF20232A),
@@ -285,15 +304,15 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
           const SizedBox(height: 16),
           // Order Selector
           DropdownButtonFormField<String>(
-            decoration: const InputDecoration(
-              labelText: 'Select Order',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: loc.text('Select Order'),
+              border: const OutlineInputBorder(),
             ),
             value: _selectedOrderId,
             items: [
-              const DropdownMenuItem(
+              DropdownMenuItem(
                 value: null,
-                child: Text('-- Select an order --'),
+                child: Text(loc.text('-- Select an order --')),
               ),
               ...orderProvider.orders.map((order) {
                 return DropdownMenuItem(
@@ -309,7 +328,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
             },
             validator: (value) {
               if (value == null) {
-                return 'Please select an order';
+                return loc.text('Please select an order');
               }
               return null;
             },
@@ -337,12 +356,17 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
                     color: Colors.grey[50],
                     borderRadius: BorderRadius.circular(8),
                   ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text('Supplier: ${order.supplierName ?? "Unknown"}'),
-                      Text('Total: ${order.totalAmount.toStringAsFixed(2)} ₸'),
-                    ],
+                  child: Builder(
+                    builder: (context) {
+                      final loc = AppLocalizations.of(context);
+                      return Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text('${loc.text('Supplier')}: ${order.supplierName ?? loc.text('Unknown')}'),
+                          Text('${loc.text('Total')}: ${order.totalAmount.toStringAsFixed(2)} ₸'),
+                        ],
+                      );
+                    },
                   ),
                 );
               },
@@ -352,14 +376,14 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
           // Complaint Title
           TextFormField(
             controller: _titleController,
-            decoration: const InputDecoration(
-              labelText: 'Complaint Title',
-              hintText: 'e.g., Late delivery, Wrong product, etc.',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: loc.text('Complaint Title'),
+              hintText: loc.text('e.g., Late delivery, Wrong product, etc.'),
+              border: const OutlineInputBorder(),
             ),
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter a complaint title';
+                return loc.text('Please enter a complaint title');
               }
               return null;
             },
@@ -368,15 +392,15 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
           // Description
           TextFormField(
             controller: _descriptionController,
-            decoration: const InputDecoration(
-              labelText: 'Description',
-              hintText: 'Describe your complaint in detail...',
-              border: OutlineInputBorder(),
+            decoration: InputDecoration(
+              labelText: loc.text('Description'),
+              hintText: loc.text('Describe your complaint in detail...'),
+              border: const OutlineInputBorder(),
             ),
             maxLines: 5,
             validator: (value) {
               if (value == null || value.trim().isEmpty) {
-                return 'Please enter a description';
+                return loc.text('Please enter a description');
               }
               return null;
             },
@@ -395,7 +419,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
                     _selectedOrderId = null;
                   });
                 },
-                child: const Text('Cancel'),
+                child: Text(loc.text('Cancel')),
               ),
               const SizedBox(width: 8),
               ElevatedButton(
@@ -418,15 +442,15 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
                                 _selectedOrderId = null;
                               });
                               ScaffoldMessenger.of(context).showSnackBar(
-                                const SnackBar(
-                                  content: Text('Complaint submitted successfully'),
+                                SnackBar(
+                                  content: Text(loc.text('Complaint submitted successfully')),
                                   backgroundColor: Colors.green,
                                 ),
                               );
                             } else {
                               ScaffoldMessenger.of(context).showSnackBar(
                                 SnackBar(
-                                  content: Text(complaintProvider.errorMessage ?? 'Failed to submit complaint'),
+                                  content: Text(complaintProvider.errorMessage ?? loc.text('Failed to submit complaint')),
                                   backgroundColor: Colors.red,
                                 ),
                               );
@@ -444,7 +468,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
                         width: 20,
                         child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                       )
-                    : const Text('Submit Complaint'),
+                    : Text(loc.text('Submit Complaint')),
               ),
             ],
           ),
@@ -453,7 +477,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
     );
   }
 
-  Widget _buildComplaintCard(Complaint complaint) {
+  Widget _buildComplaintCard(Complaint complaint, AppLocalizations loc) {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       color: Colors.white,
@@ -491,7 +515,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
                     borderRadius: BorderRadius.circular(12),
                   ),
                   child: Text(
-                    _getStatusLabel(complaint.status),
+                    _getStatusLabel(complaint.status, loc),
                     style: TextStyle(
                       color: _getStatusColor(complaint.status),
                       fontWeight: FontWeight.bold,
@@ -504,7 +528,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
             const SizedBox(height: 12),
             // Complaint Info
             Text(
-              'Supplier: ${complaint.supplierName ?? "Unknown"}',
+              '${loc.text('Supplier')}: ${complaint.supplierName ?? loc.text('Unknown')}',
               style: const TextStyle(
                 fontSize: 14,
                 color: Color(0xFF666666),
@@ -512,7 +536,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
             ),
             const SizedBox(height: 4),
             Text(
-              'Order ID: #${complaint.orderId}',
+              '${loc.text('Order ID')}: #${complaint.orderId}',
               style: const TextStyle(
                 fontSize: 14,
                 color: Color(0xFF666666),
@@ -528,7 +552,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
             ),
             const SizedBox(height: 8),
             Text(
-              'Created: ${_formatDate(complaint.createdAt)}',
+              '${loc.text('Created')}: ${_formatDate(complaint.createdAt)}',
               style: const TextStyle(
                 fontSize: 12,
                 color: Color(0xFF666666),
@@ -546,7 +570,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
                     MaterialPageRoute(
                       builder: (context) => ChatRoomScreen(
                         chatRoomId: complaint.supplierId,
-                        otherPartyName: complaint.supplierName ?? 'Supplier',
+                        otherPartyName: complaint.supplierName ?? loc.text('Supplier'),
                         otherPartyType: 'Supplier',
                       ),
                     ),
@@ -557,7 +581,7 @@ class _ViewComplaintsScreenState extends State<ViewComplaintsScreen> {
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 12),
                 ),
-                child: const Text('Open Chat'),
+                child: Text(loc.text('Open Chat')),
               ),
             ),
           ],

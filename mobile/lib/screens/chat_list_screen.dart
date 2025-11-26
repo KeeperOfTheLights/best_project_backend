@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
 import '../utils/constants.dart';
+import '../utils/localization.dart';
+import '../widgets/language_switcher.dart';
 import '../models/link_request.dart';
 import '../services/link_request_service.dart';
 import 'chat_room_screen.dart';
@@ -101,19 +103,26 @@ class _ChatListScreenState extends State<ChatListScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final isConsumer = authProvider.user?.role == UserRole.consumer;
+    final loc = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
         backgroundColor: const Color(0xFFF5E6E6),
-        title: const Text(
-          'Messages',
-          style: TextStyle(
+        title: Text(
+          loc.text('Messages'),
+          style: const TextStyle(
             color: Color(0xFF20232A),
             fontWeight: FontWeight.bold,
           ),
         ),
         elevation: 0,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16.0),
+            child: LanguageSwitcher(),
+          ),
+        ],
       ),
       body: Column(
         children: [
@@ -124,7 +133,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
             child: TextField(
               controller: _searchController,
               decoration: InputDecoration(
-                hintText: 'Search conversations...',
+                hintText: loc.text('Search conversations...'),
                 prefixIcon: const Icon(Icons.search),
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(8),
@@ -152,7 +161,7 @@ class _ChatListScreenState extends State<ChatListScreen> {
                             const SizedBox(height: 16),
                             ElevatedButton(
                               onPressed: _loadLinkedPartners,
-                              child: const Text('Retry'),
+                              child: Text(loc.text('Retry')),
                             ),
                           ],
                         ),
@@ -164,15 +173,15 @@ class _ChatListScreenState extends State<ChatListScreen> {
                               children: [
                                 const Icon(Icons.chat_bubble_outline, size: 64, color: Colors.grey),
                                 const SizedBox(height: 16),
-                                const Text(
-                                  'No chats yet',
-                                  style: TextStyle(color: Colors.grey, fontSize: 16),
+                                Text(
+                                  loc.text('No chats yet'),
+                                  style: const TextStyle(color: Colors.grey, fontSize: 16),
                                 ),
                                 const SizedBox(height: 8),
                                 Text(
                                   isConsumer
-                                      ? 'Start chatting with your linked suppliers'
-                                      : 'Start chatting with your linked consumers',
+                                      ? loc.text('Start chatting with your linked suppliers')
+                                      : loc.text('Start chatting with your linked consumers'),
                                   style: const TextStyle(color: Colors.grey, fontSize: 12),
                                   textAlign: TextAlign.center,
                                 ),

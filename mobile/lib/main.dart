@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:provider/provider.dart';
 import 'providers/auth_provider.dart';
 import 'providers/link_request_provider.dart';
@@ -10,6 +11,7 @@ import 'providers/staff_provider.dart';
 import 'providers/supplier_provider.dart';
 import 'providers/complaint_provider.dart';
 import 'providers/search_provider.dart';
+import 'providers/language_provider.dart';
 import 'services/storage_service.dart';
 import 'screens/login_screen.dart';
 import 'screens/consumer_dashboard.dart';
@@ -51,39 +53,57 @@ class MyApp extends StatelessWidget {
           create: (_) => CatalogProvider(),
         ),
                 // OrderProvider - manages orders
-                ChangeNotifierProvider(
-                  create: (_) => OrderProvider(),
-                ),
-                // ChatProvider - manages chat
-                ChangeNotifierProvider(
-                  create: (_) => ChatProvider(),
-                ),
-                // StaffProvider - manages staff
-                ChangeNotifierProvider(
-                  create: (_) => StaffProvider(),
-                ),
-                // SupplierProvider - manages suppliers (Sales Management)
-                ChangeNotifierProvider(
-                  create: (_) => SupplierProvider(),
-                ),
-                // ComplaintProvider - manages complaints
-                ChangeNotifierProvider(
-                  create: (_) => ComplaintProvider(),
-                ),
-                // SearchProvider - manages search
-                ChangeNotifierProvider(
-                  create: (_) => SearchProvider(),
-                ),
-              ],
-      child: MaterialApp(
-        title: 'DV',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
-          useMaterial3: true,
+        ChangeNotifierProvider(
+          create: (_) => OrderProvider(),
         ),
-        // Home is determined by AuthWrapper which checks if user is logged in
-        home: const AuthWrapper(),
+                // ChatProvider - manages chat
+        ChangeNotifierProvider(
+          create: (_) => ChatProvider(),
+        ),
+                // StaffProvider - manages staff
+        ChangeNotifierProvider(
+          create: (_) => StaffProvider(),
+        ),
+                // SupplierProvider - manages suppliers (Sales Management)
+        ChangeNotifierProvider(
+          create: (_) => SupplierProvider(),
+        ),
+                // ComplaintProvider - manages complaints
+        ChangeNotifierProvider(
+          create: (_) => ComplaintProvider(),
+        ),
+                // SearchProvider - manages search
+        ChangeNotifierProvider(
+          create: (_) => SearchProvider(),
+        ),
+        // LanguageProvider - manages app language (EN / RU)
+        ChangeNotifierProvider(
+          create: (_) => LanguageProvider(),
+        ),
+      ],
+      child: Consumer<LanguageProvider>(
+        builder: (context, languageProvider, _) {
+          return MaterialApp(
+            title: 'DV',
+            debugShowCheckedModeBanner: false,
+            theme: ThemeData(
+              colorScheme: ColorScheme.fromSeed(seedColor: Colors.grey),
+              useMaterial3: true,
+            ),
+            locale: languageProvider.locale,
+            supportedLocales: const [
+              Locale('en'),
+              Locale('ru'),
+            ],
+            localizationsDelegates: const [
+              GlobalMaterialLocalizations.delegate,
+              GlobalWidgetsLocalizations.delegate,
+              GlobalCupertinoLocalizations.delegate,
+            ],
+            // Home is determined by AuthWrapper which checks if user is logged in
+            home: const AuthWrapper(),
+          );
+        },
       ),
     );
   }

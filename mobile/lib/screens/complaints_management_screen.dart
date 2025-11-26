@@ -4,6 +4,8 @@ import '../providers/complaint_provider.dart';
 import '../providers/auth_provider.dart';
 import '../models/complaint.dart';
 import '../utils/constants.dart';
+import '../utils/localization.dart';
+import '../widgets/language_switcher.dart';
 import 'chat_room_screen.dart';
 
 // ComplaintsManagementScreen - allows suppliers to manage complaints
@@ -163,19 +165,26 @@ class _ComplaintsManagementScreenState
     final authProvider = Provider.of<AuthProvider>(context);
     final userRole = authProvider.user?.role ?? '';
     final isSales = userRole == UserRole.sales;
+    final loc = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
         backgroundColor: const Color(0xFFF5E6E6),
-        title: const Text(
-          'Complaints Management',
-          style: TextStyle(
+        title: Text(
+          loc.text('Complaints Management'),
+          style: const TextStyle(
             color: Color(0xFF20232A),
             fontWeight: FontWeight.bold,
           ),
         ),
         elevation: 0,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16.0),
+            child: LanguageSwitcher(),
+          ),
+        ],
       ),
       body: Consumer<ComplaintProvider>(
         builder: (context, complaintProvider, child) {
@@ -198,9 +207,9 @@ class _ComplaintsManagementScreenState
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const Text(
-                              'Complaints Management',
-                              style: TextStyle(
+                            Text(
+                              loc.text('Complaints Management'),
+                              style: const TextStyle(
                                 fontSize: 24,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF20232A),
@@ -209,8 +218,8 @@ class _ComplaintsManagementScreenState
                             const SizedBox(height: 4),
                             Text(
                               isSales
-                                  ? 'Handle customer complaints and escalate when manager review is needed.'
-                                  : 'Review escalated complaints and manage order-related issues.',
+                                  ? loc.text('Handle customer complaints and escalate when manager review is needed.')
+                                  : loc.text('Review escalated complaints and manage order-related issues.'),
                               style: const TextStyle(
                                 fontSize: 14,
                                 color: Color(0xFF666666),
@@ -235,7 +244,7 @@ class _ComplaintsManagementScreenState
                                 width: 20,
                                 child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                               )
-                            : const Text('Refresh'),
+                            : Text(loc.text('Refresh')),
                       ),
                     ],
                   ),
@@ -249,7 +258,7 @@ class _ComplaintsManagementScreenState
                           child: _buildSummaryCard(
                             icon: Icons.hourglass_empty,
                             count: counts['pending'] ?? 0,
-                            label: 'Pending',
+                            label: loc.text('Pending'),
                             color: Colors.orange,
                           ),
                         ),
@@ -258,7 +267,7 @@ class _ComplaintsManagementScreenState
                           child: _buildSummaryCard(
                             icon: Icons.check_circle,
                             count: counts['resolved'] ?? 0,
-                            label: 'Resolved',
+                            label: loc.text('Resolved'),
                             color: Colors.green,
                           ),
                         ),
@@ -267,7 +276,7 @@ class _ComplaintsManagementScreenState
                           child: _buildSummaryCard(
                             icon: Icons.cancel,
                             count: counts['rejected'] ?? 0,
-                            label: 'Rejected',
+                            label: loc.text('Rejected'),
                             color: Colors.red,
                           ),
                         ),
@@ -277,7 +286,7 @@ class _ComplaintsManagementScreenState
                     _buildSummaryCard(
                       icon: Icons.trending_up,
                       count: counts['escalated'] ?? 0,
-                      label: 'Escalated',
+                      label: loc.text('Escalated'),
                       color: Colors.purple,
                     ),
 
@@ -288,16 +297,16 @@ class _ComplaintsManagementScreenState
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
-                        _buildFilterTab('all', counts['all'] ?? 0, _filterStatus == 'all'),
+                        _buildFilterTab(loc, 'all', counts['all'] ?? 0, _filterStatus == 'all'),
                         const SizedBox(width: 8),
                         if (isSales) ...[
-                          _buildFilterTab('pending', counts['pending'] ?? 0, _filterStatus == 'pending'),
+                          _buildFilterTab(loc, 'pending', counts['pending'] ?? 0, _filterStatus == 'pending'),
                           const SizedBox(width: 8),
-                          _buildFilterTab('resolved', counts['resolved'] ?? 0, _filterStatus == 'resolved'),
+                          _buildFilterTab(loc, 'resolved', counts['resolved'] ?? 0, _filterStatus == 'resolved'),
                           const SizedBox(width: 8),
-                          _buildFilterTab('rejected', counts['rejected'] ?? 0, _filterStatus == 'rejected'),
+                          _buildFilterTab(loc, 'rejected', counts['rejected'] ?? 0, _filterStatus == 'rejected'),
                         ] else ...[
-                          _buildFilterTab('escalated', counts['escalated'] ?? 0, _filterStatus == 'escalated'),
+                          _buildFilterTab(loc, 'escalated', counts['escalated'] ?? 0, _filterStatus == 'escalated'),
                         ],
                       ],
                     ),
@@ -318,13 +327,13 @@ class _ComplaintsManagementScreenState
                         children: [
                           const Icon(Icons.error_outline, size: 48, color: Colors.red),
                           const SizedBox(height: 16),
-                          Text(complaintProvider.errorMessage!),
+                            Text(complaintProvider.errorMessage!),
                           const SizedBox(height: 16),
-                          ElevatedButton(
-                            onPressed: () {
-                              complaintProvider.loadComplaints();
-                            },
-                            child: const Text('Retry'),
+                            ElevatedButton(
+                              onPressed: () {
+                                complaintProvider.loadComplaints();
+                              },
+                              child: Text(loc.text('Retry')),
                           ),
                         ],
                       ),
@@ -338,9 +347,9 @@ class _ComplaintsManagementScreenState
                           children: [
                             const Icon(Icons.report_problem_outlined, size: 64, color: Colors.grey),
                             const SizedBox(height: 16),
-                            const Text(
-                              'No complaints found for this status.',
-                              style: TextStyle(color: Colors.grey, fontSize: 16),
+                            Text(
+                              loc.text('No complaints found for this status.'),
+                              style: const TextStyle(color: Colors.grey, fontSize: 16),
                             ),
                           ],
                         ),
@@ -408,7 +417,7 @@ class _ComplaintsManagementScreenState
     );
   }
 
-  Widget _buildFilterTab(String status, int count, bool isActive) {
+  Widget _buildFilterTab(AppLocalizations loc, String status, int count, bool isActive) {
     return InkWell(
       onTap: () {
         setState(() {
@@ -425,7 +434,7 @@ class _ComplaintsManagementScreenState
           ),
         ),
         child: Text(
-          '${status[0].toUpperCase()}${status.substring(1)}${count > 0 ? ' ($count)' : ''}',
+          '${loc.text('${status[0].toUpperCase()}${status.substring(1)}')}${count > 0 ? ' ($count)' : ''}',
           style: TextStyle(
             color: isActive ? Colors.white : const Color(0xFF20232A),
             fontWeight: FontWeight.w500,

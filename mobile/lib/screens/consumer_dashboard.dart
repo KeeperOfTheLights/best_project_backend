@@ -4,6 +4,8 @@ import '../providers/auth_provider.dart';
 import '../providers/cart_provider.dart';
 import '../providers/order_provider.dart';
 import '../services/order_service.dart';
+import '../utils/localization.dart';
+import '../widgets/language_switcher.dart';
 import 'search_suppliers_screen.dart';
 import 'consumer_catalog_main_screen.dart';
 import 'cart_screen.dart';
@@ -57,6 +59,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
   @override
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
+    final loc = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
@@ -82,12 +85,16 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
           ],
         ),
         actions: [
+          const Padding(
+            padding: EdgeInsets.only(right: 8.0),
+            child: LanguageSwitcher(),
+          ),
           IconButton(
             icon: const Icon(Icons.logout, color: Colors.black),
             onPressed: () async {
               await authProvider.logout();
             },
-            tooltip: 'Sign Out',
+            tooltip: loc.text('Sign Out'),
           ),
         ],
       ),
@@ -130,7 +137,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text(
-                        'Welcome back!',
+                            loc.text('Welcome back!'),
                             style: const TextStyle(
                           fontSize: 28,
                               fontWeight: FontWeight.bold,
@@ -138,9 +145,9 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                             ),
                           ),
                           const SizedBox(height: 8),
-                      const Text(
-                        "Here's an overview of your order activity.",
-                        style: TextStyle(
+                      Text(
+                        loc.text("Here's an overview of your order activity."),
+                        style: const TextStyle(
                           fontSize: 14,
                           color: Color(0xFF20232A),
                             ),
@@ -166,7 +173,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                             Expanded(
                               child: _buildStatCard(
                                 '${_orderStats!['completed_orders']}',
-                                'Completed Orders',
+                                loc.text('Completed Orders'),
                                 Colors.green,
                                 Icons.check_circle,
                               ),
@@ -175,7 +182,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                             Expanded(
                               child: _buildStatCard(
                                 '${_orderStats!['in_progress_orders']}',
-                                'Orders in Process',
+                                loc.text('Orders in Process'),
                                 Colors.blue,
                                 Icons.hourglass_empty,
                               ),
@@ -189,7 +196,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                         Expanded(
                           child: _buildStatCard(
                             '${_orderStats!['cancelled_orders']}',
-                            'Cancelled Orders',
+                            loc.text('Cancelled Orders'),
                             Colors.red,
                             Icons.cancel,
                           ),
@@ -198,7 +205,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                         Expanded(
                           child: _buildStatCard(
                             '${_orderStats!['total_spent']!.toStringAsFixed(0)} ₸',
-                            'Total Expenses',
+                            loc.text('Total Expenses'),
                             Colors.orange,
                             Icons.attach_money,
                           ),
@@ -217,9 +224,9 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                     color: const Color(0xFF20232A), // Black bar matching website
                   ),
                   const SizedBox(width: 12),
-                  const Text(
-                    'Quick Actions',
-                    style: TextStyle(
+                  Text(
+                    loc.text('Quick Actions'),
+                    style: const TextStyle(
                       fontSize: 20,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF20232A),
@@ -237,7 +244,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                       Expanded(
                         child: _buildQuickActionButton(
                           context,
-                          'Catalog',
+                          loc.text('Catalog'),
                           Icons.inventory_2,
                           () {
                             Navigator.push(
@@ -253,7 +260,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                       Expanded(
                         child: _buildQuickActionButton(
                           context,
-                          'My Orders',
+                          loc.text('My Orders'),
                           Icons.shopping_cart,
                           () async {
                             // Preload orders before navigating
@@ -279,7 +286,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                       Expanded(
                         child: _buildQuickActionButton(
                           context,
-                          'Search',
+                          loc.text('Search'),
                           Icons.search,
                           () {
                             Navigator.push(
@@ -295,7 +302,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                       Expanded(
                         child: _buildQuickActionButton(
                           context,
-                          'Chat',
+                          loc.text('Chat'),
                           Icons.chat,
                           () {
                             Navigator.push(
@@ -315,7 +322,7 @@ class _ConsumerDashboardState extends State<ConsumerDashboard> {
                       Expanded(
                         child: _buildQuickActionButton(
                           context,
-                          'My Complaints',
+                          loc.text('My Complaints'),
                           Icons.report_problem,
                           () {
                             Navigator.push(

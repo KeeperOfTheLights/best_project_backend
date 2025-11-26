@@ -4,6 +4,8 @@ import '../providers/link_request_provider.dart';
 import '../providers/auth_provider.dart';
 import '../models/link_request.dart';
 import '../utils/constants.dart';
+import '../utils/localization.dart';
+import '../widgets/language_switcher.dart';
 import '../services/link_request_service.dart';
 import 'orders_screen.dart';
 
@@ -207,6 +209,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
   Widget build(BuildContext context) {
     final authProvider = Provider.of<AuthProvider>(context);
     final userRole = authProvider.user?.role ?? '';
+    final loc = AppLocalizations.of(context);
     
     // Only Owners and Managers can view link requests
     if (userRole != UserRole.owner && userRole != UserRole.manager) {
@@ -214,7 +217,13 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
         backgroundColor: const Color(0xFFBFB7B7),
         appBar: AppBar(
           backgroundColor: const Color(0xFFF6DEDE),
-          title: const Text('My Catalog'),
+          title: Text(loc.text('My Catalog')),
+          actions: const [
+            Padding(
+              padding: EdgeInsets.only(right: 16.0),
+              child: LanguageSwitcher(),
+            ),
+          ],
         ),
         body: Center(
           child: Padding(
@@ -224,22 +233,22 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
               children: [
                 const Icon(Icons.lock_outline, size: 64, color: Colors.red),
                 const SizedBox(height: 16),
-                const Text(
-                  'Access Denied',
-                  style: TextStyle(
+                Text(
+                  loc.text('Access Denied'),
+                  style: const TextStyle(
                     fontSize: 24,
                     fontWeight: FontWeight.bold,
                   ),
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Only Owners and Managers can view link requests.',
+                Text(
+                  loc.text('Only Owners and Managers can view link requests.'),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 24),
                 ElevatedButton(
                   onPressed: () => Navigator.pop(context),
-                  child: const Text('Go to Dashboard'),
+                  child: Text(loc.text('Go to Dashboard')),
                 ),
               ],
             ),
@@ -252,13 +261,19 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
       backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
       appBar: AppBar(
         backgroundColor: const Color(0xFFF6DEDE), // Light pink matching website header
-        title: const Text(
-          'My Catalog',
-          style: TextStyle(
+        title: Text(
+          loc.text('My Catalog'),
+          style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16.0),
+            child: LanguageSwitcher(),
+          ),
+        ],
       ),
       body: Consumer<LinkRequestProvider>(
         builder: (context, provider, child) {
@@ -295,18 +310,18 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   // Header
-                  const Text(
-                    'Consumer Link Requests',
-                    style: TextStyle(
+                  Text(
+                    loc.text('Consumer Link Requests'),
+                    style: const TextStyle(
                       fontSize: 28,
                       fontWeight: FontWeight.bold,
                       color: Color(0xFF20232A),
                     ),
                   ),
                   const SizedBox(height: 8),
-                  const Text(
-                    'Manage consumer connections and access',
-                    style: TextStyle(
+                  Text(
+                    loc.text('Manage consumer connections and access'),
+                    style: const TextStyle(
                       fontSize: 14,
                       color: Color(0xFF20232A),
                     ),
@@ -319,7 +334,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
                       Expanded(
                         child: _buildStatCard(
                           counts['pending']!.toString(),
-                          'Pending Requests',
+                          loc.text('Pending Requests'),
                           Colors.orange,
                           Icons.hourglass_empty,
                         ),
@@ -328,7 +343,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
                       Expanded(
                         child: _buildStatCard(
                           counts['linked']!.toString(),
-                          'Linked Consumers',
+                          loc.text('Linked Consumers'),
                           Colors.green,
                           Icons.check_circle,
                         ),
@@ -341,7 +356,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
                       Expanded(
                         child: _buildStatCard(
                           counts['rejected']!.toString(),
-                          'Rejected',
+                          loc.text('Rejected'),
                           Colors.red,
                           Icons.cancel,
                         ),
@@ -350,7 +365,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
                       Expanded(
                         child: _buildStatCard(
                           counts['blocked']!.toString(),
-                          'Blocked',
+                          loc.text('Blocked'),
                           Colors.red[700]!,
                           Icons.block,
                         ),
@@ -364,15 +379,15 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
                     scrollDirection: Axis.horizontal,
                     child: Row(
                       children: [
-                        _buildFilterTab('all', counts['all']!, _filterStatus == 'all'),
+                        _buildFilterTab(loc, 'all', counts['all']!, _filterStatus == 'all'),
                         const SizedBox(width: 8),
-                        _buildFilterTab('pending', counts['pending']!, _filterStatus == 'pending'),
+                        _buildFilterTab(loc, 'pending', counts['pending']!, _filterStatus == 'pending'),
                         const SizedBox(width: 8),
-                        _buildFilterTab('linked', counts['linked']!, _filterStatus == 'linked'),
+                        _buildFilterTab(loc, 'linked', counts['linked']!, _filterStatus == 'linked'),
                         const SizedBox(width: 8),
-                        _buildFilterTab('rejected', counts['rejected']!, _filterStatus == 'rejected'),
+                        _buildFilterTab(loc, 'rejected', counts['rejected']!, _filterStatus == 'rejected'),
                         const SizedBox(width: 8),
-                        _buildFilterTab('blocked', counts['blocked']!, _filterStatus == 'blocked'),
+                        _buildFilterTab(loc, 'blocked', counts['blocked']!, _filterStatus == 'blocked'),
                       ],
                     ),
                   ),
@@ -387,9 +402,9 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
                           children: [
                             const Icon(Icons.inbox_outlined, size: 64, color: Colors.grey),
                             const SizedBox(height: 16),
-                            const Text(
-                              'No requests found',
-                              style: TextStyle(
+                            Text(
+                              loc.text('No requests found'),
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Colors.grey,
@@ -463,7 +478,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
     );
   }
 
-  Widget _buildFilterTab(String status, int count, bool isActive) {
+  Widget _buildFilterTab(AppLocalizations loc, String status, int count, bool isActive) {
     return GestureDetector(
       onTap: () {
         setState(() {
@@ -480,7 +495,7 @@ class _SupplierCatalogMainScreenState extends State<SupplierCatalogMainScreen> {
           ),
         ),
         child: Text(
-          '${status[0].toUpperCase()}${status.substring(1)} ($count)',
+          '${loc.text('${status[0].toUpperCase()}${status.substring(1)}')} ($count)',
           style: TextStyle(
             fontSize: 14,
             fontWeight: FontWeight.w600,

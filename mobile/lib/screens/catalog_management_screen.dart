@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/catalog_provider.dart';
 import '../models/catalog_item.dart';
+import '../utils/localization.dart';
+import '../widgets/language_switcher.dart';
 
 // CatalogManagementScreen - Product Catalog matching website design
 class CatalogManagementScreen extends StatefulWidget {
@@ -146,17 +148,25 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
       appBar: AppBar(
         backgroundColor: const Color(0xFFF6DEDE), // Light pink matching website header
-        title: const Text(
-          'Products',
-          style: TextStyle(
+        title: Text(
+          loc.text('Products'),
+          style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16.0),
+            child: LanguageSwitcher(),
+          ),
+        ],
       ),
       body: Consumer<CatalogProvider>(
         builder: (context, catalogProvider, child) {
@@ -200,9 +210,9 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Product Catalog',
-                        style: TextStyle(
+                    Text(
+                      loc.text('Product Catalog'),
+                      style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF20232A),
@@ -211,7 +221,7 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                       ElevatedButton.icon(
                         onPressed: () => _showAddProductDialog(context, catalogProvider),
                         icon: const Icon(Icons.add, size: 20),
-                        label: const Text('Add New Product'),
+                        label: Text(loc.text('Add New Product')),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF61DAFB), // Light blue matching website
                           foregroundColor: Colors.white,
@@ -238,18 +248,18 @@ class _CatalogManagementScreenState extends State<CatalogManagementScreen> {
                               color: Color(0xFF6B7280),
                             ),
                             const SizedBox(height: 16),
-                            const Text(
-                              'No products yet',
-                              style: TextStyle(
+                            Text(
+                              loc.text('No products yet'),
+                              style: const TextStyle(
                                 fontSize: 18,
                                 fontWeight: FontWeight.bold,
                                 color: Color(0xFF6B7280),
                               ),
                             ),
                             const SizedBox(height: 8),
-                            const Text(
-                              'Add your first product to get started',
-                              style: TextStyle(
+                            Text(
+                              loc.text('Add your first product to get started'),
+                              style: const TextStyle(
                                 color: Color(0xFF6B7280),
                               ),
                             ),

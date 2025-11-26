@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../utils/localization.dart';
+import '../widgets/language_switcher.dart';
 
 // SignUpScreen - the screen where new users create an account
 class SignUpScreen extends StatefulWidget {
@@ -114,10 +116,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Create an Account'),
+        title: Text(loc.text('Create an Account')),
         backgroundColor: Colors.pink[100],
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16.0),
+            child: LanguageSwitcher(),
+          ),
+        ],
       ),
       body: SafeArea(
         child: SingleChildScrollView(
@@ -128,18 +138,18 @@ class _SignUpScreenState extends State<SignUpScreen> {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 // Title and subtitle - matching website
-                const Text(
-                  'Create an Account',
-                  style: TextStyle(
+                Text(
+                  loc.text('Create an Account'),
+                  style: const TextStyle(
                     fontSize: 28,
                     fontWeight: FontWeight.bold,
                   ),
                   textAlign: TextAlign.center,
                 ),
                 const SizedBox(height: 8),
-                const Text(
-                  'Join Daivinvhik today',
-                  style: TextStyle(
+                Text(
+                  loc.text('Join Daivinvhik today'),
+                  style: const TextStyle(
                     fontSize: 16,
                     color: Colors.grey,
                   ),
@@ -150,17 +160,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 // Full Name field
                 TextFormField(
                   controller: _fullNameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Full Name',
-                    hintText: 'Enter your full name',
-                    prefixIcon: Icon(Icons.person),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: loc.text('Full Name'),
+                    hintText: loc.text('Enter your full name'),
+                    prefixIcon: const Icon(Icons.person),
+                    border: const OutlineInputBorder(),
                     filled: true,
                     fillColor: Colors.grey,
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your full name';
+                      return loc.text('Please enter your full name');
                     }
                     return null;
                   },
@@ -170,17 +180,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 // Username field (collected but not sent to backend)
                 TextFormField(
                   controller: _usernameController,
-                  decoration: const InputDecoration(
-                    labelText: 'Username',
-                    hintText: 'Enter your username',
-                    prefixIcon: Icon(Icons.person_outline),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: loc.text('Username'),
+                    hintText: loc.text('Enter your username'),
+                    prefixIcon: const Icon(Icons.person_outline),
+                    border: const OutlineInputBorder(),
                     filled: true,
                     fillColor: Colors.grey,
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a username';
+                      return loc.text('Please enter a username');
                     }
                     return null;
                   },
@@ -191,20 +201,20 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextFormField(
                   controller: _emailController,
                   keyboardType: TextInputType.emailAddress,
-                  decoration: const InputDecoration(
-                    labelText: 'Email Address',
-                    hintText: 'Enter your email',
-                    prefixIcon: Icon(Icons.email),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: loc.text('Email Address'),
+                    hintText: loc.text('Enter your email'),
+                    prefixIcon: const Icon(Icons.email),
+                    border: const OutlineInputBorder(),
                     filled: true,
                     fillColor: Colors.grey,
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter your email';
+                      return loc.text('Please enter your email');
                     }
                     if (!value.contains('@') || !value.contains('.')) {
-                      return 'Please enter a valid email';
+                      return loc.text('Please enter a valid email');
                     }
                     return null;
                   },
@@ -215,17 +225,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextFormField(
                   controller: _passwordController,
                   obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Password',
-                    hintText: 'Enter your password',
-                    prefixIcon: Icon(Icons.lock),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: loc.text('Password'),
+                    hintText: loc.text('Enter your password'),
+                    prefixIcon: const Icon(Icons.lock),
+                    border: const OutlineInputBorder(),
                     filled: true,
                     fillColor: Colors.grey,
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please enter a password';
+                      return loc.text('Please enter a password');
                     }
                     return null; // Password strength checked in _handleSignUp
                   },
@@ -236,17 +246,17 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 TextFormField(
                   controller: _repeatPasswordController,
                   obscureText: true,
-                  decoration: const InputDecoration(
-                    labelText: 'Repeat Password',
-                    hintText: 'Re-enter your password',
-                    prefixIcon: Icon(Icons.lock_outline),
-                    border: OutlineInputBorder(),
+                  decoration: InputDecoration(
+                    labelText: loc.text('Repeat Password'),
+                    hintText: loc.text('Re-enter your password'),
+                    prefixIcon: const Icon(Icons.lock_outline),
+                    border: const OutlineInputBorder(),
                     filled: true,
                     fillColor: Colors.grey,
                   ),
                   validator: (value) {
                     if (value == null || value.isEmpty) {
-                      return 'Please confirm your password';
+                      return loc.text('Please confirm your password');
                     }
                     return null; // Match checked in _handleSignUp
                   },
@@ -254,9 +264,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 const SizedBox(height: 24),
 
                 // Role selection buttons - matching website
-                const Text(
-                  'Select your role:',
-                  style: TextStyle(
+                Text(
+                  loc.text('Select your role:'),
+                  style: const TextStyle(
                     fontSize: 16,
                     fontWeight: FontWeight.bold,
                   ),
@@ -265,11 +275,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: _buildRoleButton('consumer', 'Consumer'),
+                      child: _buildRoleButton('consumer', loc.text('Consumer')),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: _buildRoleButton('owner', 'Owner'),
+                      child: _buildRoleButton('owner', loc.text('Owner')),
                     ),
                   ],
                 ),
@@ -277,11 +287,11 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Row(
                   children: [
                     Expanded(
-                      child: _buildRoleButton('manager', 'Manager'),
+                      child: _buildRoleButton('manager', loc.text('Manager')),
                     ),
                     const SizedBox(width: 8),
                     Expanded(
-                      child: _buildRoleButton('sales', 'Sales Rep'),
+                      child: _buildRoleButton('sales', loc.text('Sales Rep')),
                     ),
                   ],
                 ),
@@ -313,9 +323,9 @@ class _SignUpScreenState extends State<SignUpScreen> {
                                 ),
                               ),
                             )
-                          : const Text(
-                              'Sign Up',
-                              style: TextStyle(
+                          : Text(
+                              loc.text('Sign Up'),
+                              style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                               ),
@@ -329,14 +339,14 @@ class _SignUpScreenState extends State<SignUpScreen> {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    const Text("Do you have an account? "),
+                    Text(loc.text('Do you have an account? ')),
                     TextButton(
                       onPressed: () {
                         Navigator.pop(context);
                       },
-                      child: const Text(
-                        'Login',
-                        style: TextStyle(color: Colors.purple),
+                      child: Text(
+                        loc.text('Login'),
+                        style: const TextStyle(color: Colors.purple),
                       ),
                     ),
                   ],

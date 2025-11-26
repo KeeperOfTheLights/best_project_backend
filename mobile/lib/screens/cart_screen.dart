@@ -3,6 +3,8 @@ import 'package:provider/provider.dart';
 import '../providers/cart_provider.dart';
 import '../providers/link_request_provider.dart';
 import '../models/cart_item.dart';
+import '../utils/localization.dart';
+import '../widgets/language_switcher.dart';
 import 'checkout_screen.dart';
 
 // CartScreen - shows shopping cart with items grouped by supplier
@@ -11,9 +13,17 @@ class CartScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Shopping Cart'),
+        title: Text(loc.text('Shopping Cart')),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16.0),
+            child: LanguageSwitcher(),
+          ),
+        ],
       ),
       body: Consumer<CartProvider>(
         builder: (context, cartProvider, child) {

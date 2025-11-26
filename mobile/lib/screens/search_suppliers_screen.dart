@@ -5,6 +5,8 @@ import '../models/supplier.dart';
 import '../models/catalog_item.dart';
 import '../services/link_request_service.dart';
 import 'consumer_catalog_screen.dart';
+import '../utils/localization.dart';
+import '../widgets/language_switcher.dart';
 
 // SearchScreen - matches website design, searches products and suppliers from linked suppliers only
 class SearchSuppliersScreen extends StatefulWidget {
@@ -43,8 +45,9 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
   void _handleSupplierClick(Supplier supplier) {
     final supplierName = supplier.fullName ?? supplier.companyName;
     if (supplierName.isEmpty) {
+      final loc = AppLocalizations.of(context);
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Supplier name not available')),
+        SnackBar(content: Text('${loc.text('Supplier')} ${loc.text('name not available')}')),
       );
       return;
     }
@@ -162,9 +165,10 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
     } else {
       // Could not find supplier - show error
       if (mounted) {
+        final loc = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Could not find supplier for this product. Supplier: ${product.supplierName ?? "Unknown"}'),
+            content: Text('${loc.text('Could not find supplier for this product. Supplier: ')}${product.supplierName ?? loc.text('Unknown')}'),
             duration: const Duration(seconds: 3),
           ),
         );
@@ -174,6 +178,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5), // Light gray background matching website
       appBar: AppBar(
@@ -183,14 +188,15 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
           icon: const Icon(Icons.arrow_back, color: Color(0xFF20232A)),
           onPressed: () => Navigator.pop(context),
         ),
-        title: const Text(
-          'Search',
-          style: TextStyle(
+        title: Text(
+          loc.text('Search'),
+          style: const TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
             color: Color(0xFF20232A),
           ),
         ),
+        actions: const [LanguageSwitcher()],
       ),
       body: Consumer<SearchProvider>(
         builder: (context, searchProvider, child) {
@@ -208,19 +214,19 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                       color: Color(0xFF666666),
                     ),
                     const SizedBox(height: 24),
-                    const Text(
-                      'No Linked Suppliers',
-                      style: TextStyle(
+                    Text(
+                      loc.text('No Linked Suppliers'),
+                      style: const TextStyle(
                         fontSize: 20,
                         fontWeight: FontWeight.bold,
                         color: Color(0xFF20232A),
                       ),
                     ),
                     const SizedBox(height: 16),
-                    const Text(
-                      'You need to have at least one accepted link request to search for products and suppliers.',
+                    Text(
+                      loc.text('You need to have at least one accepted link request to search for products and suppliers.'),
                       textAlign: TextAlign.center,
-                      style: TextStyle(
+                      style: const TextStyle(
                         fontSize: 16,
                         color: Color(0xFF666666),
                       ),
@@ -245,7 +251,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                         child: TextFormField(
                           controller: _searchController,
                           decoration: InputDecoration(
-                            hintText: 'Search suppliers, products...',
+                            hintText: loc.text('Search suppliers, products...'),
                             filled: true,
                             fillColor: Colors.white,
                             border: OutlineInputBorder(
@@ -266,7 +272,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                           onFieldSubmitted: (_) => _performSearch(),
                           validator: (value) {
                             if (value == null || value.trim().isEmpty) {
-                              return 'Please enter a search query';
+                              return loc.text('Please enter a search query');
                             }
                             return null;
                           },
@@ -292,9 +298,9 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                                 ),
                               )
-                            : const Text(
-                                'Search',
-                                style: TextStyle(
+                            : Text(
+                                loc.text('Search'),
+                                style: const TextStyle(
                                   fontSize: 16,
                                   fontWeight: FontWeight.w600,
                                 ),
@@ -342,7 +348,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                     searchProvider.hasResults) ...[
                   // Suppliers Section
                   if (searchProvider.suppliers.isNotEmpty) ...[
-                    _buildSectionTitle('Suppliers (${searchProvider.suppliers.length})'),
+                    _buildSectionTitle('${loc.text('Suppliers (')}${searchProvider.suppliers.length})', loc),
                     const SizedBox(height: 16),
                     ListView.builder(
                       shrinkWrap: true,
@@ -358,7 +364,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
 
                   // Categories Section (if any)
                   if (searchProvider.categories.isNotEmpty) ...[
-                    _buildSectionTitle('Categories (${searchProvider.categories.length})'),
+                    _buildSectionTitle('${loc.text('Categories (')}${searchProvider.categories.length})', loc),
                     const SizedBox(height: 16),
                     Wrap(
                       spacing: 10,
@@ -372,7 +378,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
 
                   // Products Section
                   if (searchProvider.products.isNotEmpty) ...[
-                    _buildSectionTitle('Products (${searchProvider.products.length})'),
+                    _buildSectionTitle('${loc.text('Products (')}${searchProvider.products.length})', loc),
                     const SizedBox(height: 16),
                     LayoutBuilder(
                       builder: (context, constraints) {
@@ -414,16 +420,16 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                     searchProvider.errorMessage == null &&
                     searchProvider.query.isNotEmpty &&
                     !searchProvider.hasResults) ...[
-                  const Center(
+                  Center(
                     child: Padding(
-                      padding: EdgeInsets.all(40.0),
+                      padding: const EdgeInsets.all(40.0),
                       child: Column(
                         children: [
-                          Icon(Icons.search_off, size: 64, color: Color(0xFF999999)),
-                          SizedBox(height: 16),
+                          const Icon(Icons.search_off, size: 64, color: Color(0xFF999999)),
+                          const SizedBox(height: 16),
                           Text(
-                            'No results found',
-                            style: TextStyle(
+                            loc.text('No results found'),
+                            style: const TextStyle(
                               fontSize: 18,
                               color: Color(0xFF666666),
                             ),
@@ -438,16 +444,16 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                 if (!searchProvider.isLoading &&
                     searchProvider.errorMessage == null &&
                     searchProvider.query.isEmpty) ...[
-                  const Center(
+                  Center(
                     child: Padding(
-                      padding: EdgeInsets.all(40.0),
+                      padding: const EdgeInsets.all(40.0),
                       child: Column(
                         children: [
-                          Icon(Icons.search, size: 64, color: Color(0xFF999999)),
-                          SizedBox(height: 16),
+                          const Icon(Icons.search, size: 64, color: Color(0xFF999999)),
+                          const SizedBox(height: 16),
                           Text(
-                            'Search for products and suppliers',
-                            style: TextStyle(
+                            loc.text('Search for products and suppliers'),
+                            style: const TextStyle(
                               fontSize: 18,
                               color: Color(0xFF666666),
                             ),
@@ -465,7 +471,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
     );
   }
 
-  Widget _buildSectionTitle(String title) {
+  Widget _buildSectionTitle(String title, AppLocalizations loc) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -487,6 +493,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
   }
 
   Widget _buildSupplierCard(Supplier supplier) {
+    final loc = AppLocalizations.of(context);
     final name = supplier.fullName ?? supplier.companyName;
     final initials = name.isNotEmpty ? name.substring(0, 1).toUpperCase() : 'S';
     
@@ -554,7 +561,7 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                     ],
                     const SizedBox(height: 4),
                     Text(
-                      supplier.email ?? 'No email',
+                      supplier.email ?? loc.text('No email'),
                       style: const TextStyle(
                         fontSize: 14,
                         color: Color(0xFF999999),
@@ -661,15 +668,20 @@ class _SearchSuppliersScreenState extends State<SearchSuppliersScreen> {
                     ),
                     const SizedBox(height: 2), // Reduced from 3
                     // Supplier
-                    Text(
-                      'by ${product.supplierName ?? 'Supplier'}',
-                      style: const TextStyle(
-                        fontSize: 10, // Reduced from 11
-                        color: Color(0xFF666666),
-                        height: 1.1,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
+                    Builder(
+                      builder: (context) {
+                        final loc = AppLocalizations.of(context);
+                        return Text(
+                          '${loc.text('by ')}${product.supplierName ?? loc.text('Supplier')}',
+                          style: const TextStyle(
+                            fontSize: 10, // Reduced from 11
+                            color: Color(0xFF666666),
+                            height: 1.1,
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        );
+                      },
                     ),
                     const SizedBox(height: 4), // Reduced from 6
                     // Price - Always show

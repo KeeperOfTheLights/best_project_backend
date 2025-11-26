@@ -6,6 +6,8 @@ import '../providers/order_provider.dart';
 import '../models/catalog_item.dart';
 import '../models/cart_item.dart';
 import '../services/cart_service.dart';
+import '../utils/localization.dart';
+import '../widgets/language_switcher.dart';
 
 // ConsumerCatalogScreen - matches website modal design with cart section at bottom
 class ConsumerCatalogScreen extends StatefulWidget {
@@ -91,7 +93,8 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
       await CartService.addToCart(product.id, quantity);
       await _loadCart();
       setState(() {
-        _cartMessage = 'Added $quantity ${product.unit} of ${product.name} to cart.';
+        final loc = AppLocalizations.of(context);
+        _cartMessage = '${loc.text('Added ')}$quantity ${product.unit}${loc.text(' of ')}${product.name}${loc.text(' to cart.')}';
       });
       // Clear message after 3 seconds
       Future.delayed(const Duration(seconds: 3), () {
@@ -161,14 +164,15 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
         .toList();
     
     if (supplierCartItems.isEmpty) {
-            if (mounted) {
-              ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Cart is empty'),
-                  backgroundColor: Colors.red,
-                ),
-              );
-            }
+      if (mounted) {
+        final loc = AppLocalizations.of(context);
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text(loc.text('Cart is empty')),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
       return;
     }
 
@@ -186,7 +190,8 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
         
         // Show success message
         setState(() {
-          _cartMessage = 'Order #$orderId placed successfully.';
+          final loc = AppLocalizations.of(context);
+          _cartMessage = '${loc.text('Order #')}$orderId${loc.text(' placed successfully.')}';
         });
         
         // Reload cart (should be empty now)
@@ -214,17 +219,19 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
       appBar: AppBar(
         backgroundColor: const Color(0xFFF6DEDE),
         title: Text(
-          "${widget.supplierName}'s Catalog",
+          "${widget.supplierName}${loc.text("'s Catalog")}",
           style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: const [LanguageSwitcher()],
       ),
       body: Consumer<CatalogProvider>(
         builder: (context, catalogProvider, child) {
@@ -255,10 +262,10 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                     ),
                               )
                             : products.isEmpty
-                                ? const Center(
+                                ? Center(
                                     child: Text(
-                                      'No products available in this catalog',
-                                      style: TextStyle(color: Colors.grey),
+                                      loc.text('No products available in this catalog'),
+                                      style: const TextStyle(color: Colors.grey),
                                     ),
                                   )
                                 : RefreshIndicator(
@@ -279,6 +286,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                                           quantity,
                                           isInCart,
                                           cartItem?.quantity ?? 0,
+                                          loc,
                                         );
                                       },
                                     ),
@@ -301,6 +309,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
     int quantity,
     bool isInCart,
     int cartQuantity,
+    AppLocalizations loc,
   ) {
     final isLoading = _loadingProductId == product.id;
     final price = product.discountedPrice;
@@ -349,8 +358,8 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                     const Icon(Icons.bar_chart, size: 16, color: Color(0xFF61DAFB)),
                     const SizedBox(width: 4),
                     Text(
-                      'Stock: ${product.stock} ${product.unit}',
-                                            style: const TextStyle(fontSize: 12),
+                      '${loc.text('Stock: ')}${product.stock} ${product.unit}',
+                      style: const TextStyle(fontSize: 12),
                     ),
                   ],
                 ),
@@ -360,19 +369,19 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                     const Icon(Icons.inventory_2, size: 16, color: Colors.brown),
                     const SizedBox(width: 4),
                     Text(
-                      'Min Order: ${product.minOrder} ${product.unit}',
+                      '${loc.text('Min Order: ')}${product.minOrder} ${product.unit}',
                       style: const TextStyle(fontSize: 12),
-                                          ),
-                                      ],
-                                    ),
+                    ),
+                  ],
+                ),
                 if (product.deliveryOption == 'pickup' || product.deliveryOption == 'both')
                   Row(
-                                    mainAxisSize: MainAxisSize.min,
-                                    children: [
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
                       const Icon(Icons.local_shipping, size: 16, color: Colors.brown),
                       const SizedBox(width: 4),
                       Text(
-                        product.deliveryOption == 'pickup' ? 'Pickup' : 'Pickup/Delivery',
+                        product.deliveryOption == 'pickup' ? loc.text('Pickup') : loc.text('Pickup/Delivery'),
                         style: const TextStyle(fontSize: 12),
                       ),
                     ],
@@ -456,7 +465,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                             ),
                           )
                         : Text(
-                            product.stock == 0 ? 'Out of Stock' : 'Add to Cart',
+                            product.stock == 0 ? loc.text('Out of Stock') : loc.text('Add to Cart'),
                             style: const TextStyle(fontWeight: FontWeight.bold),
                           ),
                   ),
@@ -475,14 +484,14 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                     borderRadius: BorderRadius.circular(4),
                   ),
                   child: Text(
-                    '✓ In Cart: $cartQuantity ${product.unit}',
+                    '✓ ${loc.text('In Cart: ')}$cartQuantity ${product.unit}',
                     style: const TextStyle(
                       fontSize: 12,
                       color: Color(0xFF0F5132),
-                                            ),
-                                          ),
-                                        ),
-                                      ),
+                    ),
+                  ),
+                ),
+              ),
                                       ],
         ),
       ),
@@ -490,6 +499,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
   }
 
   Widget _buildCartSection(List<dynamic> supplierCartItems, CartProvider cartProvider) {
+    final loc = AppLocalizations.of(context);
     final total = supplierCartItems.fold<double>(
       0.0,
       (sum, item) => sum + (item.item.discountedPrice * item.quantity),
@@ -517,7 +527,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
               mainAxisAlignment: MainAxisAlignment.spaceBetween,
                                 children: [
                 Text(
-                  'Cart (${supplierCartItems.length} items)',
+                  '${loc.text('Cart (')}${supplierCartItems.length}${loc.text(' items)')}',
                   style: const TextStyle(
                     fontSize: 18,
                     fontWeight: FontWeight.bold,
@@ -569,7 +579,7 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
             Padding(
               padding: const EdgeInsets.all(16.0),
               child: Text(
-                'No items from this supplier yet.',
+                loc.text('No items from this supplier yet.'),
                 style: const TextStyle(
                   color: Colors.grey,
                   fontSize: 14,
@@ -589,9 +599,9 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
-                      const Text(
-                        'Total:',
-                        style: TextStyle(
+                      Text(
+                        loc.text('Total:'),
+                        style: const TextStyle(
                           fontSize: 18,
                           fontWeight: FontWeight.bold,
                           color: Color(0xFF20232A),
@@ -620,9 +630,9 @@ class _ConsumerCatalogScreenState extends State<ConsumerCatalogScreen> {
                           borderRadius: BorderRadius.circular(8),
                         ),
                       ),
-                      child: const Text(
-                        'Proceed to Checkout',
-                        style: TextStyle(
+                      child: Text(
+                        loc.text('Proceed to Checkout'),
+                        style: const TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
                         ),

@@ -3,6 +3,8 @@ import '../services/link_request_service.dart';
 import '../models/supplier.dart';
 import '../models/link_request.dart';
 import 'consumer_catalog_screen.dart';
+import '../utils/localization.dart';
+import '../widgets/language_switcher.dart';
 
 // ConsumerCatalogMainScreen - Supplier Connections page matching website design
 class ConsumerCatalogMainScreen extends StatefulWidget {
@@ -122,18 +124,20 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
       // Reload data after sending request
       await _loadData();
       if (mounted) {
+        final loc = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Link request sent successfully'),
+          SnackBar(
+            content: Text(loc.text('Link request sent successfully')),
             backgroundColor: Colors.green,
           ),
         );
       }
     } catch (e) {
       if (mounted) {
+        final loc = AppLocalizations.of(context);
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to send link request: ${e.toString()}'),
+            content: Text('${loc.text('Failed to send link request: ')}${e.toString()}'),
             backgroundColor: Colors.red,
           ),
         );
@@ -143,6 +147,7 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
     final counts = _getCounts();
     final filteredSuppliers = _getFilteredSuppliers();
 
@@ -150,13 +155,14 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
       backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
       appBar: AppBar(
         backgroundColor: const Color(0xFFF6DEDE), // Light pink matching website header
-        title: const Text(
-          'Supplier Connections',
-          style: TextStyle(
+        title: Text(
+          loc.text('Supplier Connections'),
+          style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: const [LanguageSwitcher()],
       ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
@@ -165,11 +171,11 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
                   child: Column(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                      Text('Error: $_error', style: const TextStyle(color: Colors.red)),
+                      Text('${loc.text("Error")}: $_error', style: const TextStyle(color: Colors.red)),
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: _loadData,
-                        child: const Text('Retry'),
+                        child: Text(loc.text('Retry')),
                       ),
                     ],
                   ),
@@ -182,9 +188,9 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         // Subtitle
-                        const Text(
-                          'Manage your supplier relationships',
-                          style: TextStyle(
+                        Text(
+                          loc.text('Manage your supplier relationships'),
+                          style: const TextStyle(
                             fontSize: 14,
                             color: Color(0xFF20232A),
                           ),
@@ -196,7 +202,7 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
                           children: [
                             Expanded(
                               child: _buildSummaryCard(
-                                'Linked',
+                                loc.text('Linked'),
                                 counts['linked'] ?? 0,
                                 Colors.green,
                                 Icons.check_circle,
@@ -205,7 +211,7 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: _buildSummaryCard(
-                                'Pending',
+                                loc.text('Pending'),
                                 counts['pending'] ?? 0,
                                 Colors.orange,
                                 Icons.hourglass_empty,
@@ -214,7 +220,7 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
                             const SizedBox(width: 12),
                             Expanded(
                               child: _buildSummaryCard(
-                                'Available',
+                                loc.text('Available'),
                                 counts['available'] ?? 0,
                                 Colors.blue,
                                 Icons.search,
@@ -229,11 +235,11 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
                           spacing: 8,
                           runSpacing: 8,
                           children: [
-                            _buildFilterButton('all', counts['all'] ?? 0),
-                            _buildFilterButton('linked', counts['linked'] ?? 0),
-                            _buildFilterButton('pending', counts['pending'] ?? 0),
-                            _buildFilterButton('not_linked', counts['available'] ?? 0),
-                            _buildFilterButton('rejected', counts['rejected'] ?? 0),
+                            _buildFilterButton('all', counts['all'] ?? 0, loc),
+                            _buildFilterButton('linked', counts['linked'] ?? 0, loc),
+                            _buildFilterButton('pending', counts['pending'] ?? 0, loc),
+                            _buildFilterButton('not_linked', counts['available'] ?? 0, loc),
+                            _buildFilterButton('rejected', counts['rejected'] ?? 0, loc),
                           ],
                         ),
                         const SizedBox(height: 24),
@@ -247,9 +253,9 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
                                 children: [
                                   const Icon(Icons.inventory_2_outlined, size: 64, color: Colors.grey),
                                   const SizedBox(height: 16),
-                                  const Text(
-                                    'No suppliers found',
-                                    style: TextStyle(
+                                  Text(
+                                    loc.text('No suppliers found'),
+                                    style: const TextStyle(
                                       color: Colors.grey,
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
@@ -263,6 +269,7 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
                           ...filteredSuppliers.map((supplierWithStatus) => _buildSupplierCard(
                                 supplierWithStatus.supplier,
                                 supplierWithStatus.status,
+                                loc,
                               )),
                       ],
                     ),
@@ -311,8 +318,23 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
     );
   }
 
-  Widget _buildFilterButton(String status, int count) {
+  Widget _buildFilterButton(String status, int count, AppLocalizations loc) {
     final isActive = _filterStatus == status;
+    String label;
+    if (status == 'all') {
+      label = loc.text('All');
+    } else if (status == 'linked') {
+      label = loc.text('Linked');
+    } else if (status == 'pending') {
+      label = loc.text('Pending');
+    } else if (status == 'not_linked') {
+      label = loc.text('not linked');
+    } else if (status == 'rejected') {
+      label = loc.text('rejected');
+    } else {
+      label = status.replaceAll('_', ' ');
+    }
+    
     return InkWell(
       onTap: () {
         setState(() {
@@ -329,7 +351,7 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
           ),
         ),
         child: Text(
-          '${status.replaceAll('_', ' ')} ($count)',
+          '$label ($count)',
           style: TextStyle(
             color: isActive ? const Color(0xFF20232A) : Colors.black,
             fontWeight: isActive ? FontWeight.bold : FontWeight.normal,
@@ -340,7 +362,7 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
     );
   }
 
-  Widget _buildSupplierCard(Supplier supplier, String status) {
+  Widget _buildSupplierCard(Supplier supplier, String status, AppLocalizations loc) {
     // Get initials for logo
     final initials = supplier.companyName.isNotEmpty
         ? supplier.companyName.substring(0, 2).toUpperCase()
@@ -429,9 +451,9 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
-                    'Send Link Request',
-                    style: TextStyle(
+                  child: Text(
+                    loc.text('Send Link Request'),
+                    style: const TextStyle(
                       fontWeight: FontWeight.w600,
                     ),
                   ),
@@ -460,9 +482,9 @@ class _ConsumerCatalogMainScreenState extends State<ConsumerCatalogMainScreen> {
                       borderRadius: BorderRadius.circular(8),
                     ),
                   ),
-                  child: const Text(
-                    'View Catalog',
-                    style: TextStyle(
+                  child: Text(
+                    loc.text('View Catalog'),
+                    style: const TextStyle(
                       fontWeight: FontWeight.w600,
                     ),
                   ),

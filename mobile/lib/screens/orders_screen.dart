@@ -4,6 +4,8 @@ import '../providers/order_provider.dart';
 import '../providers/auth_provider.dart';
 import '../models/order.dart';
 import '../utils/constants.dart';
+import '../utils/localization.dart';
+import '../widgets/language_switcher.dart';
 import 'order_details_screen.dart';
 import 'create_complaint_screen.dart';
 
@@ -269,18 +271,25 @@ class _OrdersScreenState extends State<OrdersScreen> {
     final authProvider = Provider.of<AuthProvider>(context);
     final userRole = authProvider.user?.role ?? '';
     final isCatalogManager = userRole == UserRole.owner || userRole == UserRole.manager;
+    final loc = AppLocalizations.of(context);
 
     return Scaffold(
       backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
       appBar: AppBar(
         backgroundColor: const Color(0xFFF6DEDE), // Light pink matching website header
         title: Text(
-          widget.isConsumer ? 'My Orders' : 'Order Management',
+          widget.isConsumer ? loc.text('My Orders') : loc.text('Order Management'),
           style: const TextStyle(
             color: Colors.black,
             fontWeight: FontWeight.bold,
           ),
         ),
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16.0),
+            child: LanguageSwitcher(),
+          ),
+        ],
       ),
       body: Consumer<OrderProvider>(
         builder: (context, orderProvider, child) {
@@ -295,14 +304,14 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     const Icon(Icons.error_outline, size: 48, color: Colors.red),
                     const SizedBox(height: 16),
                     Text(
-                      'Error: ${orderProvider.errorMessage}',
+                      '${loc.text('Error')}: ${orderProvider.errorMessage}',
                       style: const TextStyle(color: Colors.red),
                       textAlign: TextAlign.center,
                     ),
                     const SizedBox(height: 16),
                     ElevatedButton(
                       onPressed: () => orderProvider.loadOrders(),
-                      child: const Text('Retry'),
+                      child: Text(loc.text('Retry')),
                     ),
                   ],
                 ),
@@ -332,7 +341,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
                       Text(
-                        widget.isConsumer ? 'My Orders' : 'Order Management',
+                        widget.isConsumer ? loc.text('My Orders') : loc.text('Order Management'),
                         style: const TextStyle(
                           fontSize: 28,
                           fontWeight: FontWeight.bold,
@@ -355,7 +364,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                                 ),
                               )
                             : const Icon(Icons.refresh, size: 18),
-                        label: const Text('Refresh'),
+                        label: Text(loc.text('Refresh')),
                         style: ElevatedButton.styleFrom(
                           backgroundColor: const Color(0xFF111827), // Dark gray matching website
                           foregroundColor: Colors.white,
@@ -379,9 +388,10 @@ class _OrdersScreenState extends State<OrdersScreen> {
                       children: [
                         Expanded(
                           child: _buildStatCard(
+                            // Consumer stats labels
                             Icons.hourglass_empty,
                             '${stats['pending']}',
-                            'Pending',
+                            loc.text('Pending'),
                             const Color(0xFFFFF3CD),
                             const Color(0xFF856404),
                           ),
@@ -391,7 +401,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           child: _buildStatCard(
                             Icons.local_shipping,
                             '${stats['inTransit']}',
-                            'Approved',
+                            loc.text('Approved'),
                             const Color(0xFFCFE2FF),
                             const Color(0xFF084298),
                           ),
@@ -405,7 +415,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           child: _buildStatCard(
                             Icons.check_circle,
                             '${stats['delivered']}',
-                            'Delivered',
+                            loc.text('Delivered'),
                             const Color(0xFFD1E7DD),
                             const Color(0xFF0F5132),
                           ),
@@ -415,7 +425,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           child: _buildStatCard(
                             Icons.inventory_2,
                             '${stats['total']}',
-                            'Total Orders',
+                            loc.text('Total Orders'),
                             const Color(0xFFE2E3E5),
                             const Color(0xFF20232A),
                           ),
@@ -430,7 +440,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           child: _buildStatCard(
                             Icons.description,
                             '${stats['pending']}',
-                            'Pending Orders',
+                            loc.text('Pending Orders'),
                             const Color(0xFFFFF3CD),
                             const Color(0xFF856404),
                           ),
@@ -440,7 +450,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           child: _buildStatCard(
                             Icons.settings,
                             '${stats['processing']}',
-                            'Processing',
+                            loc.text('Processing'),
                             const Color(0xFFCFE2FF),
                             const Color(0xFF9C27B0),
                           ),
@@ -454,7 +464,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           child: _buildStatCard(
                             Icons.check_circle,
                             '${stats['completed']}',
-                            'Completed',
+                            loc.text('Completed'),
                             const Color(0xFFD1E7DD),
                             const Color(0xFF0F5132),
                           ),
@@ -464,7 +474,7 @@ class _OrdersScreenState extends State<OrdersScreen> {
                           child: _buildStatCard(
                             Icons.attach_money,
                             _formatCurrency(stats['revenue'] as double),
-                            'Total Revenue',
+                            loc.text('Total Revenue'),
                             const Color(0xFFD1ECF1),
                             const Color(0xFFFFC107),
                           ),
@@ -492,8 +502,8 @@ class _OrdersScreenState extends State<OrdersScreen> {
                               const SizedBox(height: 16),
                               Text(
                                 widget.isConsumer
-                                    ? "You haven't placed any orders yet."
-                                    : "No orders found.",
+                                    ? loc.text("You haven't placed any orders yet.")
+                                    : loc.text("No orders found."),
                                 style: const TextStyle(
                                   fontSize: 16,
                                   color: Color(0xFF6B7280),

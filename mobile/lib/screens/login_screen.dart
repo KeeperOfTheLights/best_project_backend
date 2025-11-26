@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../utils/localization.dart';
+import '../widgets/language_switcher.dart';
 import 'signup_screen.dart';
 
 // LoginScreen - the screen where users enter email and password to login
@@ -55,8 +57,20 @@ class _LoginScreenState extends State<LoginScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final loc = AppLocalizations.of(context);
+
     return Scaffold(
       backgroundColor: const Color(0xFFBFB7B7), // Light gray background matching website
+      appBar: AppBar(
+        backgroundColor: const Color(0xFFF6DEDE),
+        elevation: 0,
+        actions: const [
+          Padding(
+            padding: EdgeInsets.only(right: 16.0),
+            child: LanguageSwitcher(),
+          ),
+        ],
+      ),
       body: SafeArea(
         child: Center(
           child: SingleChildScrollView(
@@ -94,26 +108,26 @@ class _LoginScreenState extends State<LoginScreen> {
                     const SizedBox(height: 24),
 
                     // Title - "Welcome Back"
-                  const Text(
-                      'Welcome Back',
-                    style: TextStyle(
-                        fontSize: 28,
+                  Text(
+                    loc.text('Welcome Back'),
+                    style: const TextStyle(
+                      fontSize: 28,
                       fontWeight: FontWeight.bold,
-                        color: Color(0xFF20232A), // Black text matching website
+                      color: Color(0xFF20232A), // Black text matching website
                     ),
                     textAlign: TextAlign.center,
                   ),
                   const SizedBox(height: 8),
 
                     // Subtitle - "Log in to continue"
-                  const Text(
-                      'Log in to continue',
-                    style: TextStyle(
-                        fontSize: 14,
-                        color: Color(0xFF20232A), // Gray text matching website
-                      ),
-                      textAlign: TextAlign.center,
+                  Text(
+                    loc.text('Log in to continue'),
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Color(0xFF20232A), // Gray text matching website
                     ),
+                    textAlign: TextAlign.center,
+                  ),
                     const SizedBox(height: 24),
 
                     // Error message (shown if login fails)
@@ -133,9 +147,9 @@ class _LoginScreenState extends State<LoginScreen> {
                               style: const TextStyle(
                                 color: Color(0xFFFF4D4F), // Red text
                                 fontSize: 14,
-                    ),
-                    textAlign: TextAlign.center,
-                  ),
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
                           );
                         }
                         return const SizedBox.shrink();
@@ -147,7 +161,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _emailController,
                     keyboardType: TextInputType.emailAddress,
                       decoration: InputDecoration(
-                        hintText: 'Email Address',
+                        hintText: loc.text('Email Address'),
                         filled: true,
                         fillColor: const Color(0xFFB5B5B5), // Gray background matching website
                         border: OutlineInputBorder(
@@ -166,10 +180,10 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your email';
+                        return loc.text('Please enter your email');
                       }
-                        if (!value.contains('@') || !value.contains('.')) {
-                        return 'Please enter a valid email';
+                      if (!value.contains('@') || !value.contains('.')) {
+                        return loc.text('Please enter a valid email');
                       }
                       return null;
                     },
@@ -181,7 +195,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     controller: _passwordController,
                       obscureText: true,
                       decoration: InputDecoration(
-                        hintText: 'Password',
+                        hintText: loc.text('Password'),
                         filled: true,
                         fillColor: const Color(0xFFB5B5B5), // Gray background matching website
                         border: OutlineInputBorder(
@@ -200,7 +214,7 @@ class _LoginScreenState extends State<LoginScreen> {
                     ),
                     validator: (value) {
                       if (value == null || value.isEmpty) {
-                        return 'Please enter your password';
+                        return loc.text('Please enter your password');
                       }
                       return null;
                     },
@@ -228,16 +242,16 @@ class _LoginScreenState extends State<LoginScreen> {
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                   valueColor: AlwaysStoppedAnimation<Color>(
-                                      Color(0xFF20232A),
+                                    Color(0xFF20232A),
                                   ),
                                 ),
                               )
-                            : const Text(
-                                  'Log In',
-                                  style: TextStyle(
-                                    fontSize: 16,
-                                    fontWeight: FontWeight.w600,
-                                  ),
+                            : Text(
+                                loc.text('Log In'),
+                                style: const TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                ),
                               ),
                       );
                     },
@@ -248,9 +262,9 @@ class _LoginScreenState extends State<LoginScreen> {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
-                        const Text(
-                          "Don't have an account yet? ",
-                          style: TextStyle(
+                        Text(
+                          loc.text("Don't have an account yet? "),
+                          style: const TextStyle(
                             fontSize: 14,
                             color: Color(0xFF20232A),
                           ),
@@ -269,9 +283,9 @@ class _LoginScreenState extends State<LoginScreen> {
                             minimumSize: Size.zero,
                             tapTargetSize: MaterialTapTargetSize.shrinkWrap,
                           ),
-                          child: const Text(
-                            'Sign Up',
-                            style: TextStyle(
+                          child: Text(
+                            loc.text('Sign Up'),
+                            style: const TextStyle(
                               fontSize: 14,
                               color: Color(0xFF61DAFB), // Light blue link
                               decoration: TextDecoration.underline,
