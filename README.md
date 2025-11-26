@@ -17,6 +17,7 @@ Full Coverage Report could be found here [htmlcov/index.html](htmlcov/index.html
 
 Firstly to run the project you need to install all plugins in requirements.txt. 
 Then we need to run npm install to install the needed plugins for frontend part.
+We need to run the command "python manage.py seed" to create demo data in database.
 Then we open two terminals. One will start the backend part - server using command " python manage.py runserver", 
 while in the second terminal we firstly write "cd frontend" and then "npm run dev".
 You will see something like this: 
