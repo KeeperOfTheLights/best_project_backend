@@ -5,10 +5,10 @@ class Command(BaseCommand):
     help = "Seed database with demo data"
 
     def handle(self, *args, **kwargs):
-        owner = User.objects.create_user(email="ownerTest@test.com", password="Asdasdasd1!", role="owner")
-        manager = User.objects.create_user(email="managerTest@test.com", password="Asdasdasd1!", role="manager")
-        sales = User.objects.create_user(email="salesTest@test.com", password="Asdasdasd1!", role="sales")
-        consumer = User.objects.create_user(email="consumerTest@test.com", password="Asdasdasd1!", role="consumer")
+        owner = User.objects.create_user(email="owner1Test@test.com", password="Asdasdasd1!", role="owner")
+        manager = User.objects.create_user(email="manager1Test@test.com", password="Asdasdasd1!", role="manager")
+        sales = User.objects.create_user(email="salesTest1@test.com", password="Asdasdasd1!", role="sales")
+        consumer = User.objects.create_user(email="consumerTest1@test.com", password="Asdasdasd1!", role="consumer")
 
         product = Product.objects.create(
             supplier=owner,
