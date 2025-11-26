@@ -4,6 +4,8 @@ import { BrowserRouter } from 'react-router-dom';
 import Login from '../Shared/Login';
 import { AuthProvider } from '../../context/Auth-Context';
 
+// Test for login page. Most crucial one in my opinion. To check if the roles that were set to signed users are right saved.
+
 global.fetch = vi.fn();
 
 const MockLogin = () => (

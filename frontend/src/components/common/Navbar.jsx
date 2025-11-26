@@ -7,6 +7,8 @@ import LanguageSwitcher from "./LanguageSwitcher";
 import reactLogo from "../../assets/Logo.png";
 import "./Navbar.css";
 
+// Navbar that was the first component created for this project by me.
+
 export default function Navbar() {
   const { t } = useTranslation();
   const { isLoggedIn, role, logout, token, loading } = useAuth();

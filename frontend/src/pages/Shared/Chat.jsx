@@ -452,7 +452,7 @@ export default function ChatPage() {
   );
 
   const getAvatarUrl = (name) => {
-    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=61dafb&color=fff`;
+    return `https://ui-avatars.com/api/?name=${encodeURIComponent(name)}&background=61dafb&color=fff`; // Used this site to show first letters of the users. Looks good ig
   };
 
   return (

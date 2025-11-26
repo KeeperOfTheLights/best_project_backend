@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import "./ConsumerCatalog.css";
 import Modal from "../../components/common/modal";
 
-export default function ConsumerLinkManagement() {
+export default function ConsumerLinkManagement() { // Was firstly done as a sepparate file, implemented both functions here.
   const { t } = useTranslation();
   const { token, logout, loading: authLoading } = useAuth();
   const navigate = useNavigate();
