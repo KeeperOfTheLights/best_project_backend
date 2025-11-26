@@ -1,0 +1,55 @@
+name: Django Tests
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:15
+        env:
+          POSTGRES_DB: testdb
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: 123iki123
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd="pg_isready -U postgres"
+          --health-interval=10s
+          --health-timeout=5s
+          --health-retries=5
+
+    env:
+      DATABASE_NAME: testdb
+      DATABASE_USER: postgres
+      DATABASE_PASSWORD: 123iki123
+      DATABASE_HOST: postgres
+      DATABASE_PORT: 5432
+      DEBUG: false
+      SECRET_KEY: test-key
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Python downloading
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.12'
+
+      - name: Install plugins
+        run: pip install -r requirements.txt
+
+      - name: Wait for Postgres
+        run: |
+          sleep 5
+          pg_isready -h postgres -U postgres
+
+      - name: Migrations
+        run: python manage.py migrate --noinput
+
+      - name: Tests
+        run: python manage.py test
