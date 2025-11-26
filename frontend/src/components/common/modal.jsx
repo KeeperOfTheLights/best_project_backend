@@ -2,6 +2,8 @@ import React from "react";
 import { useTranslation } from "react-i18next";
 import "./modal.css";
 
+// For showing this small windows before creating/deleting etc.
+
 export default function Modal({ show, title, text, onConfirm, onCancel, children }) {
   const { t } = useTranslation();
   if (!show) return null;
