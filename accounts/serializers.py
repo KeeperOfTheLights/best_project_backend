@@ -84,9 +84,6 @@ class ProductSerializer(serializers.ModelSerializer):
         if user.role not in ["owner", "manager"]:
             raise serializers.ValidationError("Only Owner and Manager can create products")
 
-        # Use company_owner so Manager's products appear in the list (which filters by company_owner)
-        # For Owner: company_owner = user, for Manager: company_owner = user.company.owner
-        # Duplicate logic here to avoid circular import
         if user.role == "owner":
             company_owner = user
         elif user.company and user.company.owner:
