@@ -1,6 +1,7 @@
 from django.urls import path
 from .views import *
 from rest_framework_simplejwt.views import TokenRefreshView
+from drf_spectacular.views import SpectacularAPIView
 urlpatterns = [
     path('register/', RegisterView.as_view(), name='register'),
     path('login/', LoginView.as_view(), name='login'),
@@ -47,4 +48,5 @@ urlpatterns = [
     path('token/refresh/', TokenRefreshView.as_view(), name='token_refresh'),
     path("canned-replies/", CannedReplyListView.as_view(), name="canned-replies-list"),
     path("canned-replies/<int:pk>/", CannedReplyDetailView.as_view(), name="canned-reply-detail"),
+    path("api/openapi.yaml", SpectacularAPIView.as_view(), name="schema"),
 ]
