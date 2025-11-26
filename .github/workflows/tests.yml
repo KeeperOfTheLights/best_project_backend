@@ -12,7 +12,7 @@ jobs:
       postgres:
         image: postgres:15
         env:
-          POSTGRES_DB: testdb
+          POSTGRES_DB: postgres
           POSTGRES_USER: postgres
           POSTGRES_PASSWORD: 123iki123
         ports:
@@ -24,10 +24,10 @@ jobs:
           --health-retries=5
 
     env:
-      DATABASE_NAME: testdb
+      DATABASE_NAME: postgres
       DATABASE_USER: postgres
       DATABASE_PASSWORD: 123iki123
-      DATABASE_HOST: postgres
+      DATABASE_HOST: localhost
       DATABASE_PORT: 5432
       DEBUG: false
       SECRET_KEY: test-key
@@ -35,21 +35,16 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - name: Python downloading
+      - name: Install Python
         uses: actions/setup-python@v4
         with:
-          python-version: '3.12'
+          python-version: '3.10'
 
-      - name: Install plugins
+      - name: Install dependencies
         run: pip install -r requirements.txt
 
-      - name: Wait for Postgres
-        run: |
-          sleep 5
-          pg_isready -h postgres -U postgres
-
-      - name: Migrations
+      - name: Run migrations
         run: python manage.py migrate --noinput
 
-      - name: Tests
+      - name: Run tests
         run: python manage.py test

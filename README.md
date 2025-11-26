@@ -1,4 +1,4 @@
-![Coverage](https://img.shields.io/badge/Coverage-66%25-brightgreen)
+![Coverage](https://img.shields.io/badge/Coverage-68%25-brightgreen)
 ![Tests](https://img.shields.io/badge/Tests-Passing-success)
 
 | Test Area          | Description                                                                 | Files                |
