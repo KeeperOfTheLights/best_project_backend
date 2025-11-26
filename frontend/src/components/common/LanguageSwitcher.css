@@ -15,7 +15,7 @@
   background: rgba(255, 255, 255, 0.9);
   border: 1px solid rgba(0, 0, 0, 0.15);
   border-radius: 6px;
-  color: #333;
+  color: #403d3d;
   cursor: pointer;
   font-size: 14px;
   transition: all 0.2s ease;
@@ -55,7 +55,7 @@
   top: calc(100% + 4px);
   right: 0;
   background: white;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #d7d0d0;
   border-radius: 8px;
   box-shadow: 0 4px 16px rgba(0, 0, 0, 0.15);
   min-width: 180px;
@@ -86,9 +86,9 @@
   text-align: left;
   cursor: pointer;
   font-size: 14px;
-  color: #333;
+  color: #3a3939;
   transition: background 0.15s ease;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid #e2d8d8;
 }
 
 .language-option:last-child {
@@ -96,17 +96,17 @@
 }
 
 .language-option:hover {
-  background: #f8f8f8;
+  background: #e8e3e3;
 }
 
 .language-option.active {
-  background: #e8f4fd;
-  color: #1976d2;
+  background: #dae5ed;
+  color: #1d71c5;
   font-weight: 500;
 }
 
 .language-option.active:hover {
-  background: #d4ebfc;
+  background: #c0d4e4;
 }
 
 .language-flag {
@@ -118,7 +118,7 @@
 .language-code-small {
   font-weight: 600;
   font-size: 11px;
-  color: #666;
+  color: #6b6767;
   letter-spacing: 0.5px;
   min-width: 32px;
   flex-shrink: 0;
@@ -130,7 +130,7 @@
 }
 
 .language-check {
-  color: #1976d2;
+  color: #1f76cd;
   font-weight: bold;
   font-size: 16px;
   flex-shrink: 0;

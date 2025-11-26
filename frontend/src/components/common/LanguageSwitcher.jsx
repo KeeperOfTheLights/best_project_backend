@@ -8,8 +8,8 @@ export default function LanguageSwitcher() {
   const dropdownRef = useRef(null);
 
   const languages = [
-    { code: 'en', name: 'English', flag: '🇬🇧', displayCode: 'ENG' },
-    { code: 'ru', name: 'Русский', flag: '🇷🇺', displayCode: 'RU' },
+    { code: 'en', name: 'English', displayCode: 'ENG' },
+    { code: 'ru', name: 'Русский', displayCode: 'RU' },
   ];
 
   const changeLanguage = (lng) => {
